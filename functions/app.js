@@ -1,3 +1,5 @@
+const functions = require('firebase-functions')
+const admin = require('firebase-admin')
 const express = require('express')
 const path = require('path')
 const bodyParser = require('body-parser')
@@ -98,8 +100,11 @@ app.use(errorHandler)
 //   res.sendFile(path.join(__dirname, 'frontend_web','build', 'index.html'));
 // });
 
-const server = app.listen(config.PORT, () => {
-    log.info(`Server is running on port ${config.PORT}`)
-})
+//const server = app.listen(config.PORT, () => {
+//    log.info(`Server is running on port ${config.PORT}`)
+//})
 
-module.exports = server
+//module.exports = server
+const api = functions.https.onRequest(app);
+module.exports = api
+
