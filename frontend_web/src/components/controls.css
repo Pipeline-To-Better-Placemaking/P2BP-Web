@@ -1,0 +1,473 @@
+:root {
+    --tabSelectColor:#fed906;
+    --tabSelectBG:#FED90615;
+    --primaryBlue: #006FD6;
+    --secondaryBlue: #00396D;
+}
+
+@media print{
+    div#projectFrame>button.MuiButton-root,
+        button#printButton, div#projectTabs, header.MuiAppBar-root{
+            visibility: hidden;
+        }
+
+    div#mapFrame{
+        break-after: always;
+    }
+
+    div#leftDrawer {
+        overflow-y: hidden;
+    }
+}
+
+@media (max-width: 599px){
+    div.MuiDrawer-paperAnchorLeft,div#leftDrawer,div.MuiDrawer-paperAnchorRight,div#rightDrawer{
+        top: 99px;
+        height: calc(100vh - 99px);
+    }
+    button#printButton{
+        top: 99px;
+    }
+    div#mapFrame {
+        height: calc(100vh - 99px);
+    }
+}
+
+@media (min-width: 600px) {
+    div.MuiDrawer-paperAnchorLeft, div#leftDrawer, div.MuiDrawer-paperAnchorRight, div#rightDrawer {
+        top: 113px;
+        height: calc(100vh - 113px);
+    }
+    button#printButton {
+        top: 113px;
+    }
+
+    div#mapFrame{
+        height: calc(100vh - 113px);
+    }
+}
+
+@media (min-width: 890px) {
+
+    div.MuiDrawer-paperAnchorLeft,
+    div#leftDrawer,
+    div.MuiDrawer-paperAnchorRight,
+    div#rightDrawer {
+        top: 117px;
+        height: calc(100vh - 117px);
+    }
+
+    button#printButton {
+        top: 117px;
+    }
+
+    div#mapFrame {
+        height: calc(100vh - 117px);
+    }
+}
+
+.css-heg063-MuiTabs-flexContainer {
+    justify-content:center;
+
+}
+
+div.css-cveggr-MuiListItemIcon-root {
+    min-width: 42px;
+}
+
+.homeButton {
+    box-shadow: none;
+    color: white;
+}
+
+div#pathBoundWindow, div#deleteWindow{
+    background-color: #00000070;
+    top: 0px;
+    left: 0px;
+    height: 100vh;
+    width:100vw;
+    z-index: 99999;
+    align-content: center;
+}
+
+div#popUpBlock, div#popUpText{
+    background-color: #ffffff;
+    padding: 10px;
+}
+
+div#deleteWindow div#popUpText {
+    text-align: center;
+}
+
+div#popUpText{
+    padding-bottom: 20px;
+}
+
+div#popUpBlock{
+    width: 40vw;
+    height: auto;
+    top: 40vh;
+    border-radius: 5px;
+    box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.5);
+}
+
+div#pathBoundWindow, div#deleteWindow, div#popUpBlock{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+div#deleteWindow button#deleteButton, div#deleteWindow button#cancelButton{
+    width: 30%;
+}
+
+#projTab0 > .MuiBox-root.css-19kzrtu {
+    padding: 0px;
+}
+
+#bottomDrawer, #bottomDrawer > div.MuiPaper-root{
+    top: calc(100vh - 250px);
+    width: calc(100vw - 550px);
+    left: 250px;
+}
+
+#leftButton{
+    left: 250px;
+}
+
+#rightButton {
+    position: relative;
+    left: calc(100vw - 450px)
+}
+
+#newProjectInput, #newAreaBlock, div.newPointBlock, div#editAreaBlock{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 75px;
+    left: 29vw;
+    z-index: 999;
+}
+
+#newSectionButtons, #newProgramButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 118px;
+    z-index: 999;
+}
+
+#newAreaBlock, #newProjPoints, #newAreaBlock, #newProjPoints {
+    flex-direction: column;
+    left: calc(50vw - 15vw);
+}
+
+div.newPointBlock{
+    left: calc(50vw - 97px);
+}
+
+#editAreaBlock{
+    left: calc(50vw - 150px);
+}
+
+#editAreaBlock, div.newPointBlock{
+    top: 130px;
+}
+
+#bottomButton{
+    position: relative;
+    top: calc(100vh - 190px);
+    margin: 0px calc(50vw - 32px);
+    bottom: 0;
+}
+
+button#bottomCloseButton, button#closeButton{
+    width: 100%;
+    z-index: 1000;
+}
+
+#addButton.confirm, .confirm, button.confirm{
+    display: flex;
+    justify-content: center;
+    height: 38px;
+    color:green;
+    background-color: #d6f9d7;
+    border: 1px solid rgba(0, 128, 0, 0.566);
+    align-items: center;
+}
+
+#bottomListBox{
+    margin-top: 30px;
+}
+
+a#siteName{
+    color: white;
+    text-decoration: none;
+}
+
+a#siteName:hover{
+    color: white;
+}
+
+a.css-cjctlb-MuiButtonBase-root-MuiTab-root{
+    color: white;
+}
+
+a.css-cjctlb-MuiButtonBase-root-MuiTab-root:hover {
+    color: var(--tabSelectColor);
+}
+
+a.css-wigwbp.unselected {
+    color: white;
+    opacity: 0.7;
+}
+
+a.css-wigwbp.unselected:hover {
+    color: var(--tabSelectColor);
+}
+
+a.Mui-selected {
+    color: var(--tabSelectColor);
+}
+
+button.css-1h9z7r5-MuiButtonBase-root-MuiTab-root.Mui-selected{
+    color: var(--tabSelectColor);
+}
+
+button.css-1h9z7r5-MuiButtonBase-root-MuiTab-root{
+    color: white;
+}
+
+div.css-1gsv261{
+    background-color: var(--secondaryBlue);
+}
+
+a.newHoveringButtons, button.newHoveringButtons{
+    background-color: #ffffff;
+    margin-left: 5px;
+    z-index: 9999;
+}
+
+a.newHoveringButtons:hover, button.newHoveringButtons:hover {
+    background-color: #daebff;
+}
+
+a#addButton.newHoveringButtons{
+    z-index: 10;
+}
+
+button#placesButton{
+    margin-right: 5px;
+    margin-bottom: 0px;
+}
+
+div#ActivityForm{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: flex-end;
+    padding: 5px;
+    background-color: var(--tabSelectColor);
+}
+
+div.Charts{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+}
+
+div#MapPage div#mapFrame{
+    width:calc(100vw - 1px);
+    top: -73px;
+}
+
+div.MuiDrawer-paperAnchorBottom div.MuiTableContainer-root{
+    margin-top: 35px;
+}
+
+div#rightDrawer.MuiModal-root.MuiDrawer-root.MuiDrawer-modal.css-y28f86{
+    right: 0px;
+    left: calc(100vw - 300px);
+}
+
+div.pac-container.hdpi{
+    overflow: hidden;
+}
+
+div#projectEdit div#mapFrame {
+    top: 0px;
+    width: 50vw;
+    height: 50vh;
+    margin-left: 15px;
+    margin-bottom: 20px;
+}
+
+div#projectCreate div#mapFrame {
+    top: 0px;
+    width: 50vw;
+    height: 50vh;
+    margin-left: 15px;
+    margin-bottom: 20px;
+}
+
+div#newProject div#mapFrame, div#newPoints div#mapFrame, div#newArea div#mapFrame, div#newSection div#mapFrame, div#newProgram div#mapFrame {
+    width: calc(100vw - 1px);
+    height: calc(100vh - 69px);
+}
+
+div#newProjectInput div.MuiFormControl-root {
+    width: 40vw;
+}
+
+div#newProjectInput div.MuiOutlinedInput-root,  div#newProjectInput input#location-search{
+    height: 90%;
+}
+
+div#newProjectInput {
+    left: 20vw;
+}
+
+div#newProgramButtons {
+    left: 20vw;
+}
+
+
+div.MuiDrawer-paperAnchorLeft, div#leftDrawer{
+    width: 250px;
+}
+
+div.MuiDrawer-paperAnchorRight,
+div#rightDrawer{
+    width: 300px;
+}
+
+div.MuiTabs-flexContainer{
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+}
+
+div.sectionName{
+    background-color: #aed5fa;
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+    align-content: center;
+    align-items: center;
+}
+
+div#cardBox {
+    width:100%;
+    height: auto;
+}
+
+div#projectFrame>button.MuiButton-root, button#printButton{
+    z-index: 900;
+    color: #000000e0;
+    background-color: #ffffffc2;
+}
+
+div#projectFrame>button.MuiButton-root:hover, button#printButton:hover {
+    background-color: #ffffff;
+}
+
+button#updateTeamButton{
+   margin-bottom: 5px;
+}
+
+button#printButton {
+    position: absolute;
+    left: calc(50vw - 46px);
+    color: var(--primaryBlue);
+}
+
+div#rightDrawer.css-1u2w381-MuiModal-root-MuiDrawer-root{
+    left: calc(100vw - 300px);
+    right: 0px;
+}
+
+input#locationSearch {
+    height: 40px;
+    width: 40vw;
+    border-color: transparent;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(110, 110, 110, 0.2), 0 6px 20px 0 rgba(110, 110, 110, 0.19);
+}
+
+input#locationSearch:focus-visible {
+    outline: var(--primaryBlue) auto 1px;
+}
+
+select#activitySelect, input.dateTimePickers{
+    width: 23vw;
+    display: block;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    border: 1px solid #dee5ec;
+    border-radius: 0.25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    appearance: none;
+}
+
+span.MuiTabs-indicator{
+    display: flex;
+    justify-content: center;
+    background-color: transparent;
+}
+
+span.MuiTabs-indicatorSpan{
+    max-width: 40px;
+    width: 100%;
+    background-color: var(--tabSelectColor);
+    left: auto;
+    right: auto;
+}
+
+a.homeButton > svg.MuiSvgIcon-root, a.homeButton>svg.css-vubbuv{
+    width: 1.5em;
+    height: auto;
+    transition: width 1s ease-in-out;
+}
+
+a.homeButton > svg.MuiSvgIcon-root:hover, a.homeButton>svg.css-vubbuv:hover {
+    width: 2em;
+    height: auto;
+}
+
+.iconShadow:hover{
+    color: white;
+    -webkit-filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, .7));
+    filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, 0.328));
+}
+
+.subTable th.MuiTableCell-head {
+    background-color: #e2e2e2;
+}
+
+th.catTitle {
+    font-weight: 700;
+}
+
+th.value, th.type, td.value, td.type {
+    width: 15vw;
+}
+
+tr.categories {
+    background-color: #69b2f7;
+}
+
+iframe#printFrame {
+    display: none;
+}

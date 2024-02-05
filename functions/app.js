@@ -93,18 +93,16 @@ app.use(expressSession);
 app.use(errorHandler)
 
 //build is used instead of public because website is made with create-react-app which uses build.
-//app.use(express.static(path.join(__dirname, 'frontend_web/build')));
+app.use(express.static(path.join(__dirname, 'frontend_web/build')));
 
 //* allows a dynamic build of all files in frontend_web
-// app.get('/*', function (req, res) {
-//   res.sendFile(path.join(__dirname, 'frontend_web','build', 'index.html'));
-// });
+ app.get('/*', function (req, res) {
+   res.sendFile(path.join(__dirname, 'frontend_web','build', 'index.html'));
+ });
 
 //const server = app.listen(config.PORT, () => {
 //    log.info(`Server is running on port ${config.PORT}`)
 //})
 
 //module.exports = server
-const api = functions.https.onRequest(app);
-module.exports = api
-
+exports.app = functions.https.onRequest(app);
