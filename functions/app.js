@@ -79,7 +79,7 @@ app.use(passport.session());
 require('./utils/passport.js')(passport)
 
 const expressSession = require('express-session')({
-    secret: config.PRIVATE_KEY,
+    secret: config.FB_API_KEY,
     resave: false,
     saveUninitialized: false,
     cookie: {maxAge: 1000}
