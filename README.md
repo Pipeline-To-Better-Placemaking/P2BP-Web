@@ -1,20 +1,19 @@
 # Pipeline to Better Placemaking (Website) Fall '23 - Spring '24 CS@UCF Senior Design Team
 # Team Members: Sophia Hunt, Jorge Nunez, Kieran Jimenez, Joseph Finrock, Jennifer Daks, Preston Kyle
-## https://p2bp.herokuapp.com
+## https://better-placemaking.web.app
 
 ## Running frontend files locally
-Make sure you are running up-to-date versions of Node.js and npm, 
+Make sure you are running up-to-date versions of Node.js and npm: 
     https://nodejs.org/en/
     
 1. Clone the repository locally/Download the files from the repository. 
-2. Download the ```.env``` file from the OneDrive -> Design Documentation - Fall 2022, SD1 -> Environment Files, rename it accordingly and place it in the root of your project directory
-4. On the command line or terminal within the /frontend_web folder run: ```npm install```
-5. On the command line or terminal within the root directory of your download run: ```npm install```
-6. On the command line or terminal within the root directory of your download run: ```npm start```  
+2. Download the ```.env``` file from the OneDrive -> Design Documentation - Fall 2023 Files, Environment Files. This .env file should be placed within the 'functions' directory.
+4. On the command line or terminal within the /frontend_web folder of your download run: ```npm install```
+5. On the command line or terminal within the /functions folder of your download run: ```npm install```
+6. On the command line or terminal within the /functions folder of your download run: ```npm start```  
    (This will build the /frontend_web project and store a cached version in the frontend_web/build folder. The command will then start the backend server which loads the cached build of the frontend on the same server:port)
 
-
-## Frontend React .js files
+## Frontend React.js Files
 ### Routes
 The structure of the website including the Routes and pathnames are set in App.js and ProjectPage.js
 
@@ -60,4 +59,6 @@ This subdirectory contains all of the APIs for the project
 ### Utils/Middlewares
 Helper files which assist the back-end with tasks from sending emails to error handling.
 ### app.js
-This file is the "server" file for the backend.  This is essentially what "starts and calls" all of the other code.
+This file is the "server" file for the backend.  This is essentially what "starts and calls" all of the other code. This "server" file is powered by Express. The Firebase cloud function "app" handles all HTTP requests/responses.
+
+
