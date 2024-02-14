@@ -9,7 +9,19 @@ const passport = require('passport')
 const config = require('./utils/config')
 const errorHandler = require('./middlewares/error_handler')
 const log = require('./utils/log')
+const firestore = require('./firestore');
 require('express-async-errors')
+
+
+firestore.collection('users').get()
+  .then((snapshot) => {
+    snapshot.forEach((doc) => {
+      console.log(doc.id, '=>', doc.data());
+    });
+  })
+  .catch((error) => {
+    console.error('Error getting documents: ', error);
+  });
 
 
 log.info('Connecting to ', config.DB_URI)

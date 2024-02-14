@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const firestore = require('../firestore');
 
 const Date = mongoose.Schema.Types.Date
 const ObjectId = mongoose.Schema.Types.ObjectId
@@ -102,7 +103,8 @@ const access_schema = mongoose.Schema({
     data: [dataSchema]
 })
 
-const Maps = module.exports = mongoose.model('Access_Maps', access_schema)
+//const Maps = module.exports = mongoose.model('Access_Maps', access_schema)
+const Maps = firestore.collection('access_maps');
 const Entry = mongoose.model('Access_Entry', dataSchema)
 
 module.exports.addMap = async function(newMap) {
@@ -170,7 +172,8 @@ module.exports.removeResearcher = async function(mapId, userId){
     )
 }
 
-module.exports.isResearcher = async function(mapId, userId){
+// Old Mongo function
+/*module.exports.isResearcher = async function(mapId, userId){
     try{
         const doc = await Maps.find(
             {
@@ -185,9 +188,32 @@ module.exports.isResearcher = async function(mapId, userId){
         return false
     }
     return true
+}*/
+
+module.exports.isResearcher = async function(mapId, userId) {
+    try {
+        const mapDoc = await Maps.doc(mapId).get();
+
+        if (!mapDoc.exists) {
+            return false;
+        }
+
+        const mapData = mapDoc.data();
+
+        // Check if the map's researchers array includes the userId
+        if (mapData.researchers && mapData.researchers.includes(userId)) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error checking if user is a researcher:', error);
+        return false;
+    }
 }
     
-module.exports.findData = async function(mapId, entryId){
+// Old Mongo function
+/*module.exports.findData = async function(mapId, entryId){
     const out = (await Maps.find({
         _id: mapId,
         'data._id': entryId 
@@ -195,6 +221,31 @@ module.exports.findData = async function(mapId, entryId){
     {'data.$':1}))
 
     return out[0].data[0]
+}*/
+
+module.exports.findData = async function(mapId, entryId) {
+    try {
+        // Retrieve the document with the specified mapId
+        const mapDoc = await Maps.doc(mapId).get();
+
+        // Check if the document exists
+        if (!mapDoc.exists) {
+            console.error('Map document not found.');
+            return null;
+        }
+
+        // Get the data field from the document
+        const data = mapDoc.data().data;
+
+        // Find the entry with the specified entryId
+        const entry = data.find(entry => entry._id === entryId);
+
+        // Return the found entry
+        return entry;
+    } catch (error) {
+        console.error('Error finding data:', error);
+        return null;
+    }
 }
 
 module.exports.updateData = async function(mapId, dataId, newEntry){
