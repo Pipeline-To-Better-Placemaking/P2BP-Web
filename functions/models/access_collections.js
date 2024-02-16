@@ -6,6 +6,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 
 const Access_Maps = require('./access_maps.js')
 const Area = require('../models/areas.js')
+const { firebase } = require('googleapis/build/src/apis/firebase/index.js')
 
 // Document Schema for Access Collections.  Maps references Access Maps Schema
 const collection_schema = mongoose.Schema({
@@ -49,11 +50,15 @@ module.exports.deleteMap = async function(collectionId, mapId){
 }
 
 module.exports.deleteCollection = async function(collectionId){
-    collection = await Collection.findById(collectionId)
-    await Area.removeRefrence(collection.area)
-    for(var i = 0; i < collection.maps.length; i++)
-        await Access_Maps.findByIdAndDelete(collection.maps[i])
+    // based on: https://firebase.google.com/docs/firestore/manage-data/delete-data#node.js
+    collection = await firebase.collection(collectionId) // find collection ref
+    await Area.removeRefrence(collection.area) // call function to decrease references to the area, might need to change ".area"
 
+    collection.docs.forEach((doc) => { // for each doc/map in the collection :
+        collection.doc(doc).delete() // calls the delete function for the doc
+    })
+
+    // Unnecessary since FB collections are deleted when they have no documents, can just return void
     return await Collection.findByIdAndDelete(collectionId)
 }
 
