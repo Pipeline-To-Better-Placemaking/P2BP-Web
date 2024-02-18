@@ -248,18 +248,47 @@ module.exports.findData = async function(mapId, entryId) {
     }
 }
 
-module.exports.updateData = async function(mapId, dataId, newEntry){
+// Old Mongo function
+/*module.exports.updateData = async function(mapId, dataId, newEntry){
     return await Maps.updateOne(
         {
             _id: mapId,
             'data._id': dataId 
         },
         { $set: { "data.$": newEntry}}
-    )}
+    )}*/
 
-module.exports.deleteEntry = async function(mapId, entryId) {
+module.exports.updateData = async function(mapId, dataId, newEntry) {
+        const mapDocRef = Maps.doc(mapId);
+        const dataRef = mapDocRef.collection('data').doc(dataId);
+    
+        try {
+            await dataRef.set(newEntry, { merge: true });
+            return true; // Return true to indicate successful update
+        } catch (error) {
+            console.error('Error updating data:', error);
+            return false; // Return false to indicate failure
+        }
+    }
+
+// Old Mongo function
+/*module.exports.deleteEntry = async function(mapId, entryId) {
         return await Maps.updateOne(
             { _id: mapId },
             { $pull: { data: {_id:entryId }}
             })
+    }*/
+
+module.exports.deleteEntry = async function(mapId, entryId) {
+        const mapDocRef = Maps.doc(mapId);
+    
+        try {
+            await mapDocRef.update({
+                data: firebase.firestore.FieldValue.arrayRemove({_id: entryId})
+            });
+            return true; // Return true to indicate successful deletion
+        } catch (error) {
+            console.error('Error deleting entry:', error);
+            return false; // Return false to indicate failure
+        }
     }
