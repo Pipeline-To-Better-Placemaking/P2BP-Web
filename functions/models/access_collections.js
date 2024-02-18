@@ -51,7 +51,7 @@ module.exports.deleteMap = async function(collectionId, mapId){
 
 module.exports.deleteCollection = async function(collectionId){
     // based on: https://firebase.google.com/docs/firestore/manage-data/delete-data#node.js
-    collectionRef = await firebase.collection(collectionId) // find collection ref
+    collectionRef = await firestore.collection(collectionId) // find collection ref
     await Area.removeRefrence(collectionRef.area) // call function to decrease references to the area, might need to change ".area"
 
     collectionRef.docs.forEach((doc) => { // for each doc/map in the collection :
@@ -65,19 +65,21 @@ module.exports.deleteCollection = async function(collectionId){
 
 module.exports.addActivity = async function(collectionId, mapId){
     // adds mapId to collection with collectionId
-    return await firebase.collection(collectionId).doc().push().set({
+    return await firestore.collection(collectionId).add({
         maps: mapId
     })
 }
 
 module.exports.updateCollection = async function(collectionId, newCollection){
-    return await Collection.updateOne(
-        { _id: collectionId },
-        { $set: {
-            title: newCollection.title,
-            date: newCollection.date,
-            area: newCollection.area,
-            duration: newCollection.duration
-        }}
-    )
+    const oldCollection = await firestore.collection(collectionId)
+    if (oldCollection.empty)
+    {
+        throw new UnauthorizedError("Invalid " + collectionId + " collection")
+    }
+    oldCollection.set({
+        title: newCollection.title,
+        date: newCollection.date,
+        area: newCollection.area,
+        duration: newCollection.duration
+    })
 }
