@@ -51,22 +51,23 @@ module.exports.deleteMap = async function(collectionId, mapId){
 
 module.exports.deleteCollection = async function(collectionId){
     // based on: https://firebase.google.com/docs/firestore/manage-data/delete-data#node.js
-    collection = await firebase.collection(collectionId) // find collection ref
-    await Area.removeRefrence(collection.area) // call function to decrease references to the area, might need to change ".area"
+    collectionRef = await firebase.collection(collectionId) // find collection ref
+    await Area.removeRefrence(collectionRef.area) // call function to decrease references to the area, might need to change ".area"
 
-    collection.docs.forEach((doc) => { // for each doc/map in the collection :
-        collection.doc(doc).delete() // calls the delete function for the doc
+    collectionRef.docs.forEach((doc) => { // for each doc/map in the collection :
+        collectionRef.doc(doc).delete() // calls the delete function for the doc
     })
 
     // Unnecessary since FB collections are deleted when they have no documents, can just return void
+        // but don't know how this interacts where it is called
     return await Collection.findByIdAndDelete(collectionId)
 }
 
 module.exports.addActivity = async function(collectionId, mapId){
-    return await Collection.updateOne(
-        { _id: collectionId },
-        { $push: { maps: mapId}}
-    )
+    // adds mapId to collection with collectionId
+    return await firebase.collection(collectionId).doc().push().set({
+        maps: mapId
+    })
 }
 
 module.exports.updateCollection = async function(collectionId, newCollection){
