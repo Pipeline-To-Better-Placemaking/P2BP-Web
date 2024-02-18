@@ -6,7 +6,6 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 
 const Access_Maps = require('./access_maps.js')
 const Area = require('../models/areas.js')
-const { firebase } = require('googleapis/build/src/apis/firebase/index.js')
 
 // Document Schema for Access Collections.  Maps references Access Maps Schema
 const collection_schema = mongoose.Schema({
@@ -42,11 +41,8 @@ const Collection = module.exports = mongoose.model('Access_Collections', collect
 
 module.exports.deleteMap = async function(collectionId, mapId){
     await Access_Maps.deleteMap(mapId)
-    return await Collection.updateOne(
-        { _id: collectionId },
-        { $pull: { maps: mapId}}
-    )
-
+    // Do we still need anything below, because I'm pretty sure Firestore just handles the deleted items
+    firestore.collection(collectionId).doc(mapId).delete()
 }
 
 module.exports.deleteCollection = async function(collectionId){
