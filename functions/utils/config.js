@@ -1,7 +1,7 @@
 //.env will not be published to github.  Access to keys can be found in dashboard of heroku application
 require('dotenv').config()
 
-let PORT = process.env.PORT
+let PORT = process.env.POR
 let DB_URI = process.env.DB_URI
 let PRIVATE_KEY = process.env.PRIVATE_KEY
 let PROJECT_EMAIL = process.env.PROJECT_EMAIL
