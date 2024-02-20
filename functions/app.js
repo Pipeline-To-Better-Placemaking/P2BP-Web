@@ -10,7 +10,14 @@ const config = require('./utils/config')
 const errorHandler = require('./middlewares/error_handler')
 const log = require('./utils/log')
 require('express-async-errors')
+require('./utils/passport.js')(passport)
 
+const expressSession = require('express-session')({
+    secret: config.PRIVATE_KEY,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {maxAge: 1000}
+});
 
 log.info('Connecting to ', config.DB_URI)
 const connect = async () => {
@@ -76,14 +83,6 @@ app.use('/api/program_floors',  floorsApi)
 
 app.use(passport.initialize());
 app.use(passport.session());
-require('./utils/passport.js')(passport)
-
-const expressSession = require('express-session')({
-    secret: config.FB_API_KEY,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {maxAge: 1000}
-});
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressSession);
@@ -96,13 +95,15 @@ app.use(errorHandler)
 app.use(express.static(path.join(__dirname, 'frontend_web/build')));
 
 //* allows a dynamic build of all files in frontend_web
- app.get('/*', function (req, res) {
+app.get('/*', function (req, res) {
    res.sendFile(path.join(__dirname, 'frontend_web','build', 'index.html'));
  });
 
-//const server = app.listen(config.PORT, () => {
-//    log.info(`Server is running on port ${config.PORT}`)
-//})
+// app.listen(config.PORT, () => {
+//     log.info(`Server is running on port ${config.PORT}`);
+// });
+
+console.log('HERE');
 
 //module.exports = server
 exports.app = functions.https.onRequest(app);

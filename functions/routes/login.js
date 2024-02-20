@@ -8,10 +8,14 @@ const router = express.Router()
 
 const { UnauthorizedError } = require('../utils/errors')
 
+
 // Login -
 // Generates and responds w/ json web token if email and password match a user
 // Responds w/ 401 otherwise
 router.post('/', async (req,res,next) => {
+
+console.log("LOGIN ROUTE");
+
     const email = req.body.email
 
     const password = req.body.password
