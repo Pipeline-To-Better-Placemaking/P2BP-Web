@@ -35,7 +35,16 @@ connect()
 const app = express();
 
 //allow cross-origin requests
-app.use(cors())
+// let corsOptions = {
+//    origin : ['http://localhost:5000'],
+// }
+var corsOptions = {
+    origin: ['http://localhost:5000','http://better-placemaking.web.app'],
+	credentials: true
+}
+
+app.use(cors(corsOptions))
+//app.use(cors())
 
 //parse requests, could just use express.json()
 app.use(bodyParser.json())
@@ -81,11 +90,11 @@ app.use('/api/password_reset',  resetApi)
 app.use('/api/program_maps',    programApi)
 app.use('/api/program_floors',  floorsApi)
 
+app.use(expressSession);
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(expressSession);
 
 // Handles errors. express-async-errors ensures this is invoked automatically
 // by any errors thrown anywhere in previous routes or middlewares.
@@ -102,8 +111,6 @@ app.get('/*', function (req, res) {
 // app.listen(config.PORT, () => {
 //     log.info(`Server is running on port ${config.PORT}`);
 // });
-
-console.log('HERE');
 
 //module.exports = server
 exports.app = functions.https.onRequest(app);
