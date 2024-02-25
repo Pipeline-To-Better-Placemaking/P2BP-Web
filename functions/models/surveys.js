@@ -1,4 +1,6 @@
 const mongoose = require('mongoose')
+const { UnauthorizedError } = require('../utils/errors')
+const { firestore } = require('googleapis/build/src/apis/firestore')
 
 const Date = mongoose.Schema.Types.Date
 const ObjectId = mongoose.Schema.Types.ObjectId
@@ -88,45 +90,88 @@ module.exports.updateSurvey = async function (surveyId, newSurvey) {
 }
 
 module.exports.deleteSurvey = async function(surveyId) {
-    return await Surveys.findByIdAndDelete(surveyId)
+    const survey = await firestore.collection('surveys').where('_id', '==', surveyId);
+    if (survey.empty)
+    {
+        throw new UnauthorizedError("Invalid " + firestore.collection('surveys') + " survey");
+    }
+    survey.forEach(doc => {
+        firestore.collection('surveys').doc(doc.id).delete();
+    });
+    return;
 }
 
 module.exports.projectCleanup = async function(projectId) {
-    return await Surveys.deleteMany({ project: projectId })
+    const survey = await firestore.collection('projects').where('_id', '==', projectId);
+    if (survey.empty)
+    {
+        throw new UnauthorizedError("Invalid " + firestore.collection('projects') + " survey");
+    }
+    survey.forEach(doc => {
+        firestore.collection('projects').doc(doc.id).delete();
+    });
+    return;
 }
 
 module.exports.addResearcher = async function(surveyId, userId){
-    return await Surveys.updateOne(
-        { _id: surveyId },
-        { $push: { researchers: userId}}
-    )
+    const oldSurvey = await firestore.collection('surveys').where('_id', '==', surveyId);
+    if (survey.empty)
+    {
+        throw new UnauthorizedError("Invalid " + firestore.collection('surveys') + " survey");
+    }
+    survey.forEach(doc => {
+        const newDoc = doc.data();
+        newDoc.researchers.push(newDoc);
+        firestore.collection('surveys').doc(doc.id).update(newDoc);
+    });
+    return;
 }
 
 module.exports.removeResearcher = async function(surveyId, userId){
-    return await Surveys.updateOne(
-        { _id: surveyId },
-        { $pull: { researchers: userId}}
-    )
+    const oldSurvey = await firestore.collection('surveys').where('_id', '==', surveyId).get();
+    if (oldSurvey.empty)
+    {
+        throw new UnauthorizedError('Invalid survey');
+    }
+    oldSurvey.forEach(doc => {
+        const newDoc = doc.data();
+        array = newDoc.researchers;
+
+        for (let i = 0; i < array.length; i++)
+        {
+            if (array[i]._id === userId)
+            {
+                array.splice(i, 0);
+                break;
+            }
+        }
+        firestore.collection('surveys').doc(doc.id).update(newDoc);
+    });
+    return;
 }
 
 module.exports.isResearcher = async function(surveyId, userId){
-    try{
-        const doc = await Surveys.find(
+    const oldSurvey = await firestore.collection('surveys').where('_id', '==', surveyId).get();
+    if (oldSurvey.empty)
+    {
+        throw new UnauthorizedError('Invalid survey');
+    }
+    oldSurvey.forEach(doc => {
+        array = doc.data().researchers;
+
+        for (let i = 0; i < array.length; i++)
+        {
+            if (array[i]._id === userId)
             {
-                _id: surveyId, 
-                researchers: { $elemMatch:  userId }
+                return true;
             }
-        )
-    }catch(error){
-        return false
-    }
-    if (doc.length === 0) {
-        return false
-    }
-    return true
+        }
+    });
+    return false;
 }
 
 module.exports.addEntry = async function(surveyId, newEntry) {
+
     var entry = new Entry({
         time: newEntry.time,
     })
