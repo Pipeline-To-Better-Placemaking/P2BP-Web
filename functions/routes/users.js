@@ -24,7 +24,12 @@ router.post('/', async (req, res, next) => {
         lastname: req.body.lastname,
         instituion: req.body.instituion,
         email: req.body.email,
-        password: req.body.password
+        password: req.body.password,
+        is_verified: false, // Default value for is_verified
+        verification_code: '', // Default value for verification_code
+        verification_timeout: null, // Default value for verification_timeout
+        invites: [],
+        teams: []
     })
 
     const user = await User.addUser(newUser)

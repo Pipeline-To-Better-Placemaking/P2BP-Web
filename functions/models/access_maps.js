@@ -192,7 +192,7 @@ module.exports.removeResearcher = async function(mapId, userId){
 
 module.exports.isResearcher = async function(mapId, userId) {
     try {
-        const mapDoc = await Maps.doc(mapId).get();
+        const mapDoc = await Maps.where('_id', '==', mapId).get();
 
         if (!mapDoc.exists) {
             return false;
@@ -226,7 +226,7 @@ module.exports.isResearcher = async function(mapId, userId) {
 module.exports.findData = async function(mapId, entryId) {
     try {
         // Retrieve the document with the specified mapId
-        const mapDoc = await Maps.doc(mapId).get();
+        const mapDoc = await Maps.where('_id', '==', mapId).get();
 
         // Check if the document exists
         if (!mapDoc.exists) {
@@ -259,8 +259,8 @@ module.exports.findData = async function(mapId, entryId) {
     )}*/
 
 module.exports.updateData = async function(mapId, dataId, newEntry) {
-        const mapDocRef = Maps.doc(mapId);
-        const dataRef = mapDocRef.collection('data').doc(dataId);
+        const mapDocRef = await Maps.where('_id', '==', mapId).get();
+        const dataRef = mapDocRef.collection('data').where('_id', '==', dataId).get();
     
         try {
             await dataRef.set(newEntry, { merge: true });
@@ -280,7 +280,7 @@ module.exports.updateData = async function(mapId, dataId, newEntry) {
     }*/
 
 module.exports.deleteEntry = async function(mapId, entryId) {
-        const mapDocRef = Maps.doc(mapId);
+        const mapDocRef = await Maps.where('_id', '==', mapId).get();
     
         try {
             await mapDocRef.update({
