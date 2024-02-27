@@ -1,26 +1,55 @@
-module.exports.ACCSESS_COLS    = "access_collections";
-module.exports.ACCSESS_MAPS    = "access_maps";
-module.exports.AREAS           = "areas";
-module.exports.BOUNDARIES_COLS = "boundaries_collections";
-module.exports.BOUNDARIES_MAPS = "boundaries_map";
-module.exports.LIGHT_COLS      = "light_collections";
-module.exports.LIGHT_MAPS      = "light_maps";
-module.exports.MOVING_COLS     = "moving_collections";
-module.exports.MOVING_MAPS     = "moving_maps";
-module.exports.NATURE_COLS     = "nature_collections";
-module.exports.NATURE_MAPS     = "nature_maps";
-module.exports.ORDER_COLS      = "order_collections";
-module.exports.ORDER_MAPS      = "order_maps";
-module.exports.PROGRAM_COLS    = "program_collections";
-module.exports.PROGRAM_MAPS    = "program_maps";
-module.exports.PROJECTS        = "projects";
-module.exports.SOUND_COLS      = "sound_collections";
-module.exports.SOUND_MAPS      = "sound_map";
-module.exports.STANDING_POINTS = "standing_points";
-module.exports.STATIONARY_COLS = "stationary_collections";
-module.exports.STATIONARY_MAPS = "stationary_maps";
-module.exports.SURVEY_COLS     = "survey_collections";
-module.exports.SURVEY_KEYS     = "survey_key_trackers";
-module.exports.SURVEYS         = "surveys";
-module.exports.TEAMS           = "teams";
-module.exports.USERS           = "users";
+const ACCSESS_COLS    = "access_collections";
+const ACCSESS_MAPS    = "access_maps";
+const AREAS           = "areas";
+const BOUNDARIES_COLS = "boundaries_collections";
+const BOUNDARIES_MAPS = "boundaries_map";
+const LIGHT_COLS      = "light_collections";
+const LIGHT_MAPS      = "light_maps";
+const MOVING_COLS     = "moving_collections";
+const MOVING_MAPS     = "moving_maps";
+const NATURE_COLS     = "nature_collections";
+const NATURE_MAPS     = "nature_maps";
+const ORDER_COLS      = "order_collections";
+const ORDER_MAPS      = "order_maps";
+const PROGRAM_COLS    = "program_collections";
+const PROGRAM_MAPS    = "program_maps";
+const PROJECTS        = "projects";
+const SOUND_COLS      = "sound_collections";
+const SOUND_MAPS      = "sound_map";
+const STANDING_POINTS = "standing_points";
+const STATIONARY_COLS = "stationary_collections";
+const STATIONARY_MAPS = "stationary_maps";
+const SURVEY_COLS     = "survey_collections";
+const SURVEY_KEYS     = "survey_key_trackers";
+const SURVEYS         = "surveys";
+const TEAMS           = "teams";
+const USERS           = "users";
+
+module.exports = {
+    ACCSESS_COLS,
+    ACCSESS_MAPS,
+    AREAS,
+    BOUNDARIES_COLS,
+    BOUNDARIES_MAPS,
+    LIGHT_COLS,
+    LIGHT_MAPS,
+    MOVING_COLS,
+    MOVING_MAPS,
+    NATURE_COLS,
+    NATURE_MAPS,
+    ORDER_COLS,
+    ORDER_MAPS,
+    PROGRAM_COLS,
+    PROGRAM_MAPS,
+    PROJECTS,
+    SOUND_COLS,
+    SOUND_MAPS,
+    STANDING_POINTS,
+    STATIONARY_COLS,
+    STATIONARY_MAPS,
+    SURVEY_COLS,
+    SURVEY_KEYS,
+    SURVEYS,
+    TEAMS,
+    USERS
+};
