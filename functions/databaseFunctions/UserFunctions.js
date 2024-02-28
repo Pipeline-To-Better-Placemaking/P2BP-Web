@@ -136,7 +136,7 @@ module.exports.createPasswordHash = async function(password) {
     return hash
 }
 
-// Old mongo 
+// Old mongo
 /*module.exports.addUser = async function(newUser) {
     // Replace password with hashed version
     newUser.password = await this.createPasswordHash(newUser.password)
@@ -169,55 +169,6 @@ module.exports.addUser = async function(newUser) {
     }
 }
 
-// Old mongo 
-/*module.exports.updateUser = async function(userId, newUser) {
-    const updatedValues = {}
-    if (newUser.firstname) updatedValues.firstname = newUser.firstname
-    if (newUser.lastname) updatedValues.lastname = newUser.lastname
-    if (newUser.institution) updatedValues.institution = newUser.institution
-    if (newUser.password) updatedValues.password = newUser.password
-    if (newUser.email){
-        updatedValues.email = newUser.email
-        updatedValues.is_verified = false
-    }
-
-    return await Users.findOneAndUpdate(
-        { _id: userId },
-        { $set: updatedValues},
-        { new: true }
-    )
-    .select('-password -verification_code -verification_timeout')
-}*/
-
-module.exports.updateUser = async function(userId, newUser) {
-    try {
-        const userRef = await firestore.collection('users').where('_id', '==', userId).get();
-
-        const updatedValues = {}
-        if (newUser.firstname) updatedValues.firstname = newUser.firstname
-        if (newUser.lastname) updatedValues.lastname = newUser.lastname
-        if (newUser.institution) updatedValues.institution = newUser.institution
-        if (newUser.password) updatedValues.password = newUser.password
-        if (newUser.email){
-            updatedValues.email = newUser.email
-            updatedValues.is_verified = false
-        }
-
-        // Update user document in Firestore
-        await userRef.update(updatedValues);
-
-        // Retrieve the updated user document
-        const updatedUserSnapshot = await userRef.get();
-        const updatedUser = { id: updatedUserSnapshot.id, ...updatedUserSnapshot.data() };
-
-        return updatedUser;
-    } catch (error) {
-        console.error('Error updating user:', error);
-        throw error; // Rethrow error for handling in the caller function
-    }
-}
-
-
 module.exports.comparePassword = async function(candidatePassword, hash) {
     return await bcrypt.compare(candidatePassword, hash)
 }
@@ -226,16 +177,16 @@ module.exports.comparePassword = async function(candidatePassword, hash) {
 // Returns true if the user was successfully verified,
 // Returns false if the code is incorrect or expired.
 /*module.exports.verifyEmail = async function(userId, code) {
-    
+
     const user = await Users.findById(userId)
     if (!user) return false
-    
+
     if (code === user.verification_code && user.verification_timeout < new Date()) {
         await Users.updateOne(
             { _id: userId },
             { $set: { is_verified: true }}
         )
-        
+
         return true
     }
     else {
@@ -314,93 +265,8 @@ module.exports.createVerification = async function(userId) {
     }
 }
 
-/*module.exports.addTeam = async function(userId, teamId) {
-    return await Users.updateOne(
-        { _id: userId },
-        { $push: { teams: teamId }}
-    )
-}*/
-
-module.exports.addTeam = async function(userId, teamId) {
-    try {
-        const userRef = firestore.collection('users').where('_id', '==', userId).get();
-
-        // Fetch the current user document
-        const userSnapshot = await userRef.get();
-        const userData = userSnapshot.data();
-
-        // Update the 'teams' array by adding the new teamId
-        const updatedTeams = [...userData.teams, teamId];
-
-        // Update the user document in Firestore with the updated 'teams' array
-        await userRef.update({ teams: updatedTeams });
-
-        return true; // Return true to indicate success
-    } catch (error) {
-        console.error('Error adding team:', error);
-        return false; // Return false if an error occurs
-    }
-}
-
-/*module.exports.addInvite = async function(userId, teamId) {
-    return await Users.updateOne(
-        { _id: userId },
-        { $push: { invites: teamId }}
-    )
-}*/
-
-module.exports.addInvite = async function(userId, teamId) {
-    try {
-        const userRef = firestore.collection('users').where('_id', '==', userId).get();
-
-        // Fetch the current user document
-        const userSnapshot = await userRef.get();
-        const userData = userSnapshot.data();
-
-        // Update the 'invites' array by adding the new teamId
-        const updatedInvites = [...userData.invites, teamId];
-
-        // Update the user document in Firestore with the updated 'invites' array
-        await userRef.update({ invites: updatedInvites });
-
-        return true; // Return true to indicate success
-    } catch (error) {
-        console.error('Error adding invite:', error);
-        return false; // Return false if an error occurs
-    }
-}
-
-/*module.exports.deleteInvite = async function(userId,teamId) {
-    
-    return await Users.updateOne(
-        { _id: userId },
-        { $pull: { invites: teamId }}
-    )
-}*/
-
-module.exports.deleteInvite = async function(userId, teamId) {
-    try {
-        const userRef = firestore.collection('users').where('_id', '==', userId).get();
-
-        // Fetch the current user document
-        const userSnapshot = await userRef.get();
-        const userData = userSnapshot.data();
-
-        // Filter out the teamId from the 'invites' array
-        const updatedInvites = userData.invites.filter(invite => invite !== teamId);
-
-        // Update the user document in Firestore with the updated 'invites' array
-        await userRef.update({ invites: updatedInvites });
-
-        return true; // Return true to indicate success
-    } catch (error) {
-        console.error('Error deleting invite:', error);
-        return false; // Return false if an error occurs
-    }
-}
-
 /*module.exports.removeRefrences = async function(teamId) {
-    
+
     await Users.updateMany(
         {},
         { $pull: { invites: teamId }}
@@ -427,7 +293,7 @@ module.exports.removeReferences = async function(teamId) {
         });
 
         await batch.commit();
-        
+
         return true; // Return true to indicate success
     } catch (error) {
         console.error('Error removing references:', error);
@@ -435,4 +301,41 @@ module.exports.removeReferences = async function(teamId) {
     }
 }
 
+module.exports.isRole = async function(docId, uId, collection, role) {
+    let foundUser = false;
+    const teams = await firestore.collection(collection).where("_id", "==", docId).get();
+    if (teams.empty)
+    {
+        throw new UnauthorizedError('Invalid team');
+    }
+    teams.forEach(doc => {
+        doc.data().users.every((user) => {
+            if (user.user.$oid === uId )
+            {
+                foundUser = user.role === role;
+                return false; // Break
+            }
+        });
+    });
+    return foundUser;
+}
 
+// Owners should have admin privileges, use this when checking if something needs admin rights to do something
+module.exports.isAdmin = async function(docId, uId, collection) {
+    let foundUser = false;
+    const teams = await firestore.collection(collection).where("_id", "==", docId).get();
+    if (teams.empty)
+    {
+        throw new UnauthorizedError('Invalid team');
+    }
+    teams.forEach(doc => {
+        doc.data().users.every((user) => {
+            if (user.user.$oid === uId )
+            {
+                foundUser = user.role === "admin" || user.role === "owner";
+                return false; // Break
+            }
+        });
+    });
+    return foundUser;
+}

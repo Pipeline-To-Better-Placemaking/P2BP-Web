@@ -192,7 +192,7 @@ module.exports.removeResearcher = async function(mapId, userId){
 
 module.exports.isResearcher = async function(mapId, userId) {
     try {
-        const mapDoc = await Maps.doc(mapId).get();
+        const mapDoc = await Maps.where('_id', '==', mapId).get();
 
         if (!mapDoc.exists) {
             return false;
@@ -226,7 +226,7 @@ module.exports.isResearcher = async function(mapId, userId) {
 module.exports.findData = async function(mapId, entryId) {
     try {
         // Retrieve the document with the specified mapId
-        const mapDoc = await Maps.doc(mapId).get();
+        const mapDoc = await Maps.where('_id', '==', mapId).get();
 
         // Check if the document exists
         if (!mapDoc.exists) {
@@ -248,18 +248,47 @@ module.exports.findData = async function(mapId, entryId) {
     }
 }
 
-module.exports.updateData = async function(mapId, dataId, newEntry){
+// Old Mongo function
+/*module.exports.updateData = async function(mapId, dataId, newEntry){
     return await Maps.updateOne(
         {
             _id: mapId,
             'data._id': dataId 
         },
         { $set: { "data.$": newEntry}}
-    )}
+    )}*/
 
-module.exports.deleteEntry = async function(mapId, entryId) {
+module.exports.updateData = async function(mapId, dataId, newEntry) {
+        const mapDocRef = await Maps.where('_id', '==', mapId).get();
+        const dataRef = mapDocRef.collection('data').where('_id', '==', dataId).get();
+    
+        try {
+            await dataRef.set(newEntry, { merge: true });
+            return true; // Return true to indicate successful update
+        } catch (error) {
+            console.error('Error updating data:', error);
+            return false; // Return false to indicate failure
+        }
+    }
+
+// Old Mongo function
+/*module.exports.deleteEntry = async function(mapId, entryId) {
         return await Maps.updateOne(
             { _id: mapId },
             { $pull: { data: {_id:entryId }}
             })
+    }*/
+
+module.exports.deleteEntry = async function(mapId, entryId) {
+        const mapDocRef = await Maps.where('_id', '==', mapId).get();
+    
+        try {
+            await mapDocRef.update({
+                data: firebase.firestore.FieldValue.arrayRemove({_id: entryId})
+            });
+            return true; // Return true to indicate successful deletion
+        } catch (error) {
+            console.error('Error deleting entry:', error);
+            return false; // Return false to indicate failure
+        }
     }
