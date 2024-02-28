@@ -190,4 +190,20 @@ module.exports.removeRefrences = async function(teamId) {
     )
 }
 
+//function to get user by ID, used in passport.js
+module.exports.getUserById = (id) =>
+{
+    return new Promise((resolve, reject)=>
+    {
+        Users.findById(id).then((data) =>
+        {
+            resolve(data);
+        })
+        .catch((err) =>
+        {
+            reject(err)
+        })
+    })
+}
+
 
