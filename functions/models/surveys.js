@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const { UnauthorizedError } = require('../utils/errors')
 const { firestore } = require('googleapis/build/src/apis/firestore')
+const collectionNames = require('../databaseFunctions/CollectionNames.js')
 
 const Date = mongoose.Schema.Types.Date
 const ObjectId = mongoose.Schema.Types.ObjectId
@@ -54,9 +55,9 @@ const Counter = mongoose.model('Survey_Key_Tracker', survey_key_schema)
 module.exports.addSurvey = async function(newSurvey) {
     var builderString = "3UROGSWIVE01A9LMKQB7FZ6DJ4NC28Y5HTXP"
 
-    var counterRef = await firestore.collection('survey_key_trackers').where('_id', '==', '629d3b326d4bb4000466de25').get();//current counter id
+    var counterRef = await firestore.collection(collectionNames.SURVEY_KEYS).where('_id', '==', '629d3b326d4bb4000466de25').get();//current counter id
     if(!counterRef.empty){ //if it doesn't exist, create one and initialize the counter value to 0
-        counterRef = await firestore.collection('survey_key_trackers').add({
+        counterRef = await firestore.collection(collectionNames.SURVEY_KEYS).add({
             counter: 0
         });
     }
@@ -74,14 +75,14 @@ module.exports.addSurvey = async function(newSurvey) {
 
     newSurvey.key = keyString//set the key value in the survey doc to the generated keystring
 
-    return await firestore.collection('surveys').add(newSurvey);//return whether it was successfully updated
+    return await firestore.collection(collectionNames.SURVEYS).add(newSurvey);//return whether it was successfully updated
 }
 
 module.exports.updateSurvey = async function (surveyId, newSurvey) {
-    const survey = await firestore.collection('surveys').where('_id', '==', surveyId).get();
+    const survey = await firestore.collection(collectionNames.SURVEYS).where('_id', '==', surveyId).get();
     if (survey.empty)
     {
-        throw new UnauthorizedError("Invalid " + firestore.collection('surveys') + " survey");
+        throw new UnauthorizedError("Invalid " + firestore.collection(collectionNames.SURVEYS) + " survey");
     }
     const surveyDoc = survey[0];
     return await surveyDoc.update({
@@ -92,45 +93,45 @@ module.exports.updateSurvey = async function (surveyId, newSurvey) {
 }
 
 module.exports.deleteSurvey = async function(surveyId) {
-    const survey = await firestore.collection('surveys').where('_id', '==', surveyId).get();
+    const survey = await firestore.collection(collectionNames.SURVEYS).where('_id', '==', surveyId).get();
     if (survey.empty)
     {
-        throw new UnauthorizedError("Invalid " + firestore.collection('surveys') + " survey");
+        throw new UnauthorizedError("Invalid " + firestore.collection(collectionNames.SURVEYS) + " survey");
     }
     survey.forEach(doc => {
-        firestore.collection('surveys').doc(doc.id).delete();
+        firestore.collection(collectionNames.SURVEYS).doc(doc.id).delete();
     });
     return;
 }
 
 module.exports.projectCleanup = async function(projectId) {
-    const survey = await firestore.collection('projects').where('_id', '==', projectId).get();
+    const survey = await firestore.collection(collectionNames.PROJECTS).where('_id', '==', projectId).get();
     if (survey.empty)
     {
-        throw new UnauthorizedError("Invalid " + firestore.collection('projects') + " survey");
+        throw new UnauthorizedError("Invalid " + firestore.collection(collectionNames.PROJECTS) + " survey");
     }
     survey.forEach(doc => {
-        firestore.collection('projects').doc(doc.id).delete();
+        firestore.collection(collectionNames.PROJECTS).doc(doc.id).delete();
     });
     return;
 }
 
 module.exports.addResearcher = async function(surveyId, userId){
-    const survey = await firestore.collection('surveys').where('_id', '==', surveyId).get();
+    const survey = await firestore.collection(collectionNames.SURVEYS).where('_id', '==', surveyId).get();
     if (survey.empty)
     {
-        throw new UnauthorizedError("Invalid " + firestore.collection('surveys') + " survey");
+        throw new UnauthorizedError("Invalid " + firestore.collection(collectionNames.SURVEYS) + " survey");
     }
     survey.forEach(doc => {
         const newDoc = doc.data();
         newDoc.researchers.push(newDoc);
-        firestore.collection('surveys').doc(doc.id).update(newDoc);
+        firestore.collection(collectionNames.SURVEYS).doc(doc.id).update(newDoc);
     });
     return;
 }
 
 module.exports.removeResearcher = async function(surveyId, userId){
-    const oldSurvey = await firestore.collection('surveys').where('_id', '==', surveyId).get();
+    const oldSurvey = await firestore.collection(collectionNames.SURVEYS).where('_id', '==', surveyId).get();
     if (oldSurvey.empty)
     {
         throw new UnauthorizedError('Invalid survey');
@@ -147,13 +148,13 @@ module.exports.removeResearcher = async function(surveyId, userId){
                 break;
             }
         }
-        firestore.collection('surveys').doc(doc.id).update(newDoc);
+        firestore.collection(collectionNames.SURVEYS).doc(doc.id).update(newDoc);
     });
     return;
 }
 
 module.exports.isResearcher = async function(surveyId, userId){
-    const oldSurvey = await firestore.collection('surveys').where('_id', '==', surveyId).get();
+    const oldSurvey = await firestore.collection(collectionNames.SURVEYS).where('_id', '==', surveyId).get();
     if (oldSurvey.empty)
     {
         throw new UnauthorizedError('Invalid survey');
@@ -173,10 +174,10 @@ module.exports.isResearcher = async function(surveyId, userId){
 }
 
 module.exports.addEntry = async function(surveyId, newEntry) {
-    const survey = await firestore.collection('surveys').where('_id', '==', surveyId).get();
+    const survey = await firestore.collection(collectionNames.SURVEYS).where('_id', '==', surveyId).get();
     if (survey.empty)
     {
-        throw new UnauthorizedError("Invalid " + firestore.collection('surveys') + " survey");
+        throw new UnauthorizedError("Invalid " + firestore.collection(collectionNames.SURVEYS) + " survey");
     }
     var entry = new Entry({
         time: newEntry.time,
@@ -193,10 +194,10 @@ module.exports.addEntry = async function(surveyId, newEntry) {
 }
 
 module.exports.deleteEntry = async function(surveyId, entryId) {
-    const survey = await firestore.collection('surveys').where('_id', '==', surveyId).get();
+    const survey = await firestore.collection(collectionNames.SURVEYS).where('_id', '==', surveyId).get();
     if (survey.empty)
     {
-        throw new UnauthorizedError("Invalid " + firestore.collection('surveys') + " survey");
+        throw new UnauthorizedError("Invalid " + firestore.collection(collectionNames.SURVEYS) + " survey");
     }
     try {
         await survey.update({
