@@ -1,5 +1,5 @@
-const ACCSESS_COLS    = "access_collections";
-const ACCSESS_MAPS    = "access_maps";
+const ACCESS_COLS    = "access_collections";
+const ACCESS_MAPS    = "access_maps";
 const AREAS           = "areas";
 const BOUNDARIES_COLS = "boundaries_collections";
 const BOUNDARIES_MAPS = "boundaries_map";
@@ -12,6 +12,7 @@ const NATURE_MAPS     = "nature_maps";
 const ORDER_COLS      = "order_collections";
 const ORDER_MAPS      = "order_maps";
 const PROGRAM_COLS    = "program_collections";
+const PROGRAM_FLOORS  = "program_floors";
 const PROGRAM_MAPS    = "program_maps";
 const PROJECTS        = "projects";
 const SOUND_COLS      = "sound_collections";
@@ -26,8 +27,8 @@ const TEAMS           = "teams";
 const USERS           = "users";
 
 module.exports = {
-    ACCSESS_COLS,
-    ACCSESS_MAPS,
+    ACCESS_COLS,
+    ACCESS_MAPS,
     AREAS,
     BOUNDARIES_COLS,
     BOUNDARIES_MAPS,
@@ -40,6 +41,7 @@ module.exports = {
     ORDER_COLS,
     ORDER_MAPS,
     PROGRAM_COLS,
+    PROGRAM_FLOORS,
     PROGRAM_MAPS,
     PROJECTS,
     SOUND_COLS,
