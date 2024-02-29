@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
-
+const collectionNames = require('../databaseFunctions/CollectionNames.js')
+const { firestore } = require('googleapis/build/src/apis/firestore/index.js')
+const { UnauthorizedError } = require('../utils/errors.js')
 
 const Date = mongoose.Schema.Types.Date
 const ObjectId = mongoose.Schema.Types.ObjectId
@@ -64,85 +66,125 @@ const NewProgramEntry = mongoose.model('NewProgram_Entry', newProgramSchema)
 
 //create a new floor
 module.exports.addFloor = async function (newFloor) {
-    return await newFloor.save()
+    // TODO might/probably need to change these to a different program_floors collection
+    return await firestore.collection(collectionNames.PROGRAM_FLOORS).doc().set(newFloor);
 }
 
 //update the floor information
 module.exports.updateFloor = async function (floorid, newFloor) {
-    return await Floors.updateOne(
-        { _id: floorid },
-        {
-            $set: {
-                map: newFloor.map,
-                floorNum: newFloor.floorNum,
-                programCount: newFloor.programCount,
-                programs: newFloor.programs
-            }
-        }
-    )
+    const oldFloor = await firestore.collection(collectionNames.PROGRAM_FLOORS).where('_id', '==', floorid).get();
+    if (oldFloor.empty)
+    {
+        throw new UnauthorizedError("Invalid " + collectionNames.PROGRAM_FLOORS + " floor");
+    }
+    return await oldFloor.forEach(doc => {
+        firestore.collection(collectionNames.PROGRAM_FLOORS).doc(doc.id).update(newFloor);
+    });
 }
 
 module.exports.deleteFloor = async function (floorId) {
-
-    const map = await Floors.findById(floorId)
-
-    return await Floors.findByIdAndDelete(floorId)
+    const floor = await firestore.collection(collectionNames.PROGRAM_FLOORS).where('_id', '==', floorId).get();
+    if (floor.empty)
+    {
+        throw new UnauthorizedError("Invalid " + collectionNames.PROGRAM_FLOORS + " floor");
+    }
+    return await floor.forEach(doc => {
+        firestore.collection(collectionNames.PROGRAM_FLOORS).doc(doc.id).delete();
+    });
 }
 
 //delete everything connected to the given map
 module.exports.mapCleanup = async function (mapId) {
-
-    const data = await Floors.find({ map: mapId })
-    if (data === null) {
-        return
+    const floor = await firestore.collection(collectionNames.PROGRAM_FLOORS).where('map', '==', mapId).get();
+    if (floor.empty)
+    {
+        return;
     }
-
-    return await Floors.deleteMany({ map: mapId })
+    return await floor.forEach(doc => {
+        firestore.collection(collectionNames.PROGRAM_FLOORS).doc(doc.id).delete();
+    });
 }
 
 
 //add a program to the floor 
 module.exports.addProgram = async function (floorId, newProgram) {
-    var entry = new NewProgramEntry({
-        programType: newProgram.programType,
-        points: newProgram.points,
-        sqFootage: newProgram.sqFootage
-    })
-
-    return await Floors.updateOne(
-        { _id: floorId },
-        { $push: { programs: entry } }
-    )
+    const oldFloor = await firestore.collection(collectionNames.PROGRAM_FLOORS).where('_id', '==', floorId).get();
+    if (oldFloor.empty)
+    {
+        throw new UnauthorizedError("Invalid " + collectionNames.PROGRAM_FLOORS + " floor");
+    }
+    return await oldFloor.forEach(doc => {
+        const newDoc = doc.data();
+        newDoc.programs.push(newProgram);
+        // and update programCount here?
+        firestore.collection(collectionNames.PROGRAM_FLOORS).doc(doc.id).update(newDoc);
+    });
 }
 
 //returns a program object given the floor id and the desired program id
 module.exports.findProgram = async function (floorId, programId) {
-    const out = (await Floors.find({
-        _id: floorId,
-        'programs._id': programId
-    },
-        { 'programs.$': 1 }))
-
-    return out[0].programs[0]
+    // finds document where (id == floorId) && (programs[] contains programId)
+    const floor = await firestore.collection(collectionNames.PROGRAM_FLOORS).where('_id', '==', floorId).where('programs', 'array-contains', programId).get();
+    if (floor.empty)
+    {
+        throw new UnauthorizedError("Invalid " + collectionNames.PROGRAM_FLOORS + " floor");
+    }
+    // returns the first program within the floor that matches the programId
+    return await floor.forEach(doc => {
+        doc.programs.forEach(program => {
+            if (program._id == programId)
+            {
+                return program;
+            }
+        })
+    })
 }
 
-//update the data in the program object for an already exisitng one 
+//update the data in the program object for an already exisitng one
 module.exports.updateProgram = async function (floorId, programId, newProgram) {
-    return await Floors.updateOne(
+    // finds document where (id == floorId) && (programs[] contains programId)
+    const floor = await firestore.collection(collectionNames.PROGRAM_FLOORS).where('_id', '==', floorId).where('programs', 'array-contains', programId).get();
+    if (floor.empty)
+    {
+        throw new UnauthorizedError("Invalid " + collectionNames.PROGRAM_FLOORS + " floor");
+    }
+    // finds the first program in the document with a matching id and updates the programs array with the new program
+    return await floor.forEach(doc => {
+        const newDoc = doc.data();
+        for (i = 0; i < newDoc.programs.length; i++)
         {
-            _id: floorId,
-            'programs._id': programId
-        },
-        { $set: { "programs.$": newProgram } }
-    )
+            if (newDoc.programs[i]._id == programId)
+            {
+                newDoc.programs[i] = newProgram;
+                firestore.collection(collectionNames.PROGRAM_FLOORS).doc(doc.id).update(newDoc);
+                return;
+            }
+        }
+    })
 }
 
 
 //deletes a program object given the floor id and the program id.
 module.exports.deleteProgram = async function (floorId, programId) {
-    return await Floors.updateOne(
-        { _id: floorId },
+    // finds document where (id == floorId) && (programs[] contains programId)
+    const floor = await firestore.collection(collectionNames.PROGRAM_FLOORS).where('_id', '==', floorId).where('programs', 'array-contains', programId).get();
+    if (floor.empty)
+    {
+        throw new UnauthorizedError("Invalid " + collectionNames.PROGRAM_FLOORS + " floor");
+    }
+    // finds the first program in the document with a matching id and updates the programs array with the new program
+    return await floor.forEach(doc => {
+        const newDoc = doc.data();
+        array = newDoc.programs;
+
+        for (i = 0; i < array.length; i++)
         {
-            $pull: { programs: { _id: programId } }
-        })
+            if (array[i]._id == programId)
+            {
+                array.splice(i, 1);
+                break;
+            }
+        }
+        firestore.collection(collectionNames.PROGRAM_FLOORS).doc(doc.id).update(newDoc);
+    })
 }
