@@ -144,7 +144,7 @@ module.exports.removeResearcher = async function(surveyId, userId){
         {
             if (array[i]._id === userId)
             {
-                array.splice(i, 0);
+                array.splice(i, 1);
                 break;
             }
         }
