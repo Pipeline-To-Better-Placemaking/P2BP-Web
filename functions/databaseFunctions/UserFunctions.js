@@ -301,41 +301,37 @@ module.exports.removeReferences = async function(teamId) {
     }
 }
 
-module.exports.isRole = async function(docId, uId, collection, role) {
+module.exports.isRole = async function(teamId, uId, role) {
     let foundUser = false;
-    const teams = await firestore.collection(collection).where("_id", "==", docId).get();
-    if (teams.empty)
+    const team = await basicDBfoos.getObj(teamId, TEAMS);
+    if (team.empty)
     {
-        throw new UnauthorizedError('Invalid team');
+        throw new NotFoundError('Invalid team');
     }
-    teams.forEach(doc => {
-        doc.data().users.every((user) => {
-            if (user.user.$oid === uId )
-            {
-                foundUser = user.role === role;
-                return false; // Break
-            }
-        });
+    team.users.forEach((user) => {
+        if (user.user.$oid === uId.$oid )
+        {
+            foundUser = ((user.role === role;
+            return false; // Break
+        }
     });
     return foundUser;
 }
 
 // Owners should have admin privileges, use this when checking if something needs admin rights to do something
-module.exports.isAdmin = async function(docId, uId, collection) {
+module.exports.isAdmin = async function(teamId, uId) {
     let foundUser = false;
-    const teams = await firestore.collection(collection).where("_id", "==", docId).get();
-    if (teams.empty)
+    const team = await basicDBfoos.getObj(teamId, TEAMS);
+    if (team.empty)
     {
-        throw new UnauthorizedError('Invalid team');
+        throw new NotFoundError('Invalid team');
     }
-    teams.forEach(doc => {
-        doc.data().users.every((user) => {
-            if (user.user.$oid === uId )
-            {
-                foundUser = user.role === "admin" || user.role === "owner";
-                return false; // Break
-            }
-        });
+    team.users.forEach((user) => {
+        if (user.user.$oid === uId.$oid )
+        {
+            foundUser = ((user.role === "admin") || (user.role === "owner"));
+            return false; // Break
+        }
     });
     return foundUser;
 }
