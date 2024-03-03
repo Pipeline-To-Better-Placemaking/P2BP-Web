@@ -1,3 +1,5 @@
+const firestore = require('../firestore');
+
 module.exports.addReference = async function(docId, collection) {
   try {
       const ref = firestore.collection(collection).where('_id', '==', docId).get();
