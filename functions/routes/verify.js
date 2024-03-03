@@ -1,6 +1,6 @@
 const config = require('../utils/config')
 const passport = require('passport')
-const User = require('../models/users.js')
+const User = require('../databaseFunctions/UserFunctions.js');
 const emailer = require('../utils/emailer')
 
 const express = require('express')
@@ -10,6 +10,7 @@ const { BadRequestError, ForbiddenError, InternalServerError } = require('../uti
 
 // Verify the email address with the given verification code
 router.post('/', async (req, res, next) => {
+    try {
     // Parameters are missing
     if (!req.query.email || !req.query.code) {
         throw new BadRequestError('Missing required parameters: email or code')
@@ -29,7 +30,10 @@ router.post('/', async (req, res, next) => {
     else {
         throw new ForbiddenError('Verification code is incorrect or expired')
     }
-})
+    } catch (error) {
+        next(error); // Pass error to the error handling middleware
+    }
+});
 
 // Generate a new email verification code and send an email to the user containing the new code
 router.post('/newcode',passport.authenticate('jwt',{session:false}), async (req, res, next) => {

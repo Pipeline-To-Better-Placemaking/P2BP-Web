@@ -2,7 +2,8 @@ const config = require('../utils/config')
 const nodemailer = require('nodemailer')
 const { google } = require('googleapis')
 const OAuth2 = google.auth.OAuth2
-const User = require('../models/users.js')
+const User = require('../databaseFunctions/UserFunctions.js');
+//const User = require('../models/users.js')
 
 const createTransporter = async () => {
     // Create an OAuth client

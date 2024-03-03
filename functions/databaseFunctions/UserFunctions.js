@@ -111,7 +111,8 @@ module.exports.findUserByEmail = async function(email) {
 
         // Assuming there's only one user with the given email, return the first matching document
         const userDoc = querySnapshot.docs[0];
-        return { id: userDoc.id, ...userDoc.data() };
+        const userData = userDoc.data();
+        return {_id: userData._id, ...userDoc.data() };
     } catch (error) {
         console.error('Error finding user by email:', error);
         throw error; // Rethrow error for handling in the caller function
@@ -334,4 +335,110 @@ module.exports.isAdmin = async function(teamId, uId) {
         }
     });
     return foundUser;
+}
+
+// Old mongo 
+/*module.exports.updateUser = async function(userId, newUser) {
+    const updatedValues = {}
+    if (newUser.firstname) updatedValues.firstname = newUser.firstname
+    if (newUser.lastname) updatedValues.lastname = newUser.lastname
+    if (newUser.institution) updatedValues.institution = newUser.institution
+    if (newUser.password) updatedValues.password = newUser.password
+    if (newUser.email){
+        updatedValues.email = newUser.email
+        updatedValues.is_verified = false
+    }
+
+    return await Users.findOneAndUpdate(
+        { _id: userId },
+        { $set: updatedValues},
+        { new: true }
+    )
+    .select('-password -verification_code -verification_timeout')
+}*/
+
+module.exports.updateUser = async function(userId, newUser) {
+    try {
+        const userRef = await firestore.collection('users').where('_id', '==', userId).get();
+
+        const updatedValues = {}
+        if (newUser.firstname) updatedValues.firstname = newUser.firstname
+        if (newUser.lastname) updatedValues.lastname = newUser.lastname
+        if (newUser.institution) updatedValues.institution = newUser.institution
+        if (newUser.password) updatedValues.password = newUser.password
+        if (newUser.email){
+            updatedValues.email = newUser.email
+            updatedValues.is_verified = false
+        }
+
+        // Update user document in Firestore
+        await userRef.update(updatedValues);
+
+        // Retrieve the updated user document
+        const updatedUserSnapshot = await userRef.get();
+        const updatedUser = { id: updatedUserSnapshot.id, ...updatedUserSnapshot.data() };
+
+        return updatedUser;
+    } catch (error) {
+        console.error('Error updating user:', error);
+        throw error; // Rethrow error for handling in the caller function
+    }
+}
+
+
+/*module.exports.addTeam = async function(userId, teamId) {
+    return await Users.updateOne(
+        { _id: userId },
+        { $push: { teams: teamId }}
+    )
+}*/
+
+module.exports.addTeam = async function(userId, teamId) {
+    try {
+        const userRef = firestore.collection('users').where('_id', '==', userId).get();
+
+        // Fetch the current user document
+        const userSnapshot = await userRef.get();
+        const userData = userSnapshot.data();
+
+        // Update the 'teams' array by adding the new teamId
+        const updatedTeams = [...userData.teams, teamId];
+
+        // Update the user document in Firestore with the updated 'teams' array
+        await userRef.update({ teams: updatedTeams });
+
+        return true; // Return true to indicate success
+    } catch (error) {
+        console.error('Error adding team:', error);
+        return false; // Return false if an error occurs
+    }
+}
+
+/*module.exports.deleteInvite = async function(userId,teamId) {
+    
+    return await Users.updateOne(
+        { _id: userId },
+        { $pull: { invites: teamId }}
+    )
+}*/
+
+module.exports.deleteInvite = async function(userId, teamId) {
+    try {
+        const userRef = firestore.collection('users').where('_id', '==', userId).get();
+
+        // Fetch the current user document
+        const userSnapshot = await userRef.get();
+        const userData = userSnapshot.data();
+
+        // Filter out the teamId from the 'invites' array
+        const updatedInvites = userData.invites.filter(invite => invite !== teamId);
+
+        // Update the user document in Firestore with the updated 'invites' array
+        await userRef.update({ invites: updatedInvites });
+
+        return true; // Return true to indicate success
+    } catch (error) {
+        console.error('Error deleting invite:', error);
+        return false; // Return false if an error occurs
+    }
 }
