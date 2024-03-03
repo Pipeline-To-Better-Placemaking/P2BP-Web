@@ -311,7 +311,7 @@ module.exports.isRole = async function(teamId, uId, role) {
     team.users.forEach((user) => {
         if (user.user.$oid === uId.$oid )
         {
-            foundUser = ((user.role === role;
+            foundUser = user.role === role;
             return false; // Break
         }
     });
