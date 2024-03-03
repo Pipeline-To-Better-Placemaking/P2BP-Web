@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs')
 const mongoose = require('mongoose')
 const uniqueValidator = require('mongoose-unique-validator')
-
+const firestore = require('../firestore');
 
 const ObjectId = mongoose.Schema.Types.ObjectId
 
