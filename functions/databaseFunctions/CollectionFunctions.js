@@ -25,6 +25,7 @@ const {
         SURVEYS,
         SURVEY_COLS,
 } = require('../databaseFunctions/CollectionNames.js');
+const firestore = require('../firestore');
 
 module.exports.deleteCollection = async function(collection){
     // based on: https://firebase.google.com/docs/firestore/manage-data/delete-data#node.js
