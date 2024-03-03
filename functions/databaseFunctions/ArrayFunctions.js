@@ -1,3 +1,5 @@
+const firestore = require('../firestore');
+
 module.exports.addArrayElement = async function(docId, collection, newEntry) {
     const oldMap = await firestore.collection(collection).where('_id', '==', docId).get();
     if (oldMap.empty)
