@@ -27,30 +27,17 @@ module.exports.addReference = async function(docId, collection) {
 
 module.exports.removeReference = async function(docId, collection) {
     try {
-        const ref = firestore.collection(collection).where('_id', '==', docId).get();
-        const refData = await ref.get();
+        const ref = await basicDBfoos.getObj(docId, collection);
 
-        if (!refData.exists) {
-            throw new Error('Standing point not found');
-        }
+        ref.refCount = (ref.refCount || 0) - 1;
 
-        const data = refData.data();
-        let newData = { ...data };
-
-        // Update reference count
-        newData.refCount = (newData.refCount || 0) - 1;
-
-        if (newData.refCount <= 0) {
-            // Delete the standing point if reference count is zero or less
-            await ref.delete();
-            return null; // Indicate deletion
+        if (ref.refCount <= 0) {
+            await basicDBfoos.deleteObj(ref._id, collection);
         } else {
-            // Update the standing point with the new reference count
-            await ref.update({ refCount: newData.refCount });
-            return newData; // Return the updated point data
+            await basicDBfoos.updateObj(ref._id, ref, collection);
         }
     } catch (error) {
         console.error('Error removing reference:', error);
-        throw error; // Rethrow error for handling in the caller function
+        throw error;
     }
 }
