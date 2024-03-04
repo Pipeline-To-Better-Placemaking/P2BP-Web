@@ -41,3 +41,15 @@ module.exports.removeReference = async function(docId, collection) {
         throw error;
     }
 }
+
+module.exports.projectCleanup = async function(projectId, collection) {
+    const doc = await firestore.collection(collection).where('_id', '==', projectId).get();
+    if (doc.empty)
+    {
+        return;
+    }
+    doc.forEach(doc => {
+        firestore.collection(collection).doc(doc.id).delete();
+    });
+    return;
+}
