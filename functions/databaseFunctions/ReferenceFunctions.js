@@ -43,7 +43,7 @@ module.exports.removeReference = async function(docId, collection) {
 }
 
 module.exports.projectCleanup = async function(projectId, collection) {
-    const doc = await firestore.collection(collection).where('_id', '==', projectId).get();
+    const doc = await firestore.collection(collection).where('project', '==', projectId).get();
     if (doc.empty)
     {
         return;
