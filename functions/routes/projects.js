@@ -29,20 +29,20 @@ const { projectExport } = require('../utils/xlsx_exports')
 const { BadRequestError, InternalServerError, UnauthorizedError } = require('../utils/errors')
 
 router.post('', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
+    user = await req.user// isolate the user passed in from the client's request
 
-    if(await Team.isAdmin(req.body.team,user._id)){
+    if(await Team.isAdmin(req.body.team,user._id)){// check if the user is the team admin
 
-        if(req.body.points < 3)
+        if(req.body.points < 3)// check that the project has enough points to define an area
             throw new BadRequestError('Areas require at least three points')
 
-        let newArea = new Area({
+        let newArea = new Area({// create an area object (perimeter)
             title: "Project Perimeter",
             points: req.body.points
         })
-        await newArea.save()
+        await newArea.save()// CHANGE save the new area to the projects collection
 
-        var pointIds = []
+        var pointIds = []// put the request field's standing points (coordinates and titles) into an array and save to the projects collection
         for(var i = 0; i < req.body.standingPoints.length; i++){
             let newPoint = new Standing_Point({
                 longitude: req.body.standingPoints[i].longitude,
@@ -50,10 +50,10 @@ router.post('', passport.authenticate('jwt',{session:false}), async (req, res, n
                 title: req.body.standingPoints[i].title
             })
 
-            await newPoint.save()
+            await newPoint.save()// CHANGE
             pointIds[i] = newPoint._id
         }
-        let newProject = new Project({
+        let newProject = new Project({// create a project document and call .addProject() with it (which just saves it like above)
             title: req.body.title,
             description: req.body.description,
             area: newArea._id,
@@ -64,10 +64,10 @@ router.post('', passport.authenticate('jwt',{session:false}), async (req, res, n
 
         const project = await Project.addProject(newProject)
 
-        await Team.addProject(req.body.team,project._id)
-        res.status(201).json(project)
+        await Team.addProject(req.body.team,project._id)// updates the project - that is, adds it and updates it in case it already exists
+        res.status(201).json(project)//responds with a "successful creation" status code and a json format of the new project
     }
-    else{
+    else{// user isn't an admin, throw an error
         throw new UnauthorizedError('You do not have permision to perform this operation')
     }   
 })
@@ -129,25 +129,25 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}), async (req, 
 })
 
 router.post('/:id/areas', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
+    user = await req.user// get the user and project details from the request
+    project = await Project.findById(req.params.id)// CHANGE
 
-    if(await Team.isUser(project.team,user._id)){
-        
-        if(req.body.points.length < 3)
+    if(await Team.isUser(project.team,user._id)){// check if the user is a member of the team that the project belongs to
+
+        if(req.body.points.length < 3)// make sure there are three points
             throw new BadRequestError('Areas require at least three points')
         
-            let newArea = new Area({
+        let newArea = new Area({// if there are three points then create an area and save it to the projects collection
             title: req.body.title,
             points: req.body.points
         })
 
-        newArea.save()
+        newArea.save()// CHANGE
 
-        await Project.addArea(project._id,newArea._id)
-        res.json(newArea)
+        await Project.addArea(project._id,newArea._id)//call add area
+        res.json(newArea)//return the newArea as a json (does this also need an HTTP code?)
     }
-    else{
+    else{// Throw error, user is trying to access a team project they aren't a member of
         throw new UnauthorizedError('You do not have permision to perform this operation')
     }
 })
@@ -183,19 +183,19 @@ router.delete('/:id/areas/:areaId', passport.authenticate('jwt',{session:false})
 })
 
 router.post('/:id/standing_points', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
+    user = await req.user// get the user and project details from the request
+    project = await Project.findById(req.params.id)// CHANGE
 
-    if(await Team.isUser(project.team,user._id)){   
+    if(await Team.isUser(project.team,user._id)){// check if the user is a member of the team that the project belongs to
 
-        let newPoint = new Standing_Point({
+        let newPoint = new Standing_Point({// create a standing point and try to save it to a collection
             longitude: req.body.longitude,
             latitude: req.body.latitude,
             title: req.body.title,
             refCount: 1
         })
-        newPoint.save(function (error) {
-            console.log("Saving a point");
+        newPoint.save(function (error) {// CHANGE
+            console.log("Saving a point");// update the console log with progress
             if (error) {
               console.log("ERROR SAVING POINT: " + error);
             } else {
@@ -203,10 +203,10 @@ router.post('/:id/standing_points', passport.authenticate('jwt',{session:false})
             }
         })
        
-        await Project.addPoint(project._id,newPoint._id)
-        res.json(newPoint)
+        await Project.addPoint(project._id,newPoint._id)// call addPoint()
+        res.json(newPoint)// return jsaon of new point
     }
-    else{
+    else{// Throw alert, user isn't a team member
         throw new UnauthorizedError('You do not have permision to perform this operation')
     }
 })
@@ -243,27 +243,27 @@ router.delete('/:id/standing_points/:pointId', passport.authenticate('jwt',{sess
 })
 
 router.post('/:id/stationary_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
+    user = await req.user // find the user in the request field
+    project = await Project.findById(req.params.id) // CHANGE find the project using the projectId in the request field
 
-    if(await Team.isUser(project.team,user._id)){   
+    if(await Team.isUser(project.team,user._id)){ // check if the user is a member of the team the project belongs to
 
-        let newCollection = new Stationary_Collection({
+        let newCollection = new Stationary_Collection({// create an object with the title, date, area, and duration fields from the request field
             title: req.body.title,
             date: req.body.date,
             area: req.body.area,
             duration: req.body.duration
         })
 
-        await newCollection.save()
+        await newCollection.save() // CHANGE save it *note, stationary_collection ISN'T the same as a Firebase Collection, it's still a document it just contains an array of the area ids
 
-        await Area.addRefrence(newCollection.area)
+        await Area.addReference(newCollection.area)// call addRefrence, which should just update the reference count of the newCollection.area
 
-        await Project.addStationaryCollection(project._id,newCollection._id)
-        res.json(newCollection)
+        await Project.addStationaryCollection(project._id,newCollection._id)// pushes the collectionId to the project's stationary collection
+        res.json(newCollection)// send back the new collection in json format
     }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
+    else{// Throw alert, user isn't a team member
+        throw new UnauthorizedError('You do not have permision to perform this operation') // throw an error, user isn't allowed to add to this project
     }
 })
 
@@ -309,7 +309,7 @@ router.delete('/:id/stationary_collections/:collectionId', passport.authenticate
 
 router.post('/:id/moving_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)
+    project = await Project.findById(req.params.id)// CHANGE
 
     if(await Team.isUser(project.team,user._id)){   
 
@@ -320,10 +320,10 @@ router.post('/:id/moving_collections', passport.authenticate('jwt',{session:fals
             duration: req.body.duration
         })
 
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
+        await newCollection.save()// CHANGE
 
-       
+        await Area.addReference(newCollection.area)
+
         await Project.addMovingCollection(project._id,newCollection._id)
         res.json(newCollection)
     }
@@ -376,7 +376,7 @@ router.delete('/:id/moving_collections/:collectionId', passport.authenticate('jw
 
 router.post('/:id/sound_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)
+    project = await Project.findById(req.params.id)// CHANGE
 
     if(await Team.isUser(project.team,user._id)){   
 
@@ -387,10 +387,10 @@ router.post('/:id/sound_collections', passport.authenticate('jwt',{session:false
             duration: req.body.duration
         })
 
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
+        await newCollection.save()// CHANGE
 
-       
+        await Area.addReference(newCollection.area)
+
         await Project.addSoundCollection(project._id,newCollection._id)
         res.json(newCollection)
     }
@@ -443,7 +443,7 @@ router.delete('/:id/sound_collections/:collectionId', passport.authenticate('jwt
 
 router.post('/:id/nature_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)
+    project = await Project.findById(req.params.id)// CHANGE
 
     if(await Team.isUser(project.team,user._id)){   
 
@@ -454,10 +454,10 @@ router.post('/:id/nature_collections', passport.authenticate('jwt',{session:fals
             duration: req.body.duration
         })
 
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
+        await newCollection.save()// CHANGE
 
-       
+        await Area.addReference(newCollection.area)
+
         await Project.addNatureCollection(project._id,newCollection._id)
         res.json(newCollection)
     }
@@ -509,7 +509,7 @@ router.delete('/:id/nature_collections/:collectionId', passport.authenticate('jw
 
 router.post('/:id/light_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)
+    project = await Project.findById(req.params.id)// CHANGE
 
     if(await Team.isUser(project.team,user._id)){   
 
@@ -520,10 +520,10 @@ router.post('/:id/light_collections', passport.authenticate('jwt',{session:false
             duration: req.body.duration
         })
 
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
+        await newCollection.save()// CHANGE
 
-       
+        await Area.addReference(newCollection.area)
+
         await Project.addLightCollection(project._id,newCollection._id)
         res.json(newCollection)
     }
@@ -575,7 +575,7 @@ router.delete('/:id/light_collections/:collectionId', passport.authenticate('jwt
 
 router.post('/:id/boundaries_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)
+    project = await Project.findById(req.params.id)// CHANGE
 
     if(await Team.isUser(project.team,user._id)){   
 
@@ -586,10 +586,10 @@ router.post('/:id/boundaries_collections', passport.authenticate('jwt',{session:
             duration: req.body.duration
         })
 
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
+        await newCollection.save()// CHANGE
 
-       
+        await Area.addReference(newCollection.area)
+
         await Project.addBoundariesCollection(project._id,newCollection._id)
         res.json(newCollection)
     }
@@ -643,9 +643,9 @@ router.delete('/:id/boundaries_collections/:collectionId', passport.authenticate
 
 router.post('/:id/section_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)
+    project = await Project.findById(req.params.id)// CHANGE
 
-    if(await Team.isUser(project.team,user._id)){   
+    if(await Team.isUser(project.team,user._id)){
 
         let newCollection = new Section_Collection({
             title: req.body.title,
@@ -654,10 +654,10 @@ router.post('/:id/section_collections', passport.authenticate('jwt',{session:fal
             duration: req.body.duration
         })
 
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
+        await newCollection.save()// CHANGE
 
-       
+        await Area.addReference(newCollection.area)
+
         await Project.addSectionCollection(project._id,newCollection._id)
         res.json(newCollection)
     }
@@ -711,7 +711,7 @@ router.put('/:id/section_collections/:collectionId', passport.authenticate('jwt'
 
 router.post('/:id/order_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)
+    project = await Project.findById(req.params.id)// CHANGE
 
     if(await Team.isUser(project.team,user._id)){   
 
@@ -722,10 +722,10 @@ router.post('/:id/order_collections', passport.authenticate('jwt',{session:false
             duration: req.body.duration
         })
 
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
+        await newCollection.save()// CHANGE
 
-       
+        await Area.addReference(newCollection.area)
+
         await Project.addOrderCollection(project._id,newCollection._id)
         res.json(newCollection)
     }
@@ -777,7 +777,7 @@ router.delete('/:id/order_collections/:collectionId', passport.authenticate('jwt
 
 router.post('/:id/survey_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)
+    project = await Project.findById(req.params.id)// CHANGE
 
     if(await Team.isUser(project.team,user._id)){   
 
@@ -788,8 +788,9 @@ router.post('/:id/survey_collections', passport.authenticate('jwt',{session:fals
             duration: req.body.duration
         })
 
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
+        await newCollection.save()// CHANGE
+
+        await Area.addReference(newCollection.area)
        
         await Project.addSurveyCollection(project._id,newCollection._id)
         res.json(newCollection)
@@ -840,7 +841,7 @@ router.delete('/:id/survey_collections/:collectionId', passport.authenticate('jw
 
 router.post('/:id/program_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)
+    project = await Project.findById(req.params.id)// CHANGE
 
     if(await (Team.isUser(project.team,user._id) || Team.isOwner(project.team, user._id) || Team.isAdmin(project.team, user._id))){   
 
@@ -851,8 +852,10 @@ router.post('/:id/program_collections', passport.authenticate('jwt',{session:fal
             duration: req.body.duration
         })
 
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
+        await newCollection.save()// CHANGE
+
+        await Area.addReference(newCollection.area)
+
         await Project.addProgramCollection(project._id,newCollection._id)
         res.json(newCollection)
     }
@@ -901,9 +904,11 @@ router.delete('/:id/program_collections/:collectionId', passport.authenticate('j
         throw new UnauthorizedError('You do not have permision to perform this operation')
     }
 })
+
 router.post('/:id/access_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)
+    project = await Project.findById(req.params.id)// CHANGE
+
     if(await Team.isUser(project.team,user._id)){   
 
         let newCollection = new Access_Collection({
@@ -913,10 +918,10 @@ router.post('/:id/access_collections', passport.authenticate('jwt',{session:fals
             duration: req.body.duration
         })
 
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
+        await newCollection.save()// CHANGE
 
-       
+        await Area.addReference(newCollection.area)
+
         await Project.addAccessCollection(project._id,newCollection._id)
         res.json(newCollection)
     }
