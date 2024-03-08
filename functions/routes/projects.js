@@ -2,6 +2,11 @@ const express = require('express')
 const config = require('../utils/config')
 const router = express.Router()
 
+const CollectionNames = require('../databaseFunctions/CollectionNames.js')
+const UserFunctions = require('../databaseFunctions/UserFunctions.js')
+const ReferenceFunctions = require('../databaseFunctions/ReferenceFunctions.js')
+const BasicFunctions = require('../databaseFunctions/BasicFunctions.js')
+const ArrayFunctions = require('../databaseFunctions/ArrayFunctions.js')
 const Project = require('../models/projects.js')
 const Team = require('../models/teams.js')
 const Area = require('../models/areas.js')
@@ -31,28 +36,27 @@ const { BadRequestError, InternalServerError, UnauthorizedError } = require('../
 router.post('', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user// isolate the user passed in from the client's request
 
-    if(await Team.isAdmin(req.body.team,user._id)){// check if the user is the team admin
+    if(await UserFunctions.isAdmin(req.body.team, user._id)){// check if the user is the team admin
 
         if(req.body.points < 3)// check that the project has enough points to define an area
             throw new BadRequestError('Areas require at least three points')
 
-        let newArea = new Area({// create an area object (perimeter)
+        let newArea = await firestore.collection(CollectionNames.AREAS).add({// create an area object (perimeter)
             title: "Project Perimeter",
             points: req.body.points
-        })
-        await newArea.save()// CHANGE save the new area to the projects collection
+        });
 
         var pointIds = []// put the request field's standing points (coordinates and titles) into an array and save to the projects collection
         for(var i = 0; i < req.body.standingPoints.length; i++){
-            let newPoint = new Standing_Point({
+
+            let newPoint = await firestore.collection(CollectionNames.STANDING_POINTS).add({
                 longitude: req.body.standingPoints[i].longitude,
                 latitude: req.body.standingPoints[i].latitude,
                 title: req.body.standingPoints[i].title
             })
-
-            await newPoint.save()// CHANGE
             pointIds[i] = newPoint._id
         }
+
         let newProject = new Project({// create a project document and call .addProject() with it (which just saves it like above)
             title: req.body.title,
             description: req.body.description,
@@ -62,14 +66,14 @@ router.post('', passport.authenticate('jwt',{session:false}), async (req, res, n
             team: req.body.team,
         })
 
-        const project = await Project.addProject(newProject)
+        const project = await BasicFunctions.addObj(newProject, CollectionNames.PROJECTS)
 
-        await Team.addProject(req.body.team,project._id)// updates the project - that is, adds it and updates it in case it already exists
+        await Team.addProject(req.body.team,project._id)// CHANGE(ArrayFunctions.addArrayElement(req.body.team, CollectionNames.TEAMS, project._id) (projects[])) updates the project - that is, adds it and updates it in case it already exists
         res.status(201).json(project)//responds with a "successful creation" status code and a json format of the new project
     }
     else{// user isn't an admin, throw an error
         throw new UnauthorizedError('You do not have permision to perform this operation')
-    }   
+    }
 })
 
 router.get('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
@@ -130,21 +134,19 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}), async (req, 
 
 router.post('/:id/areas', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user// get the user and project details from the request
-    project = await Project.findById(req.params.id)// CHANGE
+    project = await firestore.collection(CollectionNames.PROJECTS).where('_id', '==', req.params.id).get();
 
-    if(await Team.isUser(project.team,user._id)){// check if the user is a member of the team that the project belongs to
+    if(await UserFunctions.isRole(project.team, user._id, "user")){// check if the user is a member of the team that the project belongs to
 
         if(req.body.points.length < 3)// make sure there are three points
             throw new BadRequestError('Areas require at least three points')
-        
-        let newArea = new Area({// if there are three points then create an area and save it to the projects collection
+
+        let newArea = await firestore.collection(CollectionNames.AREAS).add({// create an area object (perimeter)
             title: req.body.title,
             points: req.body.points
-        })
+        });
 
-        newArea.save()// CHANGE
-
-        await Project.addArea(project._id,newArea._id)//call add area
+        await Project.addArea(project._id,newArea._id)// CHANGE(ArrayFunctions.addArrayElement(project._id, CollectionNames.PROJECTS, newArea._id) (subareas[])) call add area
         res.json(newArea)//return the newArea as a json (does this also need an HTTP code?)
     }
     else{// Throw error, user is trying to access a team project they aren't a member of
@@ -154,17 +156,17 @@ router.post('/:id/areas', passport.authenticate('jwt',{session:false}), async (r
 
 router.put('/:id/areas/:areaId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)
-    area = await Area.findById(req.params.areaId)
-    
-    if(await Team.isAdmin(project.team,user._id)){
+    project = await firestore.collection(CollectionNames.PROJECTS).where('_id', '==', req.params.id).get();
+    area = await firestore.collection(CollectionNames.AREAS).where('_id', '==', req.params.areaId).get();
 
-        let newArea = new Area({
+    if(await UserFunctions.isAdmin(project.team, user._id)){
+
+        let newArea = {
             title: (req.body.title ? req.body.title :  area.title),
             points: (req.body.points ? req.body.points : area.points)
-        })
+        }
 
-        res.status(201).json(await Area.updateArea(req.params.areaId, newArea))
+        res.status(201).json(await BasicFunctions.updateObj(req.params.areaId, newArea, CollectionNames.AREAS))
     }
     else{
         throw new UnauthorizedError('You do not have permision to perform this operation')
@@ -184,27 +186,26 @@ router.delete('/:id/areas/:areaId', passport.authenticate('jwt',{session:false})
 
 router.post('/:id/standing_points', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user// get the user and project details from the request
-    project = await Project.findById(req.params.id)// CHANGE
+    project = await firestore.collection(CollectionNames.PROJECTS).where('_id', '==', req.params.id).get();
 
-    if(await Team.isUser(project.team,user._id)){// check if the user is a member of the team that the project belongs to
+    if(await UserFunctions.isRole(project.team, user._id, "user")){// check if the user is a member of the team that the project belongs to
 
-        let newPoint = new Standing_Point({// create a standing point and try to save it to a collection
-            longitude: req.body.longitude,
-            latitude: req.body.latitude,
-            title: req.body.title,
-            refCount: 1
-        })
-        newPoint.save(function (error) {// CHANGE
+        try {
             console.log("Saving a point");// update the console log with progress
-            if (error) {
-              console.log("ERROR SAVING POINT: " + error);
-            } else {
-              console.log("New Point " + newPoint + " successfully added");
-            }
-        })
-       
-        await Project.addPoint(project._id,newPoint._id)// call addPoint()
-        res.json(newPoint)// return jsaon of new point
+            let newPoint = await firestore.collection(CollectionNames.STANDING_POINTS).add({// create an object with the title, date, area, and duration fields from the request field
+                longitude: req.body.longitude,
+                latitude: req.body.latitude,
+                title: req.body.title,
+                refCount: 1
+            })
+            console.log("New Point " + newPoint + " successfully added");
+
+            await Project.addPoint(project._id,newPoint._id)// CHANGE(ArrayFunctions.addArrayElement(project._id, CollectionNames.PROJECTS, newPoint._id))
+        } catch (error) {
+            console.log("ERROR SAVING POINT: " + error);
+        } finally {
+            res.json(newPoint)// return jsaon of new point
+        }
     }
     else{// Throw alert, user isn't a team member
         throw new UnauthorizedError('You do not have permision to perform this operation')
@@ -244,22 +245,20 @@ router.delete('/:id/standing_points/:pointId', passport.authenticate('jwt',{sess
 
 router.post('/:id/stationary_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user // find the user in the request field
-    project = await Project.findById(req.params.id) // CHANGE find the project using the projectId in the request field
+    project = await firestore.collection(CollectionNames.PROJECTS).where('_id', '==', req.params.id).get();
 
-    if(await Team.isUser(project.team,user._id)){ // check if the user is a member of the team the project belongs to
+    if(await UserFunctions.isRole(project.team, user._id, "user")){ // check if the user is a member of the team the project belongs to
 
-        let newCollection = new Stationary_Collection({// create an object with the title, date, area, and duration fields from the request field
+        let newCollection = await firestore.collection(CollectionNames.STATIONARY_COLS).add({// create an object with the title, date, area, and duration fields from the request field
             title: req.body.title,
             date: req.body.date,
             area: req.body.area,
             duration: req.body.duration
         })
 
-        await newCollection.save() // CHANGE save it *note, stationary_collection ISN'T the same as a Firebase Collection, it's still a document it just contains an array of the area ids
+        await ReferenceFunctions.addReference(newCollection.area, CollectionNames.AREAS)// call addRefrence, which should just update the reference count of the newCollection.area
 
-        await Area.addReference(newCollection.area)// call addRefrence, which should just update the reference count of the newCollection.area
-
-        await Project.addStationaryCollection(project._id,newCollection._id)// pushes the collectionId to the project's stationary collection
+        await Project.addStationaryCollection(project._id,newCollection._id)// CHANGE(ArrayFunctions.addArrayElement(project._id, CollectionNames.PROJECTS, newCollection._id) (stationaryCollections[])) pushes the collectionId to the project's stationary collection
         res.json(newCollection)// send back the new collection in json format
     }
     else{// Throw alert, user isn't a team member
@@ -309,22 +308,20 @@ router.delete('/:id/stationary_collections/:collectionId', passport.authenticate
 
 router.post('/:id/moving_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)// CHANGE
+    project = await firestore.collection(CollectionNames.PROJECTS).where('_id', '==', req.params.id).get();
 
-    if(await Team.isUser(project.team,user._id)){   
+    if(await UserFunctions.isRole(project.team, user._id, "user")){
 
-        let newCollection = new Moving_Collection({
+        let newCollection = await firestore.collection(CollectionNames.MOVING_COLS).add({// create an object with the title, date, area, and duration fields from the request field
             title: req.body.title,
             date: req.body.date,
             area: req.body.area,
             duration: req.body.duration
         })
 
-        await newCollection.save()// CHANGE
+        await ReferenceFunctions.addReference(newCollection.area, CollectionNames.AREAS)
 
-        await Area.addReference(newCollection.area)
-
-        await Project.addMovingCollection(project._id,newCollection._id)
+        await Project.addMovingCollection(project._id,newCollection._id)//CHANGE(ArrayFunctions.addArrayElement(project._id, CollectionNames.PROJECTS, newCollection._id) (movingCollections[]))
         res.json(newCollection)
     }
     else{
@@ -376,22 +373,20 @@ router.delete('/:id/moving_collections/:collectionId', passport.authenticate('jw
 
 router.post('/:id/sound_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)// CHANGE
+    project = await firestore.collection(CollectionNames.PROJECTS).where('_id', '==', req.params.id).get();
 
-    if(await Team.isUser(project.team,user._id)){   
+    if(await UserFunctions.isRole(project.team, user._id, "user")){
 
-        let newCollection = new Sound_Collection({
+        let newCollection = await firestore.collection(CollectionNames.SOUND_COLS).add({// create an object with the title, date, area, and duration fields from the request field
             title: req.body.title,
             date: req.body.date,
             area: req.body.area,
             duration: req.body.duration
         })
 
-        await newCollection.save()// CHANGE
+        await ReferenceFunctions.addReference(newCollection.area, CollectionNames.AREAS)
 
-        await Area.addReference(newCollection.area)
-
-        await Project.addSoundCollection(project._id,newCollection._id)
+        await Project.addSoundCollection(project._id,newCollection._id)//CHANGE(ArrayFunctions.addArrayElement(project._id, CollectionNames.PROJECTS, newCollection._id) (soundCollections[]))
         res.json(newCollection)
     }
     else{
@@ -443,22 +438,20 @@ router.delete('/:id/sound_collections/:collectionId', passport.authenticate('jwt
 
 router.post('/:id/nature_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)// CHANGE
+    project = await firestore.collection(CollectionNames.PROJECTS).where('_id', '==', req.params.id).get();
 
-    if(await Team.isUser(project.team,user._id)){   
+    if(await UserFunctions.isRole(project.team, user._id, "user")){
 
-        let newCollection = new Nature_Collection({
+        let newCollection = await firestore.collection(CollectionNames.NATURE_COLS).add({// create an object with the title, date, area, and duration fields from the request field
             title: req.body.title,
             date: req.body.date,
             area: req.body.area,
             duration: req.body.duration
         })
 
-        await newCollection.save()// CHANGE
+        await ReferenceFunctions.addReference(newCollection.area, CollectionNames.AREAS)
 
-        await Area.addReference(newCollection.area)
-
-        await Project.addNatureCollection(project._id,newCollection._id)
+        await Project.addNatureCollection(project._id,newCollection._id)//CHANGE(ArrayFunctions.addArrayElement(project._id, CollectionNames.PROJECTS, newCollection._id) (natureCollections[]))
         res.json(newCollection)
     }
     else{
@@ -509,22 +502,20 @@ router.delete('/:id/nature_collections/:collectionId', passport.authenticate('jw
 
 router.post('/:id/light_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)// CHANGE
+    project = await firestore.collection(CollectionNames.PROJECTS).where('_id', '==', req.params.id).get();
 
-    if(await Team.isUser(project.team,user._id)){   
+    if(await UserFunctions.isRole(project.team, user._id, "user")){
 
-        let newCollection = new Light_Collection({
+        let newCollection = await firestore.collection(CollectionNames.LIGHT_COLS).add({// create an object with the title, date, area, and duration fields from the request field
             title: req.body.title,
             date: req.body.date,
             area: req.body.area,
             duration: req.body.duration
         })
 
-        await newCollection.save()// CHANGE
+        await ReferenceFunctions.addReference(newCollection.area, CollectionNames.AREAS)
 
-        await Area.addReference(newCollection.area)
-
-        await Project.addLightCollection(project._id,newCollection._id)
+        await Project.addLightCollection(project._id,newCollection._id)//CHANGE(ArrayFunctions.addArrayElement(project._id, CollectionNames.PROJECTS, newCollection._id) (lightCollections[]))
         res.json(newCollection)
     }
     else{
@@ -575,22 +566,20 @@ router.delete('/:id/light_collections/:collectionId', passport.authenticate('jwt
 
 router.post('/:id/boundaries_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)// CHANGE
+    project = await firestore.collection(CollectionNames.PROJECTS).where('_id', '==', req.params.id).get();
 
-    if(await Team.isUser(project.team,user._id)){   
+    if(await UserFunctions.isRole(project.team, user._id, "user")){
 
-        let newCollection = new Boundaries_Collection({
+        let newCollection = await firestore.collection(CollectionNames.BOUNDARIES_COLS).add({// create an object with the title, date, area, and duration fields from the request field
             title: req.body.title,
             date: req.body.date,
             area: req.body.area,
             duration: req.body.duration
         })
 
-        await newCollection.save()// CHANGE
+        await ReferenceFunctions.addReference(newCollection.area, CollectionNames.AREAS)
 
-        await Area.addReference(newCollection.area)
-
-        await Project.addBoundariesCollection(project._id,newCollection._id)
+        await Project.addBoundariesCollection(project._id,newCollection._id)//CHANGE(ArrayFunctions.addArrayElement(project._id, CollectionNames.PROJECTS, newCollection._id) (boundariesCollections[]))
         res.json(newCollection)
     }
     else{
@@ -643,22 +632,20 @@ router.delete('/:id/boundaries_collections/:collectionId', passport.authenticate
 
 router.post('/:id/section_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)// CHANGE
+    project = await firestore.collection(CollectionNames.PROJECTS).where('_id', '==', req.params.id).get();
 
-    if(await Team.isUser(project.team,user._id)){
+    if(await UserFunctions.isRole(project.team, user._id, "user")){
 
-        let newCollection = new Section_Collection({
+        let newCollection = await firestore.collection(CollectionNames.SECTION_COLS).add({// create an object with the title, date, area, and duration fields from the request field
             title: req.body.title,
             date: req.body.date,
             area: req.body.area,
             duration: req.body.duration
         })
 
-        await newCollection.save()// CHANGE
+        await ReferenceFunctions.addReference(newCollection.area, CollectionNames.AREAS)
 
-        await Area.addReference(newCollection.area)
-
-        await Project.addSectionCollection(project._id,newCollection._id)
+        await Project.addSectionCollection(project._id,newCollection._id)//CHANGE(ArrayFunctions.addArrayElement(project._id, CollectionNames.PROJECTS, newCollection._id) (sectionCollections[]))
         res.json(newCollection)
     }
     else{
@@ -711,22 +698,20 @@ router.put('/:id/section_collections/:collectionId', passport.authenticate('jwt'
 
 router.post('/:id/order_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)// CHANGE
+    project = await firestore.collection(CollectionNames.PROJECTS).where('_id', '==', req.params.id).get();
 
-    if(await Team.isUser(project.team,user._id)){   
+    if(await UserFunctions.isRole(project.team, user._id, "user")){
 
-        let newCollection = new Order_Collection({
+        let newCollection = await firestore.collection(CollectionNames.ORDER_COLS).add({// create an object with the title, date, area, and duration fields from the request field
             title: req.body.title,
             date: req.body.date,
             area: req.body.area,
             duration: req.body.duration
         })
 
-        await newCollection.save()// CHANGE
+        await ReferenceFunctions.addReference(newCollection.area, CollectionNames.AREAS)
 
-        await Area.addReference(newCollection.area)
-
-        await Project.addOrderCollection(project._id,newCollection._id)
+        await Project.addOrderCollection(project._id,newCollection._id)//CHANGE(ArrayFunctions.addArrayElement(project._id, CollectionNames.PROJECTS, newCollection._id) (orderCollections[]))
         res.json(newCollection)
     }
     else{
@@ -777,22 +762,20 @@ router.delete('/:id/order_collections/:collectionId', passport.authenticate('jwt
 
 router.post('/:id/survey_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)// CHANGE
+    project = await firestore.collection(CollectionNames.PROJECTS).where('_id', '==', req.params.id).get();
 
-    if(await Team.isUser(project.team,user._id)){   
+    if(await UserFunctions.isRole(project.team, user._id, "user")){
 
-        let newCollection = new Survey_Collection({
+        let newCollection = await firestore.collection(CollectionNames.SURVEY_COLS).add({// create an object with the title, date, area, and duration fields from the request field
             title: req.body.title,
             date: req.body.date,
             area: req.body.area,
             duration: req.body.duration
         })
 
-        await newCollection.save()// CHANGE
-
-        await Area.addReference(newCollection.area)
+        await ReferenceFunctions.addReference(newCollection.area, CollectionNames.AREAS)
        
-        await Project.addSurveyCollection(project._id,newCollection._id)
+        await Project.addSurveyCollection(project._id,newCollection._id)//CHANGE(ArrayFunctions.addArrayElement(project._id, CollectionNames.PROJECTS, newCollection._id) (surveyCollections[]))
         res.json(newCollection)
     }
     else{
@@ -841,22 +824,20 @@ router.delete('/:id/survey_collections/:collectionId', passport.authenticate('jw
 
 router.post('/:id/program_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)// CHANGE
+    project = await firestore.collection(CollectionNames.PROJECTS).where('_id', '==', req.params.id).get();
 
-    if(await (Team.isUser(project.team,user._id) || Team.isOwner(project.team, user._id) || Team.isAdmin(project.team, user._id))){   
+    if(await UserFunctions.isRole(project.team, user._id, "user") || UserFunctions.isRole(project.team, user._id, "owner") || UserFunctions.isAdmin(req.body.team, user._id)){
 
-        let newCollection = new Program_Collection({
+        let newCollection = await firestore.collection(CollectionNames.PROGRAM_COLS).add({// create an object with the title, date, area, and duration fields from the request field
             title: req.body.title,
             date: req.body.date,
             area: req.body.area,
             duration: req.body.duration
         })
 
-        await newCollection.save()// CHANGE
+        await ReferenceFunctions.addReference(newCollection.area, CollectionNames.AREAS)
 
-        await Area.addReference(newCollection.area)
-
-        await Project.addProgramCollection(project._id,newCollection._id)
+        await Project.addProgramCollection(project._id,newCollection._id)//CHANGE(ArrayFunctions.addArrayElement(project._id, CollectionNames.PROJECTS, newCollection._id) (programCollections[]))
         res.json(newCollection)
     }
     else{
@@ -907,22 +888,20 @@ router.delete('/:id/program_collections/:collectionId', passport.authenticate('j
 
 router.post('/:id/access_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
-    project = await Project.findById(req.params.id)// CHANGE
+    project = await firestore.collection(CollectionNames.PROJECTS).where('_id', '==', req.params.id).get();
 
-    if(await Team.isUser(project.team,user._id)){   
+    if(await UserFunctions.isRole(project.team, user._id, "user")){
 
-        let newCollection = new Access_Collection({
+        let newCollection = await firestore.collection(CollectionNames.ACCESS_COLS).add({// create an object with the title, date, area, and duration fields from the request field
             title: req.body.title,
             date: req.body.date,
             area: req.body.area,
             duration: req.body.duration
         })
 
-        await newCollection.save()// CHANGE
+        await ReferenceFunctions.addReference(newCollection.area, CollectionNames.AREAS)
 
-        await Area.addReference(newCollection.area)
-
-        await Project.addAccessCollection(project._id,newCollection._id)
+        await Project.addAccessCollection(project._id,newCollection._id)//CHANGE(ArrayFunctions.addArrayElement(project._id, CollectionNames.PROJECTS, newCollection._id) (accessCollections[]))
         res.json(newCollection)
     }
     else{

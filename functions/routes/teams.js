@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../utils/config');
 const { json } = require('express');
 const {
-        ACCSESS_MAPS,
+        ACCESS_MAPS,
         BOUNDARIES_MAPS,
         LIGHT_MAPS,
         MOVING_MAPS,
@@ -17,6 +17,7 @@ const {
         ORDER_MAPS,
         PROGRAM_MAPS,
         PROJECTS,
+        SECTION_MAPS,
         SOUND_MAPS,
         STATIONARY_MAPS,
         TEAMS,
@@ -97,7 +98,7 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}),async (req, r
         if(team.projects.length){
             for(let i = 0; i < team.projects.length; i++ ) {
                 proj = team.projects[i];
-                await refDBfoos.projectCleanup(proj, ACCSESS_MAPS);
+                await refDBfoos.projectCleanup(proj, ACCESS_MAPS);
                 await refDBfoos.projectCleanup(proj, BOUNDARIES_MAPS);
                 await refDBfoos.projectCleanup(proj, LIGHT_MAPS);
                 await refDBfoos.projectCleanup(proj, MOVING_MAPS);
@@ -107,6 +108,7 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}),async (req, r
                 await refDBfoos.projectCleanup(proj, SECTION_MAPS);
                 await refDBfoos.projectCleanup(proj, SOUND_MAPS);
                 await refDBfoos.projectCleanup(proj, STATIONARY_MAPS);
+                await refDBfoos.projectCleanup(proj, SECTION_MAPS);
             }
     
             await basicDBfoos.teamCleanup(teamId);
