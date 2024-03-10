@@ -10,6 +10,7 @@ const { models } = require('mongoose')
 const firestore = require('../firestore');
 const { createId } = require('../databaseFunctions/BasicFunctions.js');
 const User = require('../databaseFunctions/UserFunctions.js');
+const Basic = require('../databaseFunctions/BasicFunctions.js');
 
 const { UnauthorizedError, BadRequestError } = require('../utils/errors')
 
@@ -309,7 +310,7 @@ router.delete('/:id/claim', passport.authenticate('jwt', { session: false }), as
 })
 
 //route edits time slot information when updating a map
-router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+/*router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
     map = await Map.findById(req.params.id)
     
@@ -330,11 +331,53 @@ router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res
         throw new UnauthorizedError('You do not have permision to perform this operation')
     }
     
+})*/
+
+//route edits time slot information when updating a map
+router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+    try {
+        const userId = req.user;
+        const mapId = req.params.id;
+
+        // Fetch the map data to be updated
+        const mapRef = firestore.collection('access_maps').where('_id', '==', mapId);
+        const mapSnapshot = await mapRef.get();
+        if (!mapSnapshot.exists) {
+            throw new NotFoundError('Map not found');
+        }
+        const mapData = mapSnapshot.data();
+
+        // Check if the user is an admin of the project associated with the map
+        const projectRef = firestore.collection('projects').where('_id', '==', mapData.project);
+        const projectSnapshot = await projectRef.get();
+        if (!projectSnapshot.exists) {
+            throw new NotFoundError('Project not found');
+        }
+        const projectData = projectSnapshot.data();
+        const isAdmin = await User.isAdmin(projectData.team, userId);
+        if (!isAdmin) {
+            throw new UnauthorizedError('You do not have permission to perform this operation');
+        }
+
+        // Update the map data with the provided fields or keep the existing values
+        const newMapData = {
+            title: req.body.title || mapData.title,
+            date: req.body.date || mapData.date,
+            maxResearchers: req.body.maxResearchers || mapData.maxResearchers
+        };
+
+        // Update the map document in Firestore
+        await mapRef.update(newMapData);
+
+        // Return the updated map data
+        res.status(201).json(newMapData);
+    } catch (error) {
+        next(error);
+    }
 })
 
-
 //route deletes a map from a test collection
-router.delete('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+/*router.delete('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
     map = await Map.findById(req.params.id)
     project = await Project.findById(map.project)
@@ -345,10 +388,47 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}), async (req, 
         throw new UnauthorizedError('You do not have permision to perform this operation')
     }
 
+})*/
+
+//route deletes a map from a test collection
+router.delete('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+    try {
+        // Get user, map, and project data
+        const userId = req.user._id;
+        const mapId = req.params.id;
+
+        const mapRef = firestore.collection('access_maps').where("_id", "==", mapId);
+        const mapSnapshot = await mapRef.get();
+        if (!mapSnapshot.exists) {
+            throw new NotFoundError('Map not found');
+        }
+
+        const mapData = mapSnapshot.data();
+
+        const projectRef = firestore.collection('projects').where("_id", "==", mapData.project);
+        const projectSnapshot = await projectRef.get();
+        if (!projectSnapshot.exists) {
+            throw new NotFoundError('Project not found');
+        }
+        const projectData = projectSnapshot.docs[0].data();
+
+        // Check if the user is an admin of the project associated with the map
+        const isAdmin = await User.isAdmin(projectData.team, userId);
+        if (!isAdmin) {
+            throw new UnauthorizedError('You do not have permission to perform this operation');
+        }
+
+        // Delete the map from the test collection
+        const deletedMap = await Basic.deleteObj(mapData.sharedData, mapId); 
+
+        res.json(deletedMap);
+    } catch (error) {
+        next(error);
+    }
 })
 
 //route adds test data to its relevant time slot
-router.post('/:id/data', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+/*router.post('/:id/data', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
     map = await Map.findById(req.params.id)
     if(Map.isResearcher(map._id, user._id)){
@@ -365,10 +445,47 @@ router.post('/:id/data', passport.authenticate('jwt',{session:false}), async (re
     else{
         throw new UnauthorizedError('You do not have permision to perform this operation')
     }
+})*/
+
+router.post('/:id/data', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+        const mapId = req.params.id;
+
+        // Get the map document
+        const mapRef = firestore.collection('access_maps').where("_id", "==", mapId);
+        const mapSnapshot = await mapRef.get();
+
+        if (!mapSnapshot.exists) {
+            throw new NotFoundError('Map not found');
+        }
+
+        const mapData = mapSnapshot.data();
+
+        // Check if the user is a researcher for the given map
+        const isResearcher = Map.isResearcher(mapData._id, userId); 
+        if (!isResearcher) {
+            throw new UnauthorizedError('You do not have permission to perform this operation');
+        }
+
+        // Add test data to the relevant time slot
+        const entries = req.body.entries || [req.body];
+        for (const entry of entries) {
+            await Map.addEntry(mapData._id, entry);
+        }
+
+        // Return the updated map data
+        const updatedMapSnapshot = await mapRef.get();
+        const updatedMapData = updatedMapSnapshot.data();
+
+        res.status(201).json(updatedMapData);
+    } catch (error) {
+        next(error);
+    }
 })
 
 //route edits any already created tested time slots.  Essentially redoing a test run for a time slot 
-router.put('/:id/data/:data_id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+/*router.put('/:id/data/:data_id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user   
     mapId = req.params.id
 
@@ -394,10 +511,55 @@ router.put('/:id/data/:data_id', passport.authenticate('jwt',{session:false}), a
     else{
         throw new UnauthorizedError('You do not have permision to perform this operation')
     }  
+})*/
+
+router.put('/:id/data/:data_id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+        const mapId = req.params.id;
+        const dataId = req.params.data_id;
+
+        // Check if the user is a researcher for the given map
+        const isResearcher = Map.isResearcher(mapId, userId);
+        if (!isResearcher) {
+            throw new UnauthorizedError('You do not have permission to perform this operation');
+        }
+
+        // Fetch the old data to be updated
+        const oldDataRef = firestore.collection('access_maps').where("_id", "==", mapId).collection('data').doc(dataId);
+        const oldDataSnapshot = await oldDataRef.get();
+        if (!oldDataSnapshot.exists) {
+            throw new NotFoundError('Data not found');
+        }
+        const oldData = oldDataSnapshot.data();
+
+        // Prepare the new data
+        const newData = {
+            accessType: req.body.accessType || oldData.accessType,
+            inPerimeter: req.body.inPerimeter || oldData.inPerimeter,
+            area: req.body.area || oldData.area,
+            distance: req.body.distance || oldData.distance,
+            path: req.body.path || oldData.path,
+            time: req.body.time || oldData.time,
+            details: req.body.details || oldData.details,
+            floors: req.body.floors || oldData.floors,
+        };
+
+        // Update the data document in Firestore
+        await oldDataRef.update(newData);
+
+        // Return the updated map data
+        const updatedMapSnapshot = await firestore.collection('access_maps').where("_id", "==", mapId).get();
+        const updatedMapData = updatedMapSnapshot.data();
+
+        res.status(201).json(updatedMapData);
+    } catch (error) {
+        next(error);
+    }
 })
 
 //route deletes an individual time slot from a map
-router.delete('/:id/data/:data_id',passport.authenticate('jwt',{session:false}), async (req, res, next) => { 
+/*router.delete('/:id/data/:data_id',passport.authenticate('jwt',{session:false}), async (req, res, next) => { 
     user = await req.user
     map = await Map.findById(req.params.id)
     if(Map.isResearcher(map._id, user._id)){
@@ -405,6 +567,36 @@ router.delete('/:id/data/:data_id',passport.authenticate('jwt',{session:false}),
     }
     else{
         throw new UnauthorizedError('You do not have permision to perform this operation')
+    }
+})*/
+
+//route deletes an individual time slot from a map
+router.delete('/:id/data/:data_id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
+    try {
+        // Get the authenticated user
+        const user = req.user;
+
+        // Get the map document
+        const mapId = req.params.id;
+        const mapRef = firestore.collection('access_maps').where("_id", "==", mapId);
+        const mapSnapshot = await mapRef.get();
+
+        if (!mapSnapshot.exists) {
+            throw new NotFoundError('Map not found');
+        }
+
+        // Check if the user is a researcher for this map
+        if (!Map.isResearcher(mapId, user._id)) {
+            throw new UnauthorizedError('You do not have permission to perform this operation');
+        }
+
+        // Delete the entry from the map
+        const dataId = req.params.data_id;
+        await Map.deleteEntry(mapId, dataId);
+
+        res.status(200).json({ message: 'Entry deleted successfully' });
+    } catch (error) {
+        next(error);
     }
 })
 
