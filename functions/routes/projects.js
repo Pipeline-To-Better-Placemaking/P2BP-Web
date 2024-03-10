@@ -76,7 +76,7 @@ router.post('', passport.authenticate('jwt',{session:false}), async (req, res, n
     }
 })
 
-router.get('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+/*router.get('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     res.json(await Project.findById(req.params.id)
                           .populate('area')
                           .populate('subareas')
@@ -94,6 +94,155 @@ router.get('/:id', passport.authenticate('jwt',{session:false}), async (req, res
                           .populate('programCollections')
                           
             )
+})*/
+
+router.get('/:id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
+    try {
+        const projectId = req.params.id;
+
+        // Fetch the project document
+        const projectRef = firestore.collection('projects').where('_id', '==', projectId);
+        const projectSnapshot = await projectRef.get();
+
+        if (!projectSnapshot.exists) {
+            throw new NotFoundError('Project not found');
+        }
+
+        const projectData = projectSnapshot.data();
+
+        // Populate the area field
+        const areaRef = projectData.area;
+        const areaSnapshot = await areaRef.get();
+        const areaData = areaSnapshot.data();
+
+        // Populate the subareas field
+        const subareas = [];
+        for (const subareaRef of projectData.subareas) {
+            const subareaSnapshot = await subareaRef.get();
+            const subareaData = subareaSnapshot.data();
+            subareas.push(subareaData);
+        }
+
+        // Populate the standingPoints field
+        const standingPoints = [];
+        for (const standingPointRef of projectData.standingPoints) {
+            const standingPointSnapshot = await standingPointRef.get();
+            const standingPointData = standingPointSnapshot.data();
+            standingPoints.push(standingPointData);
+        }
+
+        // Populate the stationaryCollections field
+        const stationaryCollections = [];
+        for (const stationaryCollectionRef of projectData.stationaryCollections) {
+            const stationaryCollectionSnapshot = await stationaryCollectionRef.get();
+            const stationaryCollectionData = stationaryCollectionSnapshot.data();
+            stationaryCollections.push(stationaryCollectionData);
+        }
+
+        // Populate the movingCollections field
+        const movingCollections = [];
+        for (const movingCollectionRef of projectData.movingCollections) {
+            const movingCollectionSnapshot = await movingCollectionRef.get();
+            const movingCollectionData = movingCollectionSnapshot.data();
+            movingCollections.push(movingCollectionData);
+        }
+
+        // Populate the soundCollections field
+        const soundCollections = [];
+        for (const soundCollectionRef of projectData.soundCollections) {
+            const soundCollectionSnapshot = await soundCollectionRef.get();
+            const soundCollectionData = soundCollectionSnapshot.data();
+            soundCollections.push(soundCollectionData);
+        }
+
+        // Populate the natureCollections field
+        const natureCollections = [];
+        for (const natureCollectionRef of projectData.natureCollections) {
+            const natureCollectionSnapshot = await natureCollectionRef.get();
+            const natureCollectionData = natureCollectionSnapshot.data();
+            natureCollections.push(natureCollectionData);
+        }
+
+        // Populate the lightCollections field
+        const lightCollections = [];
+        for (const lightCollectionRef of projectData.lightCollections) {
+            const lightCollectionSnapshot = await lightCollectionRef.get();
+            const lightCollectionData = lightCollectionSnapshot.data();
+            lightCollections.push(lightCollectionData);
+        }
+
+        // Populate the boundariesCollections field
+        const boundariesCollections = [];
+        for (const boundariesCollectionRef of projectData.boundariesCollections) {
+            const boundariesCollectionSnapshot = await boundariesCollectionRef.get();
+            const boundariesCollectionData = boundariesCollectionSnapshot.data();
+            boundariesCollections.push(boundariesCollectionData);
+        }
+
+        // Populate the orderCollections field
+        const orderCollections = [];
+        for (const orderCollectionRef of projectData.orderCollections) {
+            const orderCollectionSnapshot = await orderCollectionRef.get();
+            const orderCollectionData = orderCollectionSnapshot.data();
+            orderCollections.push(orderCollectionData);
+        }
+
+        // Populate the surveyCollections field
+        const surveyCollections = [];
+        for (const surveyCollectionRef of projectData.surveyCollections) {
+            const surveyCollectionSnapshot = await surveyCollectionRef.get();
+            const surveyCollectionData = surveyCollectionSnapshot.data();
+            surveyCollections.push(surveyCollectionData);
+        }
+
+        // Populate the sectionCollections field
+        const sectionCollections = [];
+        for (const sectionCollectionRef of projectData.sectionCollections) {
+            const sectionCollectionSnapshot = await sectionCollectionRef.get();
+            const sectionCollectionData = sectionCollectionSnapshot.data();
+            sectionCollections.push(sectionCollectionData);
+        }
+
+        // Populate the accessCollections field
+        const accessCollections = [];
+        for (const accessCollectionRef of projectData.accessCollections) {
+            const accessCollectionSnapshot = await accessCollectionRef.get();
+            const accessCollectionData = accessCollectionSnapshot.data();
+            accessCollections.push(accessCollectionData);
+        }
+
+        // Populate the programCollections field
+        const programCollections = [];
+        for (const programCollectionRef of projectData.programCollections) {
+            const programCollectionSnapshot = await programCollectionRef.get();
+            const programCollectionData = programCollectionSnapshot.data();
+            programCollections.push(programCollectionData);
+        }
+
+
+        // Construct the populated project object
+        const populatedProject = {
+            _id: projectId,
+            area: areaData,
+            subareas,
+            standingPoints,
+            stationaryCollections,
+            movingCollections,
+            soundCollections,
+            natureCollections,
+            lightCollections,
+            boundariesCollections,
+            orderCollections,
+            surveyCollections,
+            sectionCollections,
+            accessCollections,
+            programCollections
+        };
+
+        res.status(200).json(populatedProject);
+    } catch (error) {
+        next(error);
+    }
 })
 
 router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
