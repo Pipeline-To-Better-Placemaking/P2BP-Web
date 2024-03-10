@@ -9,73 +9,94 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
 const { models } = require('mongoose')
+const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
+const colDBfoos = require('../databaseFunctions/CollectionFunctions.js');
+const refDBfoos = require('../databaseFunctions/ReferenceFunctions.js');
+const arrayDBfoos = require('../databaseFunctions/ArrayFunctions.js');
+const projectDBfoos = require('../databaseFunctions/ProjectFunctions.js');
+const userDBfoos = require('../databaseFunctions/UserFunctions.js');
 
 const { UnauthorizedError, BadRequestError } = require('../utils/errors')
 
 //route creates new map(s).  If there are multiple time slots in test, multiple timseslots are created.
 router.post('', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.body.project)
+    console.log("IN MOVING_MAPS ROUTE!");
+    const user = await req.user;
+    const projectId = req.body.project;
+    const project = await basicDBfoos.getObj(projectId, "projects");
+    const collectionId = req.body.collection;
+    const timeSlots = await req.body.timeSlots;
+    const authorized = await userDBfoos.isAdmin(project.team, user._id);
+    console.log(timeSlots);
 
-    if(await Team.isAdmin(project.team,user._id)){
-        
-        if(req.body.timeSlots){
-            for(var i = 0; i < req.body.timeSlots.length; i++){
-                var slot = req.body.timeSlots[0]
+    if(authorized) {
 
-                let newMap = new Map({
+        if(timeSlots && timeSlots.length > 0) {
+            console.log("true")
+            for(let i = 0; i < timeSlots.length; i++){
+                let slot = timeSlots[0]
+
+                let newMap = {
+                    _id: basicDBfoos.createId(),
                     title: slot.title,
                     standingPoints: slot.standingPoints,
                     researchers: slot.researchers,
                     project: req.body.project,
                     sharedData: req.body.collection,
                     date: slot.date,
-                    maxResearchers: slot.maxResearchers
-                })
+                    maxResearchers: slot.maxResearchers,
+                    maps: [],
+                }
 
                 //create new map with method from _map models and add ref to its parent collection.
-                const map = await Map.addMap(newMap)
-                await Moving_Collection.addActivity(req.body.collection, map._id)
+                const map = await basicDBfoos.addObj(newMap, "moving_maps");
+                await arrayDBfoos.addArrayElement(collectionId, "maps", "moving_collections", newMap._id);
 
                 //add references of points used in Points model.
-                for (i = 0; i < map.standingPoints.length; i ++){
-                    await Points.addRefrence(map.standingPoints[i]) 
+                for (i = 0; i < map.standingPoints.length; i ++) {
+                    await refDBfoos.addReference(map.standingPoints[i]._id, "standing_points");
                 }
-        
-
-                res.status(201).json(await Moving_Collection.findById(req.body.collection))
+                console.log("tset");
+                res.status(201).json(await basicDBfoos.getObj(req.body.collection, "moving_collection"));
             }
         }
         else{
-            let newMap = new Map({
+            console.log("False");
+            const newMap = {
+                _id: basicDBfoos.createId(),
                 title: req.body.title,
                 standingPoints: req.body.standingPoints,
                 researchers: req.body.researchers,
                 project: req.body.project,
                 sharedData: req.body.collection,
                 date: req.body.date, 
-                maxResearchers: req.body.maxResearchers
-            })
-
-            const map = await Map.addMap(newMap)
-            await Moving_Collection.addActivity(req.body.collection,map._id)
-            
-            for (i = 0; i < map.standingPoints.length; i ++){
-                await Points.addRefrence(map.standingPoints[i]) 
+                maxResearchers: req.body.maxResearchers,
+                maps: [],
             }
 
+            const map = await basicDBfoos.addObj(newMap, "moving_maps");
+            console.log(collectionId);
+            await arrayDBfoos.addArrayElement(collectionId, "maps", "moving_collections", newMap._id);
+            // await Moving_Collection.addActivity(req.body.collection,map._id)
+            for (i = 0; i < newMap.standingPoints.length; i ++){
+                await refDBfoos.addReference(newMap.standingPoints[i]._id, "standing_points");
+            }
+            console.log("end");
+            res.status(201).json(map)
+
         }
-        res.status(201).json(map)
+        res.status(201).json();
 
     }
     else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
+        throw new Error('You do not have permision to perform this operation');
     }   
 })
 
 //route gets all map data, including any collection data.
 router.get('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    const map = await  Map.findById(req.params.id)
+    console.error("Moving Maps????");
+    /*const map = await  Map.findById(req.params.id)
                            .populate('standingPoints')
                            .populate('researchers','firstname lastname')
                            .populate([
@@ -87,25 +108,46 @@ router.get('/:id', passport.authenticate('jwt',{session:false}), async (req, res
                                     path: 'area',
                                     model: 'Areas'
                                    }
-                                }])
-                           
+                                }])*/
+    let map = await basicDBfoos.getObj(req.params.id, "moving_maps");
+    for (let i = 0; i < map.standingPoints.length; i++) {
+        const id = map.researchers[i];
+        const researcher = await basicDBfoos.getObj(map.researchers[i], "users");
+        map.researchers[i] = {firstname: researcher.firstname, lastname: researcher.lastname, _id: map.researchers[i]};
+    }
+    for (let i = 0; i < map.standingPoints.length; i++) {
+        const id = map.standingPoints[i];
+        console.log(id);
+        map.standingPoints[i] = await basicDBfoos.getObj(id, "standing_points");
+        map.standingPoints[i]._id = id;
+    }
+    const obj = await basicDBfoos.getObj(map.sharedData, "moving_collections");
+    map.sharedData = {title: obj.title, duration: obj.duration, _id: map.sharedData}
+    const area = await basicDBfoos.getObj(obj.area, "areas");
+    map.sharedData.area = area;
+    console.log(map);
+
     res.status(200).json(map)
 })
 
 //route signs team member up to a time slot.
 router.put('/:id/claim', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    map = await Map.findById(req.params.id)
-    project = await Project.findById(map.project)
-    user = await req.user
+    console.log("IN CLAIMS IN MOVING MAPS");
+    console.log(req.params.id);
+    const map = await basicDBfoos.getObj(req.params.id, "moving_maps");
+    const project = await basicDBfoos.getObj(map.project, "projects");
+    const user = await req.user;
     if(map.researchers.length < map.maxResearchers)
     // adding an await in if statement below causes unwanted behavior.  Reason unkown
-        if(Team.isUser(project.team,user._id)){
-            res.status(200).json(await Map.addResearcher(map._id,user._id))
+        if(userDBfoos.onTeam(project.team, user._id)) {
+            res.status(200).json(await arrayDBfoos.addArrayElement(map._id, "researchers", "moving_maps", user._id));
         }
-        else
-            throw new UnauthorizedError('You do not have permision to perform this operation')
-    else 
-        throw new BadRequestError('Research team is already full')
+        else {
+            throw new UnauthorizedError('You do not have permision to perform this operation');
+        }
+    else {
+        throw new BadRequestError('Research team is already full');
+    }
 })
 
 //route reverses sign up to a time slot.

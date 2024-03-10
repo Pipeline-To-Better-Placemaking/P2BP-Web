@@ -1,40 +1,37 @@
 const firestore = require('../firestore');
+const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
 
 module.exports.addReference = async function(docId, collection) {
-  try {
-      const ref = firestore.collection(collection).where('_id', '==', docId).get();
-      const refData = await ref.get();
-
-      if (!refData.exists) {
-          throw new Error('Standing point not found');
-      }
-
-      const data = refData.data();
-      let newData = { ...data };
-
-      // Update reference count
-      newData.refCount = (newData.refCount || 0) + 1;
-
-      // Update the standing point with the new reference count
-      await ref.update({ refCount: newData.refCount });
-
-      return newData; // Return the updated point data
-  } catch (error) {
-      console.error('Error adding reference:', error);
-      throw error; // Rethrow error for handling in the caller function
-  }
+    try {
+        console.log("docID " + docId);
+        let ref = await basicDBfoos.getObj(docId, collection);
+        console.log("RefID is " + ref);
+        if (!ref.refCount) {
+            ref.refCount = 0;
+        }
+        ref.refCount + 1;
+        return await basicDBfoos.updateObj(ref._id, ref, collection);
+    } catch (error) {
+        console.error('Error Adding reference:', error);
+        throw error;
+    }
 }
 
 module.exports.removeReference = async function(docId, collection) {
     try {
         const ref = await basicDBfoos.getObj(docId, collection);
 
+        if (ref === null)
+        {
+            return;
+        }
+
         ref.refCount = (ref.refCount || 0) - 1;
 
         if (ref.refCount <= 0) {
-            await basicDBfoos.deleteObj(ref._id, collection);
+            return await basicDBfoos.deleteObj(ref._id, collection);
         } else {
-            await basicDBfoos.updateObj(ref._id, ref, collection);
+            return await basicDBfoos.updateObj(ref._id, ref, collection);
         }
     } catch (error) {
         console.error('Error removing reference:', error);
@@ -52,4 +49,20 @@ module.exports.projectCleanup = async function(projectId, collection) {
         firestore.collection(collection).doc(doc.id).delete();
     });
     return;
+}
+
+// Takes an array of ids in an object, and returns the objs that are being pointed too.
+// All ids must point to obj in the same collection
+module.exports.getAllRefs = async function(array, collection) {
+    if (!array) {
+        return [];
+    }
+    for (let i = 0; i < array.length; i++) {
+            console.log(array[i]);
+            console.log(collection);
+            let obj = await basicDBfoos.getObj(array[i], collection);
+            obj._id = array[i];
+            array[i] = obj;
+        }
+    return array;
 }

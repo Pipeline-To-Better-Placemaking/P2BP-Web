@@ -1,12 +1,14 @@
 const { v4: uuidv4 } = require('uuid');
 const firestore = require('../firestore');
+const {TEAMS} = require('../databaseFunctions/CollectionNames.js');
 
-module.exports.addObj = async function(newMap, collection) {
-    return await firestore.collection(collection).doc().set(newMap);
+const addObj = async function(newObj, collection) {
+    console.log(newObj);
+    return await firestore.collection(collection).doc().set(newObj);
 }
 
-module.exports.getObj = async function(docId, collection) {
-    let ret = undefined;
+const getObj = async function(docId, collection) {
+    let ret = null;
     const obj = await firestore.collection(collection).where('_id', '==', docId).get();
     obj.forEach((doc) => {
         ret = doc.data();
@@ -15,31 +17,49 @@ module.exports.getObj = async function(docId, collection) {
     return ret;
 }
 
-module.exports.updateObj = async function (docId, newMap, collection) {
-    const oldMap = await firestore.collection(collection).where('_id', '==', docId).get();
-    if (oldMap.empty)
+const updateObj = async function (docId, updates, collection) {
+    const oldObj = await firestore.collection(collection).where('_id', '==', docId).get();
+    if (oldObj.empty)
     {
-        throw new UnauthorizedError("Invalid " + collection + " map");
+        throw new Error("Invalid " + collection + "obj");
     }
-    oldMap.forEach(doc => {
-        firestore.collection(collection).doc(doc.id).update(newMap);
+    let newObj;
+    oldObj.forEach(async doc => {
+        newObj = await firestore.collection(collection).doc(doc.id).update(updates)
+        console.log(newObj);
     });
-    return;
+    return newObj;
 }
 
-module.exports.deleteObj = async function(docId, collection) {
+const deleteObj = async function(docId, collection) {
     const map = await firestore.collection(collection).where('_id', '==', docId).get();
     if (map.empty)
     {
-        throw new UnauthorizedError("Invalid " + collection + " map");
+        return;
     }
-    map.forEach(doc => {
-        firestore.collection(collection).doc(doc.id).delete();
+    map.forEach(async doc => {
+        await firestore.collection(collection).doc(doc.id).delete();
     });
     return;
 }
-
+const teamCleanup = async function(teamId) {
+    const team = await firestore.collection(TEAMS).where('_id', '==', teamId).get();
+    if (oldMap.empty)
+    {
+        throw new UnauthorizedError('Invalid map');
+    }
+    team.forEach((doc) => {
+        basicDBfoos.deleteObj(doc._id, collection);
+    });
+}
 // Created to make changing how ids are made easier
-module.exports.createId = function() {
+const createId = function() {
     return uuidv4();
 }
+
+module.exports.addObj = addObj;
+module.exports.getObj = getObj;
+module.exports.updateObj = updateObj;
+module.exports.deleteObj = deleteObj;
+module.exports.teamCleanup = teamCleanup;
+module.exports.createId = createId;

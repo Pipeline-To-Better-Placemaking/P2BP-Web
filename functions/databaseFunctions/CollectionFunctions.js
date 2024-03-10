@@ -1,5 +1,7 @@
 const reference = require('./ReferenceFunctions.js');
 const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
+const refDBfoos = require('../databaseFunctions/ReferenceFunctions.js');
+const firestore = require('../firestore');
 const {
         AREAS,
         ACCESS_COLS,
@@ -25,17 +27,21 @@ const {
         SURVEYS,
         SURVEY_COLS,
 } = require('../databaseFunctions/CollectionNames.js');
-const firestore = require('../firestore');
 
-module.exports.deleteCollection = async function(collection){
+module.exports.deleteCollection = async function(docId, collection) {
     const obj = await basicDBfoos.getObj(docId, collection);
-    await refDBfoos.removeReference(obj.area, AREAS);
+    console.log(obj);
+    // await refDBfoos.removeReference(obj.area, AREAS);
+    console.log(collection);
+    const map = colToMap(collection);
+    console.log(map);
     for(var i = 0; i < obj.maps.length; i++) {
-        await basicDBfoos.deleteObj(obj.maps[i]._id, refNames.colToMap(collection));
+        await basicDBfoos.deleteObj(obj.maps[i], map);
     }
     await basicDBfoos.deleteObj(obj._id, collection);
 };
 
+// Different from getObj in that it fills in the area and maps with actual data and not a reference.
 module.exports.getCollection = async function(id, route) {
     let col = "";
     let map = "";
@@ -87,8 +93,8 @@ module.exports.getCollection = async function(id, route) {
         default:
             throw new UnauthorizedError(route + " is an invalid collection");
     }
-
-    const obj = await basicDBfoos.getObj({$oid: id}, col);
+    console.log(col);
+    const obj = await basicDBfoos.getObj(id, col);
     const objArea = await basicDBfoos.getObj(obj.area, AREAS);
     let maps = new Array(obj.maps.length);
     for (let i = 0; i < obj.maps.length; i++) {
@@ -98,3 +104,36 @@ module.exports.getCollection = async function(id, route) {
     obj.maps = maps;
     return obj;
 };
+
+// Sometimes we need to corelate a collection name to a map name
+
+const colToMap = function(collection) {
+        switch(collection) {
+        case ACCESS_COLS:
+            return ACCESS_MAPS;
+        case BOUNDARIES_COLS:
+            return BOUNDARIES_MAPS;
+        case LIGHT_COLS:
+            return LIGHT_MAPS;
+        case MOVING_COLS:
+            return MOVING_MAPS;
+        case NATURE_COLS:
+            return NATURE_MAPS;
+        case ORDER_COLS:
+            return ORDER_MAPS;
+        case PROGRAM_COLS:
+            return PROGRAM_MAPS;
+        case SECTION_COLS:
+            return SECTION_MAPS;
+        case SOUND_COLS:
+            return SOUND_MAPS;
+        case STATIONARY_COLS:
+            return STATIONARY_MAPS;
+        case SURVEY_COLS:
+            return SURVEYS;
+        default:
+            throw new UnauthorizedError(collection + " is an invalid collection");
+    };
+
+module.exports.colToMap = colToMap;
+}

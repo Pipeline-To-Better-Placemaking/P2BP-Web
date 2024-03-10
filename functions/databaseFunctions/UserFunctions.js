@@ -1,7 +1,11 @@
-const bcrypt = require('bcryptjs')
-const mongoose = require('mongoose')
-const uniqueValidator = require('mongoose-unique-validator')
+const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 const firestore = require('../firestore');
+const uniqueValidator = require('mongoose-unique-validator');
+const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
+const {TEAMS} = require('../databaseFunctions/CollectionNames.js');
+const { UnauthorizedError, NotFoundError, BadRequestError } = require('../utils/errors');
+
 
 const ObjectId = mongoose.Schema.Types.ObjectId
 
@@ -10,87 +14,6 @@ const rand = (min = 0, max = 50) => {
 
     return Math.floor(num);
 };
-
-// Old mongo
-/*const user_schema = mongoose.Schema({
-    firstname: {
-        type: String,
-        match: /[A-Za-z]/
-    },
-    lastname: {
-        type: String,
-        match: /[A-Za-z]/
-    },
-    institution: {
-        type: String,
-        match: /[A-Za-z ]/
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        match: /.+\@.+\..+/
-    },
-    password: {
-        type: String,
-        required: true
-    },
-    is_verified: {
-        type: Boolean,
-        default: false
-    },
-    verification_code: String,
-    verification_timeout: Date,
-    invites: [{
-        type: ObjectId,
-        ref: 'Teams'
-    }],
-    teams: [{
-        type: ObjectId,
-        ref: 'Teams'
-    }]
-})*/
-
-const user_schema = {
-    firstname: {
-        type: 'string'
-    },
-    lastname: {
-        type: 'string'
-    },
-    institution: {
-        type: 'string'
-    },
-    email: {
-        type: 'string',
-        required: true,
-        unique: true
-    },
-    password: {
-        type: 'string',
-        required: true
-    },
-    is_verified: {
-        type: 'boolean',
-        default: false
-    },
-    verification_code: {
-        type: 'string'
-    },
-    verification_timeout: {
-        type: 'timestamp'
-    },
-    invites: {
-        type: 'array',
-        ref: 'Teams'
-    },
-    teams: {
-        type: 'array',
-        ref: 'Teams'
-    }
-}
-
-user_schema.plugin(uniqueValidator)
 
 //const Users = module.exports = mongoose.model('Users', user_schema)
 
@@ -102,8 +25,7 @@ user_schema.plugin(uniqueValidator)
 
 module.exports.findUserByEmail = async function(email) {
     try {
-        const usersRef = firestore.collection('users');
-        const querySnapshot = await usersRef.where('email', '==', email).get();
+        const querySnapshot = await firestore.collection('users').where('email', '==', email).get();
 
         if (querySnapshot.empty) {
             return null; // No user found with the given email
@@ -111,8 +33,7 @@ module.exports.findUserByEmail = async function(email) {
 
         // Assuming there's only one user with the given email, return the first matching document
         const userDoc = querySnapshot.docs[0];
-        const userData = userDoc.data();
-        return {_id: userData._id, ...userDoc.data() };
+        return { id: userDoc.id, ...userDoc.data() };
     } catch (error) {
         console.error('Error finding user by email:', error);
         throw error; // Rethrow error for handling in the caller function
@@ -302,7 +223,7 @@ module.exports.removeReferences = async function(teamId) {
     }
 }
 
-module.exports.isRole = async function(teamId, uId, role) {
+module.exports.onTeam = async function(teamId, uId) {
     let foundUser = false;
     const team = await basicDBfoos.getObj(teamId, TEAMS);
     if (team.empty)
@@ -312,7 +233,7 @@ module.exports.isRole = async function(teamId, uId, role) {
     team.users.forEach((user) => {
         if (user.user.$oid === uId.$oid )
         {
-            foundUser = user.role === role;
+            foundUser = true;
             return false; // Break
         }
     });
@@ -322,123 +243,18 @@ module.exports.isRole = async function(teamId, uId, role) {
 // Owners should have admin privileges, use this when checking if something needs admin rights to do something
 module.exports.isAdmin = async function(teamId, uId) {
     let foundUser = false;
+    console.log("TeamId is " + teamId);
     const team = await basicDBfoos.getObj(teamId, TEAMS);
-    if (team.empty)
+    if (team.exists)
     {
         throw new NotFoundError('Invalid team');
     }
     team.users.forEach((user) => {
-        if (user.user.$oid === uId.$oid )
+        if (user.user.$oid === uId.$oid)
         {
             foundUser = ((user.role === "admin") || (user.role === "owner"));
             return false; // Break
         }
     });
     return foundUser;
-}
-
-// Old mongo 
-/*module.exports.updateUser = async function(userId, newUser) {
-    const updatedValues = {}
-    if (newUser.firstname) updatedValues.firstname = newUser.firstname
-    if (newUser.lastname) updatedValues.lastname = newUser.lastname
-    if (newUser.institution) updatedValues.institution = newUser.institution
-    if (newUser.password) updatedValues.password = newUser.password
-    if (newUser.email){
-        updatedValues.email = newUser.email
-        updatedValues.is_verified = false
-    }
-
-    return await Users.findOneAndUpdate(
-        { _id: userId },
-        { $set: updatedValues},
-        { new: true }
-    )
-    .select('-password -verification_code -verification_timeout')
-}*/
-
-module.exports.updateUser = async function(userId, newUser) {
-    try {
-        const userRef = await firestore.collection('users').where('_id', '==', userId).get();
-
-        const updatedValues = {}
-        if (newUser.firstname) updatedValues.firstname = newUser.firstname
-        if (newUser.lastname) updatedValues.lastname = newUser.lastname
-        if (newUser.institution) updatedValues.institution = newUser.institution
-        if (newUser.password) updatedValues.password = newUser.password
-        if (newUser.email){
-            updatedValues.email = newUser.email
-            updatedValues.is_verified = false
-        }
-
-        // Update user document in Firestore
-        await userRef.update(updatedValues);
-
-        // Retrieve the updated user document
-        const updatedUserSnapshot = await userRef.get();
-        const updatedUser = { id: updatedUserSnapshot.id, ...updatedUserSnapshot.data() };
-
-        return updatedUser;
-    } catch (error) {
-        console.error('Error updating user:', error);
-        throw error; // Rethrow error for handling in the caller function
-    }
-}
-
-
-/*module.exports.addTeam = async function(userId, teamId) {
-    return await Users.updateOne(
-        { _id: userId },
-        { $push: { teams: teamId }}
-    )
-}*/
-
-module.exports.addTeam = async function(userId, teamId) {
-    try {
-        const userRef = firestore.collection('users').where('_id', '==', userId).get();
-
-        // Fetch the current user document
-        const userSnapshot = await userRef.get();
-        const userData = userSnapshot.data();
-
-        // Update the 'teams' array by adding the new teamId
-        const updatedTeams = [...userData.teams, teamId];
-
-        // Update the user document in Firestore with the updated 'teams' array
-        await userRef.update({ teams: updatedTeams });
-
-        return true; // Return true to indicate success
-    } catch (error) {
-        console.error('Error adding team:', error);
-        return false; // Return false if an error occurs
-    }
-}
-
-/*module.exports.deleteInvite = async function(userId,teamId) {
-    
-    return await Users.updateOne(
-        { _id: userId },
-        { $pull: { invites: teamId }}
-    )
-}*/
-
-module.exports.deleteInvite = async function(userId, teamId) {
-    try {
-        const userRef = firestore.collection('users').where('_id', '==', userId).get();
-
-        // Fetch the current user document
-        const userSnapshot = await userRef.get();
-        const userData = userSnapshot.data();
-
-        // Filter out the teamId from the 'invites' array
-        const updatedInvites = userData.invites.filter(invite => invite !== teamId);
-
-        // Update the user document in Firestore with the updated 'invites' array
-        await userRef.update({ invites: updatedInvites });
-
-        return true; // Return true to indicate success
-    } catch (error) {
-        console.error('Error deleting invite:', error);
-        return false; // Return false if an error occurs
-    }
 }

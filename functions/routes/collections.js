@@ -20,6 +20,7 @@ router.get('/light/:id', passport.authenticate('jwt',{session:false}), async (re
 });
 
 router.get('/moving/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+    console.log(req.params.id);
     const collection = await colDBfoos.getCollection(req.params.id, "moving");
     res.status(200).json(collection);
 });

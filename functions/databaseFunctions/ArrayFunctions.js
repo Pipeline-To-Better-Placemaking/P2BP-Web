@@ -1,14 +1,21 @@
 const firestore = require('../firestore');
+const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
 
-module.exports.addArrayElement = async function(docId, collection, newEntry) {
+// docId = the doc with an array you want to change
+// collection = the collection the doc is in
+// new entry is the data you want to add
+module.exports.addArrayElement = async function(docId, arrayName, collection, newEntry) {
     const oldMap = await firestore.collection(collection).where('_id', '==', docId).get();
     if (oldMap.empty)
     {
-        throw new UnauthorizedError('Invalid id');
+        throw new Error('Invalid id in addArrayElement');
     }
-    oldMap.forEach(doc => {
+    oldMap.forEach((doc) => {
         const newDoc = doc.data();
-        newDoc.researchers.push(newEntry);
+        if (!newDoc[arrayName]) {
+            newDoc[arrayName] = [];
+        }
+        newDoc[arrayName].push(newEntry);
         firestore.collection(collection).doc(doc.id).update(newDoc);
     });
     return;
@@ -40,35 +47,34 @@ module.exports.getArrayElement = async function(mapId, entryId) {
 }
 
 module.exports.updateArrayElement = async function(mapId, dataId, newEntry) {
-        const mapDocRef = await Maps.where('_id', '==', mapId).get();
-        const dataRef = mapDocRef.collection('data').where('_id', '==', dataId).get();
+    const mapDocRef = await Maps.where('_id', '==', mapId).get();
+    const dataRef = mapDocRef.collection('data').where('_id', '==', dataId).get();
 
-        try {
-            await dataRef.set(newEntry, { merge: true });
-            return true; // Return true to indicate successful update
-        } catch (error) {
-            console.error('Error updating data:', error);
-            return false; // Return false to indicate failure
-        }
+    try {
+        await dataRef.set(newEntry, { merge: true });
+        return true; // Return true to indicate successful update
+    } catch (error) {
+        console.error('Error updating data:', error);
+        return false; // Return false to indicate failure
     }
+}
 
-module.exports.removeArrayElement = async function(docId, entryId, collection) {
-    const oldMap = await firestore.collection(collection).where('_id', '==', docId).get();
-    if (oldMap.empty)
+//entryId the id of the element you want to remove
+module.exports.removeArrayElement = async function(docId, entry, arrayName, collection) {
+    const obj = await basicDBfoos.getObj(docId, collection);
+    console.log(obj);
+    if (obj.empty)
     {
         throw new UnauthorizedError('Invalid id');
     }
-    oldMap.forEach(doc => {
-        const newDoc = doc.data();
-        array = newDoc.researchers;
-        for (let i = 0; i < newDoc.researchers.length; i++) {
-            console.log(array[i]);
-            if (newDoc.researchers[i] === entryId)
-            {
-                newDoc.researchers.splice(i, 1);
-                break;
-            }
+    for (let i = 0; i < obj[arrayName].length; i++) {
+        console.log(obj[arrayName]);
+        if (JSON.stringify(obj[arrayName][i]) === JSON.stringify(entry))
+        {
+            obj[arrayName].splice(i, 1);
+            break;
         }
-        firestore.collection(collection).doc(doc.id).update(newDoc);
-    });
+    }
+    console.log(obj);
+    return await basicDBfoos.updateObj(docId, obj, collection);
 }

@@ -129,8 +129,6 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}), async (req, 
     project = await Project.findById(map.project)
     if(await Team.isAdmin(project.team,user._id)){
         res.json(await Light_Collection.deleteMap(map.sharedData,map._id))
-
-        
     }
     else{
         throw new UnauthorizedError('You do not have permision to perform this operation')
@@ -182,9 +180,9 @@ router.put('/:id/data/:data_id', passport.authenticate('jwt',{session:false}), a
 })
 
 //route deletes an individual time slot from a map
-router.delete('/:id/data/:data_id',passport.authenticate('jwt',{session:false}), async (req, res, next) => { 
-    user = await req.user
-    map = await Map.findById(req.params.id)
+router.delete('/:id/data/:data_id',passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+    const user = await req.user;
+    const map = await basicDBfoos.getObj(req.params.id, LIGHT_MAPS);
     if(Map.isResearcher(map._id, user._id)){
         res.json(await Map.deleteEntry(map._id,req.params.data_id))
     }
