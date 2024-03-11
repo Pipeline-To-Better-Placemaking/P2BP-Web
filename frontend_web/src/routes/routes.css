@@ -8,10 +8,6 @@
         display: block;
     }
 
-    div.pageTemplate {
-        padding: 10px 1vw;
-    }
-
     .tagBox {
         width: 80vw;
         height: 60vh;
@@ -69,19 +65,19 @@
 
 a.backButton{
     box-shadow: none;
-    width: 2.5em;
+    width: 1.5em;
     height: auto;
     position: fixed;
-    top: 20px;
-    left: 20px;
+    top: 40px;
+    left: 40px;
 }
 
 a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
-    width: 2.5em;
+    width: 1.5em;
     height: auto;
     position: fixed;
-    top: 20px;
-    left: 20px;
+    top: 40px;
+    left: 40px;
     color: white;
     box-shadow: none;
 }
@@ -155,18 +151,47 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     justify-content: center;
 }
 
-.pageTemplate {
+.initpageTemplate { /* Default Page template */
     text-align: center;
     align-items: center;
     background-color: #006FD6;
-    border-radius: 10px;
+    /*border-radius: 10px;*/
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-content: center;
     min-height: calc(100vh - 40px);
-    padding: 5vh 5vw;
+    padding: 2.12vh 5vw;
     z-index: -2;
+    box-sizing: content-box;
+    width: calc(100% - (padding-left + padding-right));
+    height: auto; /* or specify a fixed height if needed */
+}
+#newuser.initpageTemplate {
+    background-image: url('../images/city_blurred.jpg'); /* Background Image*/
+    background-size: cover; /* Scale the image to fit inside the container */
+    background-repeat: no-repeat; /* Prevent the image from repeating */
+    /*border-radius: 10px;*/
+    background-attachment: fixed; /* Fix the background image in place */
+    background-position: center;
+    overflow: hidden;
+}
+#newuser.initpageTemplate::before {
+    background-color: rgba(0, 0, 0, 0.9); /* Semi-transparent black color */
+    z-index: -1;
+}
+#login.initpageTemplate, #forgotPass, #resetPass, #faqPage{
+    background-image: url('../images/blueprint-blurred.jpg'); /* Background Image*/
+    background-size: cover; /* Scale the image to fit inside the container */
+    background-repeat: no-repeat; /* Prevent the image from repeating */
+    /*border-radius: 10px;*/
+    background-attachment: fixed; /* Fix the background image in place */
+    background-position: center;
+    overflow: hidden;
+}
+#login.initpageTemplate::before {
+    background-color: rgba(0, 0, 0, 0.9); /* Semi-transparent black color */
+    z-index: -1;
 }
 div#faqPage div.pageTemplate{
     text-align: left;
@@ -214,10 +239,6 @@ div.pageTemplate > h2{
     min-height: 30vh;
     max-height: 80vh;
     z-index: 3;
-}
-
-#titlePage, #forgotPass, #resetPass, #faqPage {
-    padding: 20px;
 }
 
 .testBox{
@@ -373,10 +394,6 @@ form.MuiBox-root {
     align-items: center;
     height: calc(100vh - 69px);
     padding-top: 25px;
-}
-
-#newUser {
-    padding: 20px;
 }
 
 #newUserButton, #newTeamFormButton {

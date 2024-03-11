@@ -14,6 +14,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { Link, useNavigate } from 'react-router-dom';
 import './routes.css';
+import Back from '@mui/icons-material/ArrowBackRounded';
 import logo1 from '../images/PtBPLogo.png';
 
 export default function Title(props) {
@@ -102,23 +103,13 @@ export default function Title(props) {
     return (
         <div id='titlePage'>
             {/* pageTemplate -> Blue base background */}
-            <div className='pageTemplate'>
+            <div className='initpageTemplate' id='login'>
                 {/* tag - sizing for logo/tag (title text) */}
-                <div style={{paddingRight: '7vw'}}>
-
-                    <div className='logo'>
-                        <Image src={ logo1 } className='App-logo' alt='logo' id='logo1'/>
-                    </div>
-                    <div id='tagText'>Pipeline to Better Placemaking</div>
-                </div>
+                <Link className='backButton' to='/'><Back className='iconShadow' /></Link>
                 <div className='tagBox'>
-                    <Card className='formCard'>
-                        <div className='tag tag1' >
-                            <div className='logo logo1'>
-                                <Image src={logo1} className='App-logo' alt='logo' id='logo2' />
-                            </div>
-                            <div id='tagText'>Pipeline to Better Placemaking</div>
-                        </div>
+                    <Card className='formCard' style={{ backgroundColor: '#ddddddbb', padding: '30px 35px 0px 35px'}}>
+                        <h3><b>Welcome Back,</b></h3>
+                        <p><i>Please Login.</i></p>
                         <Card.Body>
                             <Box id='titleBox' component='form' sx={{ display: 'flex', flexWrap: 'wrap' }}>
                                 <span ref={loginResponse} style={{ display: 'none', color: 'red' }}>{message}</span>
@@ -174,6 +165,11 @@ export default function Title(props) {
                                 <Button component={ Link } to='/new' className='scheme secondButton' size='lg'>
                                     Create Account
                                 </Button>
+                            </div>
+
+                            <br/><br/>
+                            <div className='logo'>
+                                <Image src={ logo1 }  alt='logo' id='logo1' style={{width: '40px', height: 'auto'}}/>
                             </div>
                         </Card.Body>
                     </Card>
