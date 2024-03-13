@@ -190,7 +190,7 @@ router.put('/:id/data/:data_id', passport.authenticate('jwt',{session:false}), a
 })
 
 //route deletes an individual time slot from a map
-router.delete('/:id/data/:data_id',passport.authenticate('jwt',{session:false}), async (req, res, next) => { 
+router.delete('/:id/data/:data_id',passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     user = await req.user
     map = await Map.findById(req.params.id)
     if(Map.isResearcher(map._id, user._id)){

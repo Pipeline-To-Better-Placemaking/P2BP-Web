@@ -295,8 +295,8 @@ router.delete('/:id/standing_points/:pointId', passport.authenticate('jwt',{sess
 router.post('/:id/stationary_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     const userId = await req.user._id;
     const projectId = req.params.id;
-    const obj req.body;
-    const newCollecton = await projectDBfoos.addMap(userId, projectId, obj, STATIONARY_COLS);
+    const obj = req.body;
+    const newCollection = await projectDBfoos.addMap(userId, projectId, obj, STATIONARY_COLS);
     res.json(newCollection);
 })
 
