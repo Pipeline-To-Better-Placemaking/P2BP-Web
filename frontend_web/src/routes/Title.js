@@ -156,13 +156,14 @@ export default function Title(props) {
                                     type='submit' 
                                     size='lg' 
                                     onClick={ handleLogin }
+                                    style={{ borderRadius: '10px'}}
                                 >
                                     Log in
                                 </Button>
-                                <Link to='/forgot_password' style={{fontSize: 'small'}}> Forgot Password? </Link>
+                                <Link to='/forgot_password' id='forgotpasslink'style={{fontSize: 'small'}}> <b>Forgot Password?</b> </Link>
                             </Box>
                             <div className='d-grid'>
-                                <Button component={ Link } to='/new' className='scheme secondButton' size='lg'>
+                                <Button component={ Link } to='/new' className='scheme secondButton' size='lg' style={{ borderRadius: '10px'}}>
                                     Create Account
                                 </Button>
                             </div>

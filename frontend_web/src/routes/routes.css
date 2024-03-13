@@ -193,6 +193,14 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     background-color: rgba(0, 0, 0, 0.9); /* Semi-transparent black color */
     z-index: -1;
 }
+#forgotpasslink {
+    text-decoration: none; /* Remove underline */
+    color: #000; /* Change text */
+  }
+  
+#forgotpasslink:hover {
+    color: #346bac;
+}
 div#faqPage div.pageTemplate{
     text-align: left;
     flex-direction: column;
