@@ -243,7 +243,6 @@ module.exports.onTeam = async function(teamId, uId) {
 // Owners should have admin privileges, use this when checking if something needs admin rights to do something
 module.exports.isAdmin = async function(teamId, uId) {
     let foundUser = false;
-    console.log("TeamId is " + teamId);
     const team = await basicDBfoos.getObj(teamId, TEAMS);
     if (team.exists)
     {
@@ -256,5 +255,14 @@ module.exports.isAdmin = async function(teamId, uId) {
             return false; // Break
         }
     });
+    return foundUser;
+}
+module.exports.getOwner = function(team, uId) {
+    let foundUser = null;
+    for (let i = 0; i < team.users.length; i++) {
+        if (team.users[i].role === "owner") {
+            return team.users[i].user;
+        }
+    }
     return foundUser;
 }

@@ -75,3 +75,26 @@ module.exports.deleteProject = async function(projectId) {
     }
     return await basicDBfoos.deleteObj(project._id, PROJECTS);
 }
+
+modules.export.addMap = async function(userId, projectId, obj, collection) {
+    const project = await basicDBfoos.getObj(req.params.id, PROJECTS);
+    const authorized = await userDBfoos.isAdmin(project.team, userId);
+
+    if(!authorized) {
+        throw new UnauthorizedError('You do not have permision to perform this operation');
+    }
+
+    let newCollection = {
+        _id: basicDBfoos.createId(),
+        title: obj.title,
+        date: obj.date,
+        area: obj.area,
+        duration: obj.duration,
+    }
+
+    await basicDBfoos.addObj(newCollection, collection);
+    await refDBfoos.addReference(newCollection.area, "areas");
+
+    await arrayDBfoos.addArrayElement(project._id, "movingCollections", PROJECTS, newCollection._id);
+    res.json(newCollection);
+}

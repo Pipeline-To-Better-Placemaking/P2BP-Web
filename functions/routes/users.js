@@ -78,20 +78,28 @@ router.get('/:id', async (req, res, next) => {
 // Get my own user info, requires token authentication
 // TODO: this should probably use a different path than just /
 router.get('/', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    // Make a query for the user, excluding fields that the user should not see
-    var user = await User.findById(req.user._id)
-        .select('-password -verification_code -verification_timeout')
-        .populate('teams', 'title')
-        .populate('invites','title')
-
-    user = user.toJSON()
-    
-    for(var i = 0; i < user.invites.length; i++){
-        const owner = await Team.getOwner(user.invites[i]._id)
-        user.invites[i].firstname = owner.firstname
-        user.invites[i].lastname = owner.lastname
+    console.log(req.user._id);
+    let user = await basicDBfoos.getObj(req.user._id, "users");
+    for (let i = 0; i < user.teams.length; i++) {
+        const teamId = user.teams[i];
+        const team = await basicDBfoos.getObj(teamId, "teams");
+        user.teams[i] = {_id: teamId, title: team.title};
     }
 
+    for (let i = 0; i < user.invites.length; i++) {
+        const inviteId = user.invites[i];
+        const invite = await basicDBfoos.getObj(inviteId, "teams");
+        const ownerId = userDBfoos.getOwner(invite);
+        const owner = await basicDBfoos.getObj(ownerId)
+        user.invites[i] =   {
+                                _id: inviteId,
+                                title: invite.title,
+                                firstname: owner.firstname,
+                                lastname: owner.lastname,
+                            };
+    }
+    console.log("here");
+    console.log(user);
     res.status(200).json(user)
 })
 

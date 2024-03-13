@@ -77,6 +77,7 @@ router.get('/:id', passport.authenticate('jwt',{session:false}), async (req, res
                             lastname: user.lastname,
                         };
     }
+    console.log(team);
     res.status(200).json(team);
 })
 
@@ -98,23 +99,19 @@ router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res
     res.status(201).json("done");
 })
 
+//deletes an entire team
 router.delete('/:id', passport.authenticate('jwt',{session:false}),async (req, res, next) => {
-    try {
-        const teamId = req.params.id;
-        const user = req.user;
-         
-        // Check if the user is authorized to delete the team
-        const authorized = await userDBfoos.isAdmin(teamId, user._id);
-        if (!authorized) {
-            throw new UnauthorizedError('You do not have permission to perform this operation');
-        }
- 
-        // Delete all map collections associated with projects belonging to the team
-        const team = await basicDBfoos.getObj(teamId, TEAMS);
- 
+    const teamId = await req.params.id;
+    user = await req.user;
+    // user = await req.user;
+    team = await basicDBfoos.getObj(teamId, TEAMS);
+    const authorized = await userDBfoos.isAdmin(team._id, user);
+    if(authorized) {
+    
         //delete ALL of the map collections which contain a projectId which belongs to the team
         if(team.projects.length){
-            for(const proj of team.projects) {
+            for(let i = 0; i < team.projects.length; i++ ) {
+                proj = team.projects[i];
                 await refDBfoos.projectCleanup(proj, ACCSESS_MAPS);
                 await refDBfoos.projectCleanup(proj, BOUNDARIES_MAPS);
                 await refDBfoos.projectCleanup(proj, LIGHT_MAPS);
@@ -126,19 +123,17 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}),async (req, r
                 await refDBfoos.projectCleanup(proj, SOUND_MAPS);
                 await refDBfoos.projectCleanup(proj, STATIONARY_MAPS);
             }
+    
+            await basicDBfoos.teamCleanup(teamId);
         }
-     
-        // Delete team id in User doc
-        await arrayDBfoos.removeArrayElement(user._id, teamId, "teams", "users");
+        res.json(await basicDBfoos.deleteObj(teamId, TEAMS));
 
-        // Delete the team itself
-        await basicDBfoos.deleteObj(teamId, TEAMS);
- 
-        res.json({ message: 'Team and associated data deleted successfully' });
-        } catch (error) {
-            next(error);
-        }
- })
+    }
+    else{
+        throw new UnauthorizedError('You do not have permision to perform this operation')
+    }
+
+})
 
 router.post('/:id/invites', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     const teamId = req.params.id;

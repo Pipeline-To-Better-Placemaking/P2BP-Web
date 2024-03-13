@@ -150,7 +150,7 @@ router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res
         description: (req.body.description ? req.body.description : project.description),
         area: (req.body.area ? req.body.area : project.area),
     }
-    const authorized = await userDBfoos.isAdmin(project.team,user._id);
+    const authorized = await userDBfoos.isAdmin(project.team, user._id);
     if (!authorized) {
         throw new UnauthorizedError('You do not have permision to perform this operation')
     }
@@ -293,37 +293,21 @@ router.delete('/:id/standing_points/:pointId', passport.authenticate('jwt',{sess
 })
 
 router.post('/:id/stationary_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-
-    if(await Team.isUser(project.team,user._id)){   
-
-        let newCollection = new Stationary_Collection({
-            title: req.body.title,
-            date: req.body.date,
-            area: req.body.area,
-            duration: req.body.duration
-        })
-
-        await newCollection.save()
-
-        await Area.addRefrence(newCollection.area)
-
-        await Project.addStationaryCollection(project._id,newCollection._id)
-        res.json(newCollection)
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    const userId = await req.user._id;
+    const projectId = req.params.id;
+    const obj req.body;
+    const newCollecton = await projectDBfoos.addMap(userId, projectId, obj, STATIONARY_COLS);
+    res.json(newCollection);
 })
 
 router.put('/:id/stationary_collections/:collectionId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+
     user = await req.user
     project = await Project.findById(req.params.id)
     collection = await Stationary_Collection.findById(req.params.collectionId)
 
     if(await Team.isAdmin(project.team,user._id)){
-        
+
         let newCollection = new Stationary_Collection({
                 title: (req.body.title ? req.body.title : collection.title),
                 date: (req.body.date ? req.body.date : collection.date),
@@ -335,7 +319,7 @@ router.put('/:id/stationary_collections/:collectionId', passport.authenticate('j
              await Area.addRefrence(req.body.area)
              await Area.removeRefrence(collection.area)
         }
-  
+
         res.status(201).json(await Stationary_Collection.updateCollection(req.params.collectionId, newCollection))
     }
     else{

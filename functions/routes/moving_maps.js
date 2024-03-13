@@ -27,8 +27,6 @@ router.post('', passport.authenticate('jwt',{session:false}), async (req, res, n
     const collectionId = req.body.collection;
     const timeSlots = await req.body.timeSlots;
     const authorized = await userDBfoos.isAdmin(project.team, user._id);
-    console.log(timeSlots);
-
     if(authorized) {
 
         if(timeSlots && timeSlots.length > 0) {
@@ -39,13 +37,14 @@ router.post('', passport.authenticate('jwt',{session:false}), async (req, res, n
                 let newMap = {
                     _id: basicDBfoos.createId(),
                     title: slot.title,
-                    standingPoints: slot.standingPoints,
+                    standingPoints: slot.standingPoints._id,
                     researchers: slot.researchers,
                     project: req.body.project,
                     sharedData: req.body.collection,
                     date: slot.date,
                     maxResearchers: slot.maxResearchers,
                     maps: [],
+                    data: [],
                 }
 
                 //create new map with method from _map models and add ref to its parent collection.
@@ -61,25 +60,29 @@ router.post('', passport.authenticate('jwt',{session:false}), async (req, res, n
             }
         }
         else{
-            console.log("False");
+            let standingPoints = new Array(req.body.standingPoints.length);
+            for (let i = 0; i < req.body.standingPoints.length; i++) {
+                standingPoints[i] = req.body.standingPoints[i]._id;
+            }
             const newMap = {
                 _id: basicDBfoos.createId(),
                 title: req.body.title,
-                standingPoints: req.body.standingPoints,
+                standingPoints: standingPoints,
                 researchers: req.body.researchers,
                 project: req.body.project,
                 sharedData: req.body.collection,
                 date: req.body.date, 
                 maxResearchers: req.body.maxResearchers,
                 maps: [],
+                data: [],
             }
 
             const map = await basicDBfoos.addObj(newMap, "moving_maps");
-            console.log(collectionId);
+            // console.log(collectionId);
             await arrayDBfoos.addArrayElement(collectionId, "maps", "moving_collections", newMap._id);
             // await Moving_Collection.addActivity(req.body.collection,map._id)
             for (i = 0; i < newMap.standingPoints.length; i ++){
-                await refDBfoos.addReference(newMap.standingPoints[i]._id, "standing_points");
+                await refDBfoos.addReference(newMap.standingPoints[i], "standing_points");
             }
             console.log("end");
             res.status(201).json(map)
@@ -109,9 +112,11 @@ router.get('/:id', passport.authenticate('jwt',{session:false}), async (req, res
                                     model: 'Areas'
                                    }
                                 }])*/
+    console.log(req.params.id);
     let map = await basicDBfoos.getObj(req.params.id, "moving_maps");
-    for (let i = 0; i < map.standingPoints.length; i++) {
+    for (let i = 0; i < map.researchers.length; i++) {
         const id = map.researchers[i];
+        console.log(id);
         const researcher = await basicDBfoos.getObj(map.researchers[i], "users");
         map.researchers[i] = {firstname: researcher.firstname, lastname: researcher.lastname, _id: map.researchers[i]};
     }
@@ -211,14 +216,23 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}), async (req, 
 
 //route adds test data to its relevant time slot
 router.post('/:id/data', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    map = await Map.findById(req.params.id)
-    if(Map.isResearcher(map._id, user._id)){
-        if(req.body.entries){
+    const user = await req.user;
+    const map = await basicDBfoos.getObj(req.params.id, "moving_maps");
+    const authorized = map.researchers.indexOf(user._id) > -1;
+    console.log(authorized);
+    if(authorized) {
+        if(req.body.entries) {
             for(var i = 0; i < req.body.entries.length; i++){
-                await Map.addEntry(map._id,req.body.entries[i])
+                req.body.entries[i]._id = basicDBfoos.createId();
+                if (!map.data) {
+                    map.data = [];
+                }
+                map.data.push(req.body.entries[i]);
+                refDBfoos.addReference(req.body.entries[i].standingPoint, "standing_points");
             }
-            res.status(201).json(await Map.findById(req.params.id))
+            await basicDBfoos.updateObj(map._id, map, "moving_maps");
+            console.log(map);
+            res.status(201).json(map);
         }
         else{
             res.json(await Map.addEntry(map._id,req.body))

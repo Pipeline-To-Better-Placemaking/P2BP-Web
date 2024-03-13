@@ -9,7 +9,7 @@ module.exports.addReference = async function(docId, collection) {
         if (!ref.refCount) {
             ref.refCount = 0;
         }
-        ref.refCount + 1;
+        ref.refCount = ref.refCount + 1;
         return await basicDBfoos.updateObj(ref._id, ref, collection);
     } catch (error) {
         console.error('Error Adding reference:', error);
@@ -58,8 +58,6 @@ module.exports.getAllRefs = async function(array, collection) {
         return [];
     }
     for (let i = 0; i < array.length; i++) {
-            console.log(array[i]);
-            console.log(collection);
             let obj = await basicDBfoos.getObj(array[i], collection);
             obj._id = array[i];
             array[i] = obj;
