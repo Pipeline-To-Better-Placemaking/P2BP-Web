@@ -168,6 +168,41 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     padding: 5vh 5vw;
     z-index: -2;
 }
+
+.pageTemplateForgotPassword {
+    text-align: center;
+    align-items: center;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-content: center;
+    min-height: calc(100vh - 40px);
+    padding: 5vh 5vw;
+    position: relative;
+}
+.pageTemplateForgotPassword::before {
+    content: "";
+    background-image: url("../images/backgroundImageForgotPassword.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    opacity: 0.6;
+}
+.backgroundImageForgotPasswordLoaded {
+    /* Use this background color when the image loads*/
+    background-color: #1E1E1E;
+}
+.backgroundImageForgotPasswordNotLoaded {
+    /* Use this background color when the image is not loaded*/
+    background-color: #006FD6;
+}
+
 div#faqPage div.pageTemplate{
     text-align: left;
     flex-direction: column;
