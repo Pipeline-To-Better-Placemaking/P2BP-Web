@@ -15,7 +15,7 @@ const { UnauthorizedError } = require('../utils/errors')
 // Generates and responds w/ json web token if email and password match a user
 // Responds w/ 401 otherwise
 router.post('/', async (req,res,next) => {
-    const email = req.body.email
+    const email = req.body.email.toLowerCase()
 
     const password = req.body.password
 
@@ -24,26 +24,26 @@ router.post('/', async (req,res,next) => {
         throw new UnauthorizedError('Invalid email or password')
     }
 
-    let fbUser = await firestore.collection('users').where('email', '==', email).get()
+    let fbUser = await firestore.collection('users').get()
     .then((snapshot) => {
         let user = null;
         snapshot.forEach((doc) => {
-            if (user !== null)
-            {
-                // This only happens if somehow you have multiple users with the same email
-                throw new UnauthorizedError('Invalid user');
+            const userData = doc.data();
+            const userEmail = userData.email.toLowerCase(); // Convert email from database to lowercase
+            if (userEmail === email) {
+                if (user !== null) {
+                    // This only happens if somehow you have multiple users with the same email
+                    throw new UnauthorizedError('Invalid user');
+                }
+                user = userData;
             }
-            user = doc.data();
         });
         if (user === null)
         {
             throw new UnauthorizedError('Invalid email or password');
         }
-        // console.log(user);
         return user;
     })
-
-    // console.log(fbUser);
 
     // Email or password is invalid
     // if (bcrypt.compare(password, fbUser.password)) {
@@ -58,7 +58,6 @@ router.post('/', async (req,res,next) => {
     const token = jwt.sign(shortUser, config.PRIVATE_KEY, {
         expiresIn: 86400 //1 day
     })
-    console.log("Here");
     for(var i = 0; i < fbUser.teams.length; i++) {
         const team = await basicDBfoos.getObj(fbUser.teams[i], "teams");
         fbUser.teams[i] = {_id: team._id, title: team.title};

@@ -78,3 +78,21 @@ module.exports.removeArrayElement = async function(docId, entry, arrayName, coll
     console.log(obj);
     return await basicDBfoos.updateObj(docId, obj, collection);
 }
+
+// Delete team id in all User documents
+module.exports.removeTeamFromAllUsers = async function(teamId) {
+    const usersRef = firestore.collection('users');
+    const usersSnapshot = await usersRef.get();
+
+    const promises = [];
+    usersSnapshot.forEach(async (doc) => {
+        const userData = doc.data();
+        if (userData.teams.includes(teamId)) {
+            const updatedTeams = userData.teams.filter(id => id !== teamId);
+            promises.push(doc.ref.update({ teams: updatedTeams }));
+        }
+    });
+
+    await Promise.all(promises);
+    return { message: `Team ${teamId} removed from all user documents` };
+}
