@@ -180,7 +180,7 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     background-color: rgba(0, 0, 0, 0.9); /* Semi-transparent black color */
     z-index: -1;
 }
-#login.initpageTemplate, #forgotPass, #resetPass, #faqPage{
+#login.initpageTemplate, #resetPass, #faqPage{
     background-image: url('../images/blueprint-blurred.jpg'); /* Background Image*/
     background-size: cover; /* Scale the image to fit inside the container */
     background-repeat: no-repeat; /* Prevent the image from repeating */
@@ -194,6 +194,9 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     z-index: -1;
 }
 
+#forgotPass {
+    padding: 20px;
+}
 .pageTemplateForgotPassword {
     text-align: center;
     align-items: center;
@@ -208,7 +211,7 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
 }
 .pageTemplateForgotPassword::before {
     content: "";
-    background-image: url("../images/backgroundImageForgotPassword.jpg");
+    background-image: url("../images/blueprint-blurred.jpg");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -217,7 +220,7 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     left: -2px;
     width: calc(100% + 4px);
     height: calc(100% + 4px);
-    opacity: 0.6;
+    opacity: 0.9;
 }
 .backgroundImageForgotPasswordLoaded {
     /* Use this background color when the image loads*/
