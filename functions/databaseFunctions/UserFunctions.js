@@ -257,6 +257,7 @@ module.exports.isAdmin = async function(teamId, uId) {
     });
     return foundUser;
 }
+
 module.exports.getOwner = function(team, uId) {
     let foundUser = null;
     for (let i = 0; i < team.users.length; i++) {

@@ -80,7 +80,7 @@ router.post('', passport.authenticate('jwt',{session:false}), async (req, res, n
                 researchers: req.body.researchers,
                 project: req.body.project,
                 sharedData: req.body.collection,
-                date: req.body.date,
+                date: req.body.date, 
                 maxResearchers: req.body.maxResearchers,
                 maps: [],
                 data: [],
@@ -167,7 +167,7 @@ router.put('/:id/claim', passport.authenticate('jwt',{session:false}), async (re
 router.delete('/:id/claim', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     map = await Map.findById(req.params.id)
     project = await Project.findById(map.project)
-    return res.status(200).json(await Map.removeResearcher(map._id,user._id))
+    return res.status(200).json(await Map.removeResearcher(map._id, user._id))
 
 })
 
@@ -281,7 +281,7 @@ router.put('/:id/data/:data_id', passport.authenticate('jwt',{session:false}), a
     }  
     else{
         throw new UnauthorizedError('You do not have permision to perform this operation')
-    }  
+    }
 })
 
 //route deletes an individual time slot from a map

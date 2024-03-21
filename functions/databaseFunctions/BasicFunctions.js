@@ -42,6 +42,7 @@ const deleteObj = async function(docId, collection) {
     });
     return;
 }
+
 const teamCleanup = async function(teamId) {
     const team = await firestore.collection(TEAMS).where('_id', '==', teamId).get();
     if (oldMap.empty)

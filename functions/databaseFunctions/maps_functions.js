@@ -25,6 +25,7 @@ module.exports.deleteMap = async function(mapId, collection) {
     });
     return;
 }
+
 module.exports.addResearcher = async function(mapId, userId) {
     const oldMap = await firestore.collection(collection).where('_id', '==', mapId).get();
     if (oldMap.empty)

@@ -33,7 +33,7 @@ const entrySchema = mongoose.Schema({
     }
 })
 const moving_schema = mongoose.Schema({
-    
+
     title:String,
     
     project: {
@@ -113,7 +113,6 @@ module.exports.projectCleanup = async function(projectId) {
     return await Maps.deleteMany({ project: projectId })
 }
 
-
 module.exports.addEntry = async function(mapId, newEntry) {
     var entry = new Entry({
         time: newEntry.time,
@@ -127,7 +126,6 @@ module.exports.addEntry = async function(mapId, newEntry) {
         { $push: { data: entry}}
     )
 }
-
 
 module.exports.addResearcher = async function(mapId, userId){
     return await Maps.updateOne(
@@ -163,7 +161,7 @@ module.exports.isResearcher = async function(mapId, userId){
 module.exports.findData = async function(mapId, entryId){
     const out = (await Maps.find({
         _id: mapId,
-        'data._id': entryId 
+        'data._id': entryId
     },
     {'data.$':1}))
 
