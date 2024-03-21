@@ -21,7 +21,7 @@ const {
         SECTION_MAPS,
         STATIONARY_MAPS,
         TEAMS,
-        USERS,
+        USERS
     } = require('../databaseFunctions/CollectionNames.js');
 
 const { UnauthorizedError, NotFoundError, BadRequestError } = require('../utils/errors');
@@ -50,7 +50,7 @@ router.post('', passport.authenticate('jwt',{session:false}), async (req, res, n
     console.log("after define");
     await basicDBfoos.addObj(newTeam, TEAMS);
     console.log("After add");
-    await arrayDBfoos.addArrayElement(user._id, "teams", "users", newTeam._id);
+    await arrayDBfoos.addArrayElement(user._id, "teams", USERS, newTeam._id);
     console.log("End");
     res.status(201).json(newTeam);
 })
