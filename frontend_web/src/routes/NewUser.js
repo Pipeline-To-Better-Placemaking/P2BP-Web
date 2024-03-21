@@ -143,129 +143,193 @@ export default function NewUser(props) {
         }
     }
 
-    return(
-        <div className='initpageTemplate' id='newuser'>
-            <Link className='backButton' to='/'><Back className='iconShadow' /></Link>
-            {/* tagBox - sizing for form card, on Title.js as well */}
-            <div className='tagBox'>
-                <Card className='pageCard' style={{ backgroundColor: '#ddddddbb', padding: '30px 35px 0px 35px'}}>
-                    <Card.Body>
-                        <h3><b>Welcome</b></h3>
-                        <p><i>Create your account by filling in the form.</i></p>
-                        
-                        <br/>
-                        <Box component='form' sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                            <span ref={ registerResponse } style={{ display: 'none', color: 'red' }}>{message}</span>
-                            <span ref={ fnameMess } style={{ display: 'none', color: 'red' }}>{message}</span>
-                            <TextField  
-                                className='nonFCInput' 
-                                id='outlined-input' 
-                                label='First Name' 
-                                name='fname'
-                                type='text' 
-                                value={ values.fname } 
-                                onChange={ handleChange }
-                                required
-                                ref={ fn }
-                            />
-                            <span ref={ lnameMess } style={{ display: 'none', color: 'red' }}>{ message }</span>
-                            <TextField 
-                                className='nonFCInput' 
-                                id='outlined-input' 
-                                label='Last Name' 
-                                name='lname'
-                                type='text' 
-                                value={ values.lname } 
-                                onChange={ handleChange }
-                                required
-                                ref={ ln }
-                            />
-                            <span ref={ emMess } style={{ display: 'none', color: 'red' }}>{ message }</span>
-                            <TextField 
-                                className='nonFCInput' 
-                                id='outlined-input' 
-                                label='Email' 
-                                type='email' 
-                                name='email'
-                                value={ values.email } 
-                                onChange={ handleChange }
-                                required
-                                ref={ em }
-                            />
-                            <span ref={ pwMess } style={{ display: 'none', color: 'red' }}>{ message }</span>
-                            <FormControl sx={{ m: 1}} variant='outlined'>
-                                <InputLabel htmlFor='outlined-adornment-password'>Password *</InputLabel>
-                                <OutlinedInput
-                                    id='outlined-adornment-password'
-                                    type={ values.showPassword ? 'text' : 'password' }
-                                    name='password'
-                                    value={ values.password }
+    const BackgroundImageComponentSignUp = () => {
+        const backgroundImageRefSignUp = React.useRef(null);
+        const [imageLoadedSignUp, setImageLoadedSignUp] = React.useState(false);
+
+        /*
+        runs only once
+        allows background color to change depending on whether background image loaded
+        */
+        React.useEffect(() => {
+            /* get the page element by using its class name */
+            var pageElementsSignUp = document.getElementsByClassName("pageTemplateSignUp");
+
+            if (pageElementsSignUp.length > 0) {
+                
+                /* check that image loaded */
+                const imageLoadedSignUpCheck = () => {
+                    // if the image successfully loads, stores image url
+                    const isImageLoadedSignUp = window.getComputedStyle(backgroundImageRefSignUp.current, '::before').getPropertyValue('background-image');
+
+                    // check that isImageLoadedSignUp isn't null/undefined, then check that it isn't none
+                    if ((isImageLoadedSignUp) && (isImageLoadedSignUp !== 'none' )) {
+                        setImageLoadedSignUp(true);
+                    } else {
+                        console.log("image did not load, ", isImageLoadedSignUp);
+                    }
+                };
+                imageLoadedSignUpCheck();
+
+                // check that the image is still loading if the window is resized
+                window.addEventListener('resize', imageLoadedSignUpCheck);
+                return() => {
+                    window.removeEventListener('resize', imageLoadedSignUpCheck);
+                }
+            } else {
+                console.log("page element was not found");
+            }
+
+        }, []);
+
+        React.useEffect(() => {
+            /* get the page element by using its class name */
+            var pageElementsSignUp = document.getElementsByClassName("pageTemplateSignUp");
+
+            if (pageElementsSignUp.length > 0) {
+                var pageElementSignUp = pageElementsSignUp[0];
+
+                /* add classes with different background colors depending on whether the image loaded */
+                if (imageLoadedSignUp == true) {
+                    pageElementSignUp.classList.add("backgroundImageSignUpLoaded");
+                    pageElementSignUp.classList.remove("backgroundImageSignUpNotLoaded");
+                } else {
+                    pageElementSignUp.classList.add("backgroundImageSignUpNotLoaded");
+                    pageElementSignUp.classList.remove("backgroundImageSignUpLoaded");
+                }
+            } else {
+                console.log("page element was not found");
+            }
+        }, [imageLoadedSignUp]);
+
+        return(
+            <div className='pageTemplateSignUp' id='newuser' ref={backgroundImageRefSignUp}>
+                <Link className='backButton' to='/'><Back className='iconShadow' /></Link>
+                    <Card className='pageCard' style={{ backgroundColor: '#ddddddbb', padding: '30px 95px 0px 95px', backdropFilter: 'blur(4px)'}}>
+                        <Card.Body>
+                            <h3><b>Welcome</b></h3>
+                            <p><i>Create your account by filling in the form.</i></p>
+                            
+                            <br/>
+                            <Box component='form' sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                                <span ref={ registerResponse } style={{ display: 'none', color: 'red' }}>{message}</span>
+                                <span ref={ fnameMess } style={{ display: 'none', color: 'red' }}>{message}</span>
+                                <TextField  
+                                    className='nonFCInput' 
+                                    id='outlined-input' 
+                                    label='First Name' 
+                                    name='fname'
+                                    type='text' 
+                                    value={ values.fname } 
                                     onChange={ handleChange }
-                                    ref={ pw }
-                                    endAdornment={
-                                        <InputAdornment position='end'>
-                                            <IconButton
-                                                aria-label='visibility toggle'
-                                                onClick={ handleClickShowPassword }
-                                                onMouseDown={ handleMouseDownPassword }
-                                                edge='end'
-                                            >
-                                                { values.showPassword ? <VisibilityOff /> : <Visibility /> }
-                                            </IconButton>
-                                        </InputAdornment>
-                                    }
-                                    label='Password'
+                                    required
+                                    ref={ fn }
+                                    style={{ width: '150%' }}
                                 />
-                            </FormControl>
-                            <FormControl sx={{ m: 1 }} variant='outlined'>
-                                <InputLabel htmlFor='outlined-adornment-password'>
-                                    Confirm Password *
-                                </InputLabel>
-                                <OutlinedInput
-                                    id='outlined-adornment-password'
-                                    type={ values.showConfirmPassword ? 'text' : 'password' }
-                                    name='confirmPassword'
-                                    value={ values.confirmPassword }
+                                <span ref={ lnameMess } style={{ display: 'none', color: 'red' }}>{ message }</span>
+                                <TextField 
+                                    className='nonFCInput' 
+                                    id='outlined-input' 
+                                    label='Last Name' 
+                                    name='lname'
+                                    type='text' 
+                                    value={ values.lname } 
                                     onChange={ handleChange }
-                                    ref={ cpw }
-                                    endAdornment={
-                                        <InputAdornment position='end'>
-                                            <IconButton
-                                                aria-label='visibility toggle'
-                                                onClick={ handleClickShowConPassword }
-                                                onMouseDown={ handleMouseDownPassword }
-                                                edge='end'
-                                            >
-                                                {
-                                                    values.showConfirmPassword ? 
-                                                    <VisibilityOff /> : <Visibility />
-                                                }
-                                            </IconButton>
-                                        </InputAdornment>
-                                    }
-                                    label='Confirm Password'
+                                    required
+                                    ref={ ln }
+                                    style={{ width: '150%' }}
                                 />
-                            </FormControl>
-                            <span>All fields ending with * are required</span>
+                                <span ref={ emMess } style={{ display: 'none', color: 'red' }}>{ message }</span>
+                                <TextField 
+                                    className='nonFCInput' 
+                                    id='outlined-input' 
+                                    label='Email' 
+                                    type='email' 
+                                    name='email'
+                                    value={ values.email } 
+                                    onChange={ handleChange }
+                                    required
+                                    ref={ em }
+                                    style={{ width: '150%' }}
+                                />
+                                <span ref={ pwMess } style={{ display: 'none', color: 'red' }}>{ message }</span>
+                                <FormControl sx={{ m: 1}} variant='outlined'>
+                                    <InputLabel htmlFor='outlined-adornment-password'>Password *</InputLabel>
+                                    <OutlinedInput
+                                        id='outlined-adornment-password'
+                                        type={ values.showPassword ? 'text' : 'password' }
+                                        name='password'
+                                        value={ values.password }
+                                        onChange={ handleChange }
+                                        ref={ pw }
+                                        endAdornment={
+                                            <InputAdornment position='end'>
+                                                <IconButton
+                                                    aria-label='visibility toggle'
+                                                    onClick={ handleClickShowPassword }
+                                                    onMouseDown={ handleMouseDownPassword }
+                                                    edge='end'
+                                                >
+                                                    { values.showPassword ? <VisibilityOff /> : <Visibility /> }
+                                                </IconButton>
+                                            </InputAdornment>
+                                        }
+                                        label='Password'
+                                        style={{ width: '150%' }}
+                                    />
+                                </FormControl>
+                                <FormControl sx={{ m: 1 }} variant='outlined'>
+                                    <InputLabel htmlFor='outlined-adornment-password'>
+                                        Confirm Password *
+                                    </InputLabel>
+                                    <OutlinedInput
+                                        id='outlined-adornment-password'
+                                        type={ values.showConfirmPassword ? 'text' : 'password' }
+                                        name='confirmPassword'
+                                        value={ values.confirmPassword }
+                                        onChange={ handleChange }
+                                        ref={ cpw }
+                                        endAdornment={
+                                            <InputAdornment position='end'>
+                                                <IconButton
+                                                    aria-label='visibility toggle'
+                                                    onClick={ handleClickShowConPassword }
+                                                    onMouseDown={ handleMouseDownPassword }
+                                                    edge='end'
+                                                >
+                                                    {
+                                                        values.showConfirmPassword ? 
+                                                        <VisibilityOff /> : <Visibility />
+                                                    }
+                                                </IconButton>
+                                            </InputAdornment>
+                                        }
+                                        label='Confirm Password'
+                                        style={{ width: '150%' }}
+                                    />
+                                </FormControl>
+                                <span>All fields ending with * are required</span>
+                                <br/><br/>
+                                <Button 
+                                    className='scheme' 
+                                    type='submit' 
+                                    size='small' 
+                                    id='newUserButton' 
+                                    onClick={ handleSubmit }
+                                    style={{ borderRadius: '10px', backgroundColor: 'rgba(254, 216, 6, 0.7)'}}
+                                >
+                                    Sign Up
+                                </Button>
+                            </Box>
                             <br/><br/>
-                            <Button 
-                                className='scheme' 
-                                type='submit' 
-                                size='small' 
-                                id='newUserButton' 
-                                onClick={ handleSubmit }
-                                style={{ borderRadius: '10px'}}
-                            >
-                                Sign Up
-                            </Button>
-                        </Box>
-                        <br/><br/>
-                        <div className='logo'>
-                            <Image src={ logo1 }  alt='logo' id='logo1' style={{width: '40px', height: 'auto'}}/>
-                        </div>
-                    </Card.Body>
-                </Card>
+                            <div className='logo'>
+                                <Image src={ logo1 }  alt='logo' id='logo1' style={{width: '40px', height: 'auto'}}/>
+                            </div>
+                        </Card.Body>
+                    </Card>
             </div>
-        </div>
-    );
+        );
+    }
+
+    return <BackgroundImageComponentSignUp />
 }

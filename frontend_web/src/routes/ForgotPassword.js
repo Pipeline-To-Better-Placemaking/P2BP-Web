@@ -91,7 +91,7 @@ export default function ForgotPassword(){
                 window.addEventListener('resize', imageLoadedCheck);
                 return() => {
                     window.removeEventListener('resize', imageLoadedCheck);
-                } 
+                }
             } else {
                 console.log("page element was not found");
             }
@@ -118,11 +118,11 @@ export default function ForgotPassword(){
                 if (imageLoaded == true) {
                     //console.log("image loaded");
                     pageElement.classList.add("backgroundImageForgotPasswordLoaded");
-                    pageElement.classList.remove("backgroundImageForgotPasswordNotLoaded")
+                    pageElement.classList.remove("backgroundImageForgotPasswordNotLoaded");
                 } else {
                     //console.log("error loading image");
                     pageElement.classList.add("backgroundImageForgotPasswordNotLoaded");
-                    pageElement.classList.remove("backgroundImageForgotPasswordLoaded")
+                    pageElement.classList.remove("backgroundImageForgotPasswordLoaded");
                 }
             } else {
                 console.log("page element was not found");
@@ -133,7 +133,7 @@ export default function ForgotPassword(){
             <div id='forgotPass'>
                 <div className='pageTemplateForgotPassword' ref={backgroundImageRef}>
                     <Link className='backButton' to='/'><Back className='iconShadow' /></Link>
-                    <Card style={{padding: '10px', backgroundColor: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(4px)'}}>
+                    <Card style={{padding: '10px', backgroundColor: 'rgba(221, 221, 221, 0.73)', backdropFilter: 'blur(4px)'}}>
                         <Card.Body>
                             <h3>Forgot Password</h3>
                             <Box id='forgotBox' ref={forgotForm} component='form' sx={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -150,7 +150,7 @@ export default function ForgotPassword(){
                                     ref={em}
                                     style={{ marginBottom: '20px'}}
                                 />
-                                <Button onClick={handleSubmit} className='scheme' style={{backgroundColor: 'rgba(254, 216, 6, 0.5)'}}>Send Reset Email</Button>
+                                <Button onClick={handleSubmit} className='scheme' style={{backgroundColor: 'rgba(254, 216, 6, 0.7)'}}>Send Reset Email</Button>
                             </Box>
                         </Card.Body>
                         <Card.Body ref={ successMess } style={{ display: 'none', marginBottom: '10px', backgroundColor: '#b6d7a8', outlineWidth: '1px', outlineColor: '#6aa84f' }}>

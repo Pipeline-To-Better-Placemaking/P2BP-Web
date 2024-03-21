@@ -100,81 +100,141 @@ export default function Title(props) {
         }
     };
 
-    return (
-        <div id='titlePage'>
-            {/* pageTemplate -> Blue base background */}
-            <div className='initpageTemplate' id='login'>
-                {/* tag - sizing for logo/tag (title text) */}
-                <Link className='backButton' to='/'><Back className='iconShadow' /></Link>
-                <div className='tagBox'>
-                    <Card className='formCard' style={{ backgroundColor: '#ddddddbb', padding: '30px 35px 0px 35px'}}>
-                        <h3><b>Welcome Back,</b></h3>
-                        <p><i>Please Login.</i></p>
-                        <Card.Body>
-                            <Box id='titleBox' component='form' sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                                <span ref={loginResponse} style={{ display: 'none', color: 'red' }}>{message}</span>
-                                <span ref={emMess} style={{ display: 'none', color: 'red' }}>{message}</span>
-                                <TextField 
-                                    className='nonFCInput' 
-                                    id='outlined-search' 
-                                    label='Email' 
-                                    type='email' 
-                                    name='email' 
-                                    value={ values.email } 
-                                    onChange={handleChange} 
-                                    ref={em}
-                                />
-                                <span ref={pwMess} style={{ display: 'none', color: 'red' }}>{message}</span>
-                                {/* Form Control component to hold MUI visibility changing password field */}
-                                <FormControl sx={{ m: 1 }} variant='outlined'>
-                                    <InputLabel htmlFor='outlined-adornment-password'>Password</InputLabel>
-                                    <OutlinedInput
-                                        id='outlined-adornment-password'
-                                        type={ values.showPassword ? 'text' : 'password' }
-                                        name='password'
-                                        value={ values.password }
-                                        onChange={ handleChange }
-                                        ref={pw}
-                                        endAdornment={
-                                            <InputAdornment position='end'>
-                                                <IconButton
-                                                    aria-label='visibility toggle'
-                                                    onClick={ handleClickShowPassword }
-                                                    onMouseDown={ handleMouseDownPassword }
-                                                    edge='end'
-                                                >
-                                                    { values.showPassword ? <VisibilityOff /> : <Visibility /> }
-                                                </IconButton>
-                                            </InputAdornment>
-                                        }
-                                        label='Password'
-                                    />
-                                </FormControl>
-                                <Button 
-                                    className='scheme' 
-                                    id='loginButton' 
-                                    type='submit' 
-                                    size='lg' 
-                                    onClick={ handleLogin }
-                                >
-                                    Log in
-                                </Button>
-                                <Link to='/forgot_password' style={{fontSize: 'small'}}> Forgot Password? </Link>
-                            </Box>
-                            <div className='d-grid'>
-                                <Button component={ Link } to='/new' className='scheme secondButton' size='lg'>
-                                    Create Account
-                                </Button>
-                            </div>
+    const BackgroundImageComponentLogin = () => {
+        const backgroundImageRefLogin = React.useRef(null);
+        const [imageLoadedLogin, setImageLoadedLogin] = React.useState(false);
 
-                            <br/><br/>
-                            <div className='logo'>
-                                <Image src={ logo1 }  alt='logo' id='logo1' style={{width: '40px', height: 'auto'}}/>
-                            </div>
-                        </Card.Body>
-                    </Card>
+        /*
+        runs only once
+        allows background color to change depending on whether background image loaded
+        */
+        React.useEffect(() => { 
+            /* get the page element by using its class name */
+            var pageElementsLogin = document.getElementsByClassName("pageTemplateLogin");
+
+            if (pageElementsLogin.length > 0) {
+
+                /* check that image loaded */
+                const imageLoadedLoginCheck = () => {
+                    // if the image successfully loads, stores image url
+                    const isImageLoadedLogin = window.getComputedStyle(backgroundImageRefLogin.current, '::before').getPropertyValue('background-image');
+
+                    // check that isImageLoadedLogin isn't null/undefined, then check that it isn't none
+                    if ((isImageLoadedLogin) && (isImageLoadedLogin !== 'none' )) {
+                        setImageLoadedLogin(true);
+                    } else {
+                        console.log("image did not load, ", isImageLoadedLogin);
+                    }
+                };
+                imageLoadedLoginCheck();
+
+                // check that the image is still loading if the window is resized
+                window.addEventListener('resize', imageLoadedLoginCheck);
+                return() => {
+                    window.removeEventListener('resize', imageLoadedLoginCheck);
+                }
+            } else {
+                console.log("page element was not found");
+            }
+
+        }, []);
+
+        React.useEffect(() => {
+            /* get the page element by using its class name */
+            var pageElementsLogin = document.getElementsByClassName("pageTemplateLogin");
+
+            if (pageElementsLogin.length > 0) {
+                var pageElementLogin = pageElementsLogin[0];
+
+                /* add classes with different background colors depending on whether the image loaded */
+                if (imageLoadedLogin == true) {
+                    pageElementLogin.classList.add("backgroundImageLoginLoaded");
+                    pageElementLogin.classList.remove("backgroundImageLoginNotLoaded");
+                } else {
+                    pageElementLogin.classList.add("backgroundImageLoginNotLoaded");
+                    pageElementLogin.classList.remove("backgroundImageLoginLoaded");
+                }
+            } else {
+                console.log("page element was not found");
+            }
+        }, [imageLoadedLogin]);
+
+        return (
+            <div id='titlePage'>
+                <div className='pageTemplateLogin' id='login' ref={backgroundImageRefLogin}>
+                    {/* tag - sizing for logo/tag (title text) */}
+                    <Link className='backButton' to='/'><Back className='iconShadow' /></Link>
+                        <Card className='formCard' style={{ backgroundColor: '#ddddddbb', padding: '30px 102px 0px 102px', backdropFilter: 'blur(4px)'}}>
+                            <h3><b>Welcome Back,</b></h3>
+                            <p><i>Please Login.</i></p>
+                            <Card.Body>
+                                <Box id='titleBox' component='form' sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                                    <span ref={loginResponse} style={{ display: 'none', color: 'red' }}>{message}</span>
+                                    <span ref={emMess} style={{ display: 'none', color: 'red' }}>{message}</span>
+                                    <TextField 
+                                        className='nonFCInput' 
+                                        id='outlined-search' 
+                                        label='Email' 
+                                        type='email' 
+                                        name='email' 
+                                        value={ values.email } 
+                                        onChange={handleChange} 
+                                        ref={em}
+                                    />
+                                    <span ref={pwMess} style={{ display: 'none', color: 'red' }}>{message}</span>
+                                    {/* Form Control component to hold MUI visibility changing password field */}
+                                    <FormControl sx={{ m: 1 }} variant='outlined'>
+                                        <InputLabel htmlFor='outlined-adornment-password'>Password</InputLabel>
+                                        <OutlinedInput
+                                            id='outlined-adornment-password'
+                                            type={ values.showPassword ? 'text' : 'password' }
+                                            name='password'
+                                            value={ values.password }
+                                            onChange={ handleChange }
+                                            ref={pw}
+                                            endAdornment={
+                                                <InputAdornment position='end'>
+                                                    <IconButton
+                                                        aria-label='visibility toggle'
+                                                        onClick={ handleClickShowPassword }
+                                                        onMouseDown={ handleMouseDownPassword }
+                                                        edge='end'
+                                                    >
+                                                        { values.showPassword ? <VisibilityOff /> : <Visibility /> }
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            }
+                                            label='Password'
+                                        />
+                                    </FormControl>
+                                    <Button 
+                                        className='scheme' 
+                                        id='loginButton' 
+                                        type='submit' 
+                                        size='lg'
+                                        style={{backgroundColor: 'rgba(254, 216, 6, 0.7)'}} 
+                                        onClick={ handleLogin }
+                                    >
+                                        Log in
+                                    </Button>
+                                    <Link to='/forgot_password' style={{fontSize: 'small'}}> Forgot Password? </Link>
+                                </Box>
+                                <div className='d-grid'>
+                                    <Button component={ Link } to='/new' className='scheme secondButton' size='lg' style={{backgroundColor: 'rgba(254, 216, 6, 0.7)'}}>
+                                        Create Account
+                                    </Button>
+                                </div>
+    
+                                <br/><br/>
+                                <div className='logo'>
+                                    <Image src={ logo1 }  alt='logo' id='logo1' style={{width: '40px', height: 'auto'}}/>
+                                </div>
+                            </Card.Body>
+                        </Card>
                 </div>
             </div>
-        </div>
-    );
+        );
+    }
+    
+    return <BackgroundImageComponentLogin />
 }
