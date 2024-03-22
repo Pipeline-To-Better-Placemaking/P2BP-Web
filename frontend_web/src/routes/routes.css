@@ -167,25 +167,8 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     width: calc(100% - (padding-left + padding-right));
     height: auto; /* or specify a fixed height if needed */
 }
-/* #newuser.initpageTemplate {
-    background-image: url('../images/city_blurred.jpg'); /* Background Image*/
-    /*background-size: cover; /* Scale the image to fit inside the container */
-    /*background-repeat: no-repeat; /* Prevent the image from repeating */
-    /*border-radius: 10px;*/
-    /*background-attachment: fixed; /* Fix the background image in place */
-    /*background-position: center;
-    overflow: hidden;
-} */
-/* #newuser.initpageTemplate::before {
-    background-color: rgba(0, 0, 0, 0.9); /* Semi-transparent black color */
-    /*z-index: -1;
-} */
-/*#login.initpageTemplate,*/ #resetPass, #faqPage{
-    background-image: url('../images/blueprint-blurred.jpg'); /* Background Image*/
-    background-size: cover; /* Scale the image to fit inside the container */
-    background-repeat: no-repeat; /* Prevent the image from repeating */
-    /*border-radius: 10px;*/
-    background-attachment: fixed; /* Fix the background image in place */
+#resetPass, #faqPage{
+    background-color: #006FD6;
     background-position: center;
     overflow: hidden;
 }
@@ -298,13 +281,16 @@ div#faqPage div.pageTemplate{
 }
 
 div#tOC{
-    background-color: #FFFFFF;
+    background-color: #DDDDDDBB;
     padding: 10px;
     border-radius: 10px;
     color: black;
     width: 60vw;
     text-align: center;
-    margin-bottom: 15px;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    margin: 1.5vh calc((100% - 60vw) / 2);
 }
 
 div.pageTemplate > h2{
