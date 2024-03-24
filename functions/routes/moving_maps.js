@@ -9,39 +9,29 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
 const { models } = require('mongoose')
+const routeDBfoos = require("../databaseFunctions/RouteFunctions.js");
 const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
 const colDBfoos = require('../databaseFunctions/CollectionFunctions.js');
 const refDBfoos = require('../databaseFunctions/ReferenceFunctions.js');
 const arrayDBfoos = require('../databaseFunctions/ArrayFunctions.js');
 const projectDBfoos = require('../databaseFunctions/ProjectFunctions.js');
-const routeDBfoos = require('../databaseFunctions/RouteFunctions.js')
 const userDBfoos = require('../databaseFunctions/UserFunctions.js');
-const {
-    MOVING_COLS,
-    MOVING_MAPS,
-    PROJECTS,
-    STANDING_POINTS,
-    SURVEYS,
-    SURVEY_COLS,
-    TEAMS
-} = require('../databaseFunctions/CollectionNames.js');
 
 const { UnauthorizedError, BadRequestError } = require('../utils/errors')
 
 //route creates new map(s).  If there are multiple time slots in test, multiple timseslots are created.
 router.post('', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    console.log("IN MOVING_MAPS ROUTE!");
     const user = await req.user;
     const projectId = req.body.project;
-    const project = await basicDBfoos.getObj(projectId, PROJECTS);
+    const project = await basicDBfoos.getObj(projectId, "projects");
     const collectionId = req.body.collection;
     const timeSlots = await req.body.timeSlots;
     const authorized = await userDBfoos.isAdmin(project.team, user._id);
     if(authorized) {
+
         if(timeSlots && timeSlots.length > 0) {
-            console.log("true")
             for(let i = 0; i < timeSlots.length; i++){
-                let slot = timeSlots[i]
+                let slot = timeSlots[0]
 
                 let newMap = {
                     _id: basicDBfoos.createId(),
@@ -57,15 +47,15 @@ router.post('', passport.authenticate('jwt',{session:false}), async (req, res, n
                 }
 
                 //create new map with method from _map models and add ref to its parent collection.
-                const map = await basicDBfoos.addObj(newMap, MOVING_MAPS);
-                await arrayDBfoos.addArrayElement(collectionId, "maps", MOVING_COLS, newMap._id);
+                const map = await basicDBfoos.addObj(newMap, "moving_maps");
+                await arrayDBfoos.addArrayElement(collectionId, "maps", "moving_collections", newMap._id);
 
                 //add references of points used in Points model.
-                for (j = 0; j < map.standingPoints.length; j++) {
-                    await refDBfoos.addReference(map.standingPoints[j]._id, STANDING_POINTS);
+                for (i = 0; i < map.standingPoints.length; i ++) {
+                    await refDBfoos.addReference(map.standingPoints[i]._id, "standing_points");
                 }
-                console.log("test");
-                res.status(201).json(await basicDBfoos.getObj(req.body.collection, MOVING_COLS));
+                console.log("tset");
+                res.status(201).json(await basicDBfoos.getObj(req.body.collection, "moving_collection"));
             }
         }
         else{
@@ -86,51 +76,36 @@ router.post('', passport.authenticate('jwt',{session:false}), async (req, res, n
                 data: [],
             }
 
-            const map = await basicDBfoos.addObj(newMap, MOVING_MAPS);
+            await basicDBfoos.addObj(newMap, "moving_maps");
             // console.log(collectionId);
-            await arrayDBfoos.addArrayElement(collectionId, "maps", MOVING_MAPS, newMap._id);
+            await arrayDBfoos.addArrayElement(collectionId, "maps", "moving_collections", newMap._id);
             // await Moving_Collection.addActivity(req.body.collection,map._id)
             for (i = 0; i < newMap.standingPoints.length; i ++){
-                await refDBfoos.addReference(newMap.standingPoints[i], STANDING_POINTS);
+                await refDBfoos.addReference(newMap.standingPoints[i], "standing_points");
             }
             console.log("end");
-            res.status(201).json(map)
+            res.status(201).json(newMap);
 
         }
         res.status(201).json();
+
     }
     else{
         throw new Error('You do not have permision to perform this operation');
-    }
+    }   
 })
 
 //route gets all map data, including any collection data.
 router.get('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    console.error("Moving Maps????");
-    /*const map = await  Map.findById(req.params.id)
-                           .populate('standingPoints')
-                           .populate('researchers','firstname lastname')
-                           .populate([
-                               {
-                                   path:'sharedData',
-                                   model:'Moving_Collections',
-                                   select:'title duration',
-                                   populate: {
-                                    path: 'area',
-                                    model: 'Areas'
-                                   }
-                                }])*/
     console.log(req.params.id);
     let map = await basicDBfoos.getObj(req.params.id, "moving_maps");
     for (let i = 0; i < map.researchers.length; i++) {
         const id = map.researchers[i];
-        console.log(id);
         const researcher = await basicDBfoos.getObj(map.researchers[i], "users");
         map.researchers[i] = {firstname: researcher.firstname, lastname: researcher.lastname, _id: map.researchers[i]};
     }
     for (let i = 0; i < map.standingPoints.length; i++) {
         const id = map.standingPoints[i];
-        console.log(id);
         map.standingPoints[i] = await basicDBfoos.getObj(id, "standing_points");
         map.standingPoints[i]._id = id;
     }
@@ -138,15 +113,12 @@ router.get('/:id', passport.authenticate('jwt',{session:false}), async (req, res
     map.sharedData = {title: obj.title, duration: obj.duration, _id: map.sharedData}
     const area = await basicDBfoos.getObj(obj.area, "areas");
     map.sharedData.area = area;
-    console.log(map);
 
     res.status(200).json(map)
 })
 
 //route signs team member up to a time slot.
 router.put('/:id/claim', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    console.log("IN CLAIMS IN MOVING MAPS");
-    console.log(req.params.id);
     const map = await basicDBfoos.getObj(req.params.id, "moving_maps");
     const project = await basicDBfoos.getObj(map.project, "projects");
     const user = await req.user;
@@ -164,42 +136,44 @@ router.put('/:id/claim', passport.authenticate('jwt',{session:false}), async (re
 })
 
 //route reverses sign up to a time slot.
+// Untested
 router.delete('/:id/claim', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    map = await Map.findById(req.params.id)
-    project = await Project.findById(map.project)
-    return res.status(200).json(await Map.removeResearcher(map._id, user._id))
+    const map = await Map.findById(req.params.id);
+    await arrayDBfoos.removeArrayElement(map._id, user._id, "reserachers", "moving_maps");
+    return res.status(200).json({});
 
 })
 
+// Untested
 //route edits time slot information when updating a map
 router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    map = await Map.findById(req.params.id)
-
-    if (await Team.isAdmin(project.team,user._id)){
-        let newMap = new Map({
+    const user = await req.user;
+    const map = await basicDBfoos.getObj(req.params.id, "moving_maps");
+    const project = await basicDBfoos.getObj(map.project, "projects");
+    const authorized = await userDBfoos.isAdmin(project.team, user._id);
+    if(authorized) {
+        let newMap = {
             title: (req.body.title ? req.body.title : map.title),
             date: (req.body.date ? req.body.date : map.date),
             maxResearchers: (req.body.maxResearchers ? req.body.maxResearchers : map.maxResearchers),
             standingPoints: (req.body.standingPoints ? req.body.standingPoints : map.standingPoints)
-        })
+        }
 
-        project = await Project.findById(map.project)
 
         //if standing points are changed, any new points get referenced, before any old points get dereferenced.
         //done in this order so points never reach 0 and get deleted in removeRefrence()
         if(req.body.standingPoints){
 
-            for(var i = 0; i < req.body.standingPoints.length; i++)
-                await Points.addRefrence(req.body.standingPoints[i])
+            for(var i = 0; i < req.body.standingPoints.length; i++) {
+                await refDBfoos.addReference(newMap.standingPoints[i], "standing_points");
+            }
             
-            for(var i = 0; i < map.standingPoints.length; i++)
-                await Points.removeRefrence(map.standingPoints[i])
+            for(var i = 0; i < map.standingPoints.length; i++) {
+                await refDBfoos.removeReference(map.standingPoints[i], "standing_points");
+            }
 
         }
-
-        const updatedMap = await Map.updateMap(req.params.id,newMap)
-        res.status(201).json(updatedMap)
+        res.status(201).json(newMap);
     }
     else{
         throw new UnauthorizedError('You do not have permision to perform this operation')
@@ -207,13 +181,16 @@ router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res
     
 })
 
+// Untested
 //route deletes a map from a test collection
 router.delete('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    map = await Map.findById(req.params.id)
-    project = await Project.findById(map.project)
-    if(await Team.isAdmin(project.team,user._id)){
-        res.json(await Moving_Collection.deleteMap(map.sharedData,map._id))
+    const user = await req.user;
+    const map = await basicDBfoos.getObj(req.params.id, "moving_maps");
+    const project = await basicDBfoos.getObj(map.project, "projects");
+    if(await userDBfoos.isAdmin(project.team,user._id)) {
+        await basicDBfoos.deleteObj(map._id, "moving_maps");
+        await arrayDBfoos.removeArrayElement(map.sharedData, map._id, "maps", "moving_collections");
+        res.json({});
 
     }
     else{
@@ -251,13 +228,15 @@ router.post('/:id/data', passport.authenticate('jwt',{session:false}), async (re
     }
 })
 
-//route edits any already created tested time slots.  Essentially redoing a test run for a time slot
-router.put('/:id/data/:data_id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user   
-    map = await Map.findById(req.params.id)
 
-    //adding await causes unwanted behavior.  Reason unkown
-    if (Map.isResearcher(mapId, user._id)){
+//route edits any already created tested time slots.  Essentially redoing a test run for a time slot 
+// Incomplete
+router.put('/:id/data/:data_id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+    const userId = await req.user._id;
+    const map = await basicDBfoos.getObj(req.params.id, "moving_maps");
+    const authorized = map.researcher.includes(userId);
+
+    if (authorized) {
 
         oldData = await Map.findData(map._id, req.params.data_id)
 
@@ -272,18 +251,18 @@ router.put('/:id/data/:data_id', passport.authenticate('jwt',{session:false}), a
         //it is important to note that standingPoint != standingPoints.  standingPoint is an individual point which an instance
         //of a time slot uses.  standingPoints is an array which includes all of these points.          
         if(req.body.standingPoint){
-            await Points.addRefrence(req.body.standingPoint)
-            await Points.removeRefrence(oldData.standingPoint)
+            await refDBfoos.addReference(req.body.standingPoint, "standing_points");
+            await refDBfoos.removeReference(req.body.standingPoint, "standing_points");
         }
-
-        await Map.updateData(map._id,oldData._id,newData)
-        res.status(201).json(await Map.findById(req.params.id))
+        await basicDBfoos.updateObj(map._id, newData, "moving_maps");
+        res.status(201).json(newData);
     }  
     else{
         throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    }  
 })
 
+// Untested
 //route deletes an individual time slot from a map
 router.delete('/:id/data/:data_id',passport.authenticate('jwt',{session:false}), async (req, res, next) => { 
     user = await req.user
@@ -296,5 +275,4 @@ router.delete('/:id/data/:data_id',passport.authenticate('jwt',{session:false}),
         throw new UnauthorizedError('You do not have permision to perform this operation')
     }
 })
-
 module.exports = router

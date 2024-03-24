@@ -14,9 +14,13 @@ const {
         STATIONARY_MAPS,
         SURVEY_COLS,
 } = require('../databaseFunctions/CollectionNames.js');
+const arrayDBfoos = require('../databaseFunctions/ArrayFunctions.js');
 const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
 const colDBfoos = require('../databaseFunctions/CollectionFunctions.js');
+const userDBfoos = require('../databaseFunctions/UserFunctions.js');
 const refDBfoos = require('../databaseFunctions/ReferenceFunctions.js');
+
+const { UnauthorizedError, BadRequestError } = require('../utils/errors')
 
 module.exports.deleteProject = async function(projectId) {
     const project = await basicDBfoos.getObj(projectId, PROJECTS);
@@ -76,8 +80,8 @@ module.exports.deleteProject = async function(projectId) {
     return await basicDBfoos.deleteObj(project._id, PROJECTS);
 }
 
-modules.export.addMap = async function(userId, projectId, obj, collection) {
-    const project = await basicDBfoos.getObj(req.params.id, PROJECTS);
+module.exports.addMap = async function(userId, projectId, obj, collection, arrayName) {
+    const project = await basicDBfoos.getObj(projectId, PROJECTS);
     const authorized = await userDBfoos.isAdmin(project.team, userId);
 
     if(!authorized) {
@@ -93,8 +97,48 @@ modules.export.addMap = async function(userId, projectId, obj, collection) {
     }
 
     await basicDBfoos.addObj(newCollection, collection);
-    await refDBfoos.addReference(newCollection.area, "areas");
+    await refDBfoos.addReference(newCollection.area, AREAS);
 
-    await arrayDBfoos.addArrayElement(project._id, "movingCollections", PROJECTS, newCollection._id);
-    res.json(newCollection);
+    await arrayDBfoos.addArrayElement(project._id, arrayName, PROJECTS, newCollection._id);
+    return newCollection;
+}
+
+module.exports.editCol = async function(userId, projectId, obj, collectionName, collectionId) {
+    const project = await basicDBfoos.getObj(projectId, PROJECTS);
+    const authorized = await userDBfoos.isAdmin(project.team, userId);
+
+    if(authorized) {
+        throw new UnauthorizedError('You do not have permision to perform this operation')
+    }
+
+    const collection = await basicDBfoos.getObj(collectionName, collectionId);
+    const newCollection = {
+        title: (obj.title ? obj.title : collection.title),
+        date: (obj.date ? obj.date : collection.date),
+        area: (obj.area ? obj.area : collection.area),
+        duration: (obj.duration ? obj.duration : collection.duration)
+    }
+
+    if(obj.area) {
+        await refDBfoos.addRefrence(obj.area, AREAS);
+        await refDBfoos.removeRefrence(collection.area, AREAS);
+    }
+    await Sound_Collection.updateCollection(req.params.collectionId, newCollection);
+    await basicDBfoos.updateObj(collectionId, obj, collectionName);
+
+    return {};
+}
+
+module.exports.deleteCol = async function(userId, projectId, collectionName, collectionId) {
+    const project = await Project.findById(req.params.id);
+    const authorized = await userDBfoos.isAdmin(project.team, userId);
+
+    if(authorized) {
+        throw new UnauthorizedError('You do not have permision to perform this operation')
+    }
+    const collection = await basicDBfoos.getObj(collectionName, collectionId);
+
+    await refDBfoos.removeRefrence(collection.area, AREAS);
+    await colDBfoos.deleteCollection(collectionId, collectionName);
+    return {};
 }

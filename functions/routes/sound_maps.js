@@ -9,112 +9,26 @@ const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const config = require("../utils/config");
 const { models } = require("mongoose");
+const routeDBfoos = require("../databaseFunctions/RouteFunctions.js");
 
 const { UnauthorizedError, BadRequestError } = require("../utils/errors");
+const {SOUND_MAPS, SOUND_COLS} = require('../databaseFunctions/CollectionNames.js');
 
 //route creates new map(s).  If there are multiple time slots in test, multiple timseslots are created.
-router.post(
-  "",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res, next) => {
-    user = await req.user;
-    project = await Project.findById(req.body.project);
-
-    if (await Team.isAdmin(project.team, user._id)) {
-      if (req.body.timeSlots) {
-        for (var i = 0; i < req.body.timeSlots.length; i++) {
-          var slot = req.body.timeSlots[0];
-
-          let newMap = new Map({
-            title: slot.title,
-            standingPoints: slot.standingPoints,
-            researchers: slot.researchers,
-            project: req.body.project,
-            sharedData: req.body.collection,
-            date: slot.date,
-            maxResearchers: slot.maxResearchers,
-          });
-
-          //create new map with method from _map models and add ref to its parent collection.
-          const map = await Map.addMap(newMap);
-          await Sound_Collection.addActivity(req.body.collection, map._id);
-
-          //add references of points used in Points model.
-          for (i = 0; i < map.standingPoints.length; i++) {
-            await Points.addRefrence(map.standingPoints[i]);
-          }
-
-          res
-            .status(201)
-            .json(await Sound_Collection.findById(req.body.collection));
-        }
-      } else {
-        let newMap = new Map({
-          title: req.body.title,
-          standingPoints: req.body.standingPoints,
-          researchers: req.body.researchers,
-          project: req.body.project,
-          sharedData: req.body.collection,
-          date: req.body.date,
-          maxResearchers: req.body.maxResearchers,
-        });
-        const map = await Map.addMap(newMap);
-        await Sound_Collection.addActivity(req.body.collection, map._id);
-
-        for (i = 0; i < map.standingPoints.length; i++) {
-          let tempPoint = await Points.addRefrence(map.standingPoints[i]);
-        }
-      }
-      res.status(201).json(map);
-    } else {
-      throw new UnauthorizedError(
-        "You do not have permision to perform this operation"
-      );
-    }
+router.post("", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+    res.status(200).json(await routeDBfoos.createMaps(req, SOUND_MAPS, SOUND_COLS));
   }
 );
 
 //route gets all map data, including any collection data.
-router.get(
-  "/:id",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res, next) => {
-    const map = await Map.findById(req.params.id)
-      .populate("standingPoints")
-      .populate("researchers", "firstname lastname")
-      .populate([
-        {
-          path: "sharedData",
-          model: "Sound_Collections",
-          select: "title duration",
-          populate: {
-            path: "area",
-            model: "Areas",
-          },
-        },
-      ]);
-
-    res.status(200).json(map);
+router.get("/:id", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+    res.status(200).json(await routeDBfoos.getMapData(req, SOUND_MAPS, SOUND_COLS));
   }
 );
 
 //route signs team member up to a time slot.
-router.put(
-  "/:id/claim",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res, next) => {
-    map = await Map.findById(req.params.id);
-    project = await Project.findById(map.project);
-    user = await req.user;
-    if (map.researchers.length < map.maxResearchers)
-    // adding an await in if statement below causes unwanted behavior.  Reason unkown
-      if (Team.isUser(project.team, user._id)) {
-        res.status(200).json(await Map.addResearcher(map._id, user._id));
-      } else
-        throw new UnauthorizedError(
-          "You do not have permision to perform this operation"
-        );
-    else throw new BadRequestError("Research team is already full");
+router.put("/:id/claim", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+    res.status(200).json(await routeDBfoos.assignTimeSlot(req, SOUND_MAPS, SOUND_COLS));
   }
 );
 
@@ -191,27 +105,9 @@ router.delete(
 );
 
 //route adds test data to its relevant time slot
-router.post(
-  "/:id/data",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res, next) => {
-    user = await req.user;
-    map = await Map.findById(req.params.id);
-    //adding await causes unwanted behavior.  Reason unkown
-    if (Map.isResearcher(map._id, user._id)) {
-      if (req.body.entries) {
-        for (var i = 0; i < req.body.entries.length; i++) {
-          await Map.addEntry(map._id, req.body.entries[i]);
-        }
-        res.status(201).json(await Map.findById(map._id));
-      } else {
-        res.json(await Map.addEntry(map._id, req.body));
-      }
-    } else {
-      throw new UnauthorizedError(
-        "You do not have permision to perform this operation"
-      );
-    }
+//route adds test data to its relevant time slot
+router.post("/:id/data", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+    res.status(200).json(await routeDBfoos.addTestData(req, SOUND_MAPS, SOUND_COLS));
   }
 );
 

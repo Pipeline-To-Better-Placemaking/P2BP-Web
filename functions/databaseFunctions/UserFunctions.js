@@ -40,7 +40,7 @@ module.exports.findUserByEmail = async function(email) {
     }
 }
 
-module.exports.testPassword = async function (password) {
+module.exports.testPassword = function (password) {
     if (!password ||                       // Password must be given
         password.length < 8 ||             // Length must be >= 8 characters
         /\s/g.test(password) ||            // Must not contain any whitespace characters
@@ -257,7 +257,6 @@ module.exports.isAdmin = async function(teamId, uId) {
     });
     return foundUser;
 }
-
 module.exports.getOwner = function(team, uId) {
     let foundUser = null;
     for (let i = 0; i < team.users.length; i++) {

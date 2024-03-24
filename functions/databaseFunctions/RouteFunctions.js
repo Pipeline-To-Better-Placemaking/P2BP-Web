@@ -28,7 +28,7 @@ module.exports.createMaps = async function(req, MapName, CollectionName) {
     if(await userDBfoos.isAdmin(project.team, user._id)) {
         if(timeSlots && timeSlots.length > 0) {
             console.log("TimeSlots.length > 0")
-            for(let i = 0; i < timeSlots.length; i++){
+            for(let i = 0; i < timeSlots.length; i++) {
                 let slot = timeSlots[i]
 
                 let newMap = {
@@ -53,7 +53,7 @@ module.exports.createMaps = async function(req, MapName, CollectionName) {
                     await refDBfoos.addReference(map.standingPoints[j]._id, STANDING_POINTS);
                 }
                 console.log("TimeSlots: Before Response");
-                res.status(201).json(await basicDBfoos.getObj(collectionId, CollectionName));
+                return await basicDBfoos.getObj(collectionId, CollectionName);
             }
         }
         else {
@@ -73,16 +73,15 @@ module.exports.createMaps = async function(req, MapName, CollectionName) {
                 maps: [],
                 data: []
             }
-
-            const map = await basicDBfoos.addObj(newMap, MapName);
-            await arrayDBfoos.addArrayElement(collectionId, "maps", MapName, newMap._id);
+            console.log(collectionId);
+            await basicDBfoos.addObj(newMap, MapName);
+            await arrayDBfoos.addArrayElement(collectionId, "maps", CollectionName, newMap._id);
             for (i = 0; i < newMap.standingPoints.length; i ++){
                 await refDBfoos.addReference(newMap.standingPoints[i], STANDING_POINTS);
             }
-            console.log("No TimeSlots: Before Response");
-            res.status(201).json(map)
+            return newMap;
         }
-        res.status(201).json();
+        return {};
     }
     else{
         throw new Error('You do not have permision to perform this operation');
@@ -125,11 +124,11 @@ module.exports.getMapData = async function(req, MapName, CollectionName) {
     map.sharedData.area = area;
     console.log(map);
 
-    res.status(200).json(map)
+    return map;
 }
 
 //route signs team member up to a time slot.
-module.exports.assignTimeSlot = async function(req, MapName, CollectionName) {
+module.exports.assignTimeSlot = async function(req, MapName) {
     console.log("Assigning Time Slot");
     console.log(req.params.id);
     const map = await basicDBfoos.getObj(req.params.id, MapName);
@@ -137,7 +136,7 @@ module.exports.assignTimeSlot = async function(req, MapName, CollectionName) {
     const user = await req.user;
     if(map.researchers.length < map.maxResearchers) {
         if(userDBfoos.onTeam(project.team, user._id)) {
-            return res.status(200).json(await arrayDBfoos.addArrayElement(map._id, "researchers", MapName, user._id));
+            return await arrayDBfoos.addArrayElement(map._id, "researchers", MapName, user._id);
         }
         else {
             throw new UnauthorizedError('You do not have permision to perform this operation');
@@ -149,14 +148,14 @@ module.exports.assignTimeSlot = async function(req, MapName, CollectionName) {
 }
 
 //route reverses sign up to a time slot.
-module.exports.clearTimeSlot = async function(req, MapName, CollectionName) {
+module.exports.clearTimeSlot = async function(req, MapName) {
     console.log("Clearing Time Slot");
     console.log(req.params.id);
     const map = await basicDBfoos.getObj(req.params.id, MapName);
     const project = await basicDBfoos.getObj(map.project, PROJECTS);
     const user = await req.user;
     if(userDBfoos.onTeam(project.team, user._id)) {
-        return res.status(200).json(await arrayDBfoos.removeArrayElement(map._id, user._id, 'researchers', CollectionName))
+        return await arrayDBfoos.removeArrayElement(map._id, user._id, 'researchers', MapName);
     }
     else {
         throw new UnauthorizedError('You do not have permision to perform this operation');
@@ -171,7 +170,7 @@ module.exports.editTimeSlot = async function(req, MapName, CollectionName) {
     const project = await basicDBfoos.getObj(map.project, PROJECTS);
 
     if (await userDBfoos.isAdmin(project.team, user._id)){
-        let newMap = {
+        const newMap = {
             title: (req.body.title ? req.body.title : map.title),
             date: (req.body.date ? req.body.date : map.date),
             maxResearchers: (req.body.maxResearchers ? req.body.maxResearchers : map.maxResearchers),
@@ -180,15 +179,17 @@ module.exports.editTimeSlot = async function(req, MapName, CollectionName) {
 
         //if standing points are changed, any new points get referenced, before any old points get dereferenced.
         //done in this order so points never reach 0 and get deleted in removeRefrence()
-        if(req.body.standingPoints){
-            for(var i = 0; i < req.body.standingPoints.length; i++)
+        if(req.body.standingPoints) {
+            for(let i = 0; i < req.body.standingPoints.length; i++) {
                 await refDBfoos.addReference(req.body.standingPoints[i], STANDING_POINTS);
+            }
 
-            for(var i = 0; i < map.standingPoints.length; i++)
-                await refDBfoos.removeReference(map.standingPoints[i], STANDING_POINTS)
+            for(let i = 0; i < map.standingPoints.length; i++) {
+                await refDBfoos.removeReference(map.standingPoints[i], STANDING_POINTS);
+            }
         }
-        const updatedMap = await basicDBfoos.updateObj(req.params.id, newMap, CollectionName);
-        res.status(201).json(updatedMap)
+        await basicDBfoos.updateObj(req.params.id, newMap, MapName);
+        return newMap;
     }
     else {
         throw new UnauthorizedError('You do not have permision to perform this operation')
@@ -202,11 +203,12 @@ module.exports.deleteMap = async function(req, MapName, CollectionName) {
     const map = await basicDBfoos.getObj(req.params.id, MapName);
     const project = await basicDBfoos.getObj(map.project, PROJECTS);
     if(await userDBfoos.isAdmin(project.team, user._id)){
-        for (let i = 0; i < map.standingPoints.length; i++) {//remove references
+        for (let i = 0; i < map.standingPoints.length; i++) {
             await refDBfoos.removeReference(map._id, MapName);
         }
-        await basicDBfoos.deleteObj(map._id, MapName)//delete map
-        return res.json(await arrayDBfoos.removeArrayElement(map.sharedData, map._id, 'maps', CollectionName));//remove map from collection
+        await basicDBfoos.deleteObj(map._id, MapName); //delete map
+        await arrayDBfoos.removeArrayElement(map.sharedData, map._id, 'maps', CollectionName);
+        return {};
     }
     else {
         throw new UnauthorizedError('You do not have permision to perform this operation')
@@ -214,7 +216,7 @@ module.exports.deleteMap = async function(req, MapName, CollectionName) {
 }
 
 //route adds test data to its relevant time slot
-module.exports.addTestData = async function(req, MapName, CollectionName) {
+module.exports.addTestData = async function(req, MapName) {
     console.log("Adding Test Data");
     const user = await req.user;
     const map = await basicDBfoos.getObj(req.params.id, MapName);
@@ -229,11 +231,13 @@ module.exports.addTestData = async function(req, MapName, CollectionName) {
                     map.data = [];
                 }
                 map.data.push(req.body.entries[i]);
-                refDBfoos.addReference(req.body.entries[i].standingPoint, STANDING_POINTS);
+                if (req.body.entries[i].standingPoint) {
+                    refDBfoos.addReference(req.body.entries[i].standingPoint, STANDING_POINTS);
+                }
             }
             await basicDBfoos.updateObj(map._id, map, MapName);
             console.log(map);
-            return res.status(201).json(map);
+            return map;
         }
         else {
             const entry = {
@@ -243,7 +247,7 @@ module.exports.addTestData = async function(req, MapName, CollectionName) {
                 path: req.body.path
             }
             refDBfoos.addReference(entry.standingPoint, STANDING_POINTS)
-            return res.json(await arrayDBfoos.addArrayElement(map._id, 'data', MapName, req.body));
+            return await arrayDBfoos.addArrayElement(map._id, 'data', MapName, req.body);
        }
     }
     else {
@@ -257,11 +261,10 @@ module.exports.editTestedTimeSlot = async function(req, MapName, CollectionName)
     const user = await req.user
     const map = await basicDBfoos.getObj(req.params.id, MapName);
 
-    //adding await causes unwanted behavior.  Reason unkown
     //true if the user is within the researchers[] of the X_map document
     if (await arrayDBfoos.getArrayElement(map._id, user._id, 'researchers', MapName).exists) {
 
-        oldData = await arrayDBfoos.getArrayElement(map._id, req.params.data_id, 'data', MapName);
+        const oldData = await arrayDBfoos.getArrayElement(map._id, req.params.data_id, 'data', MapName);
 
         const newData = {
             _id: oldData._id,
@@ -278,8 +281,8 @@ module.exports.editTestedTimeSlot = async function(req, MapName, CollectionName)
             await refDBfoos.removeReference(oldData.standingPoint, STANDING_POINTS);
         }
 
-        await arrayDBfoos.updateArrayElement(map._id, oldData._id, newData, 'data');// updates data[]
-        res.status(201).json(await basicDBfoos.getObj(req.params.id, CollectionName));
+        await arrayDBfoos.updateArrayElement(map._id, oldData._id, newData, 'data');
+        return await basicDBfoos.getObj(req.params.id, CollectionName);
     }
     else {
         throw new UnauthorizedError('You do not have permision to perform this operation')
@@ -292,11 +295,9 @@ module.exports.deleteTimeSlot = async function(req, MapName, CollectionName) {
     const user = await req.user
     const map = await basicDBfoos.getObj(req.params.id, MapName);
     if(map.owner.toString() == user._id.toString()){
-        //remove reference to the entry from STANDING_POINTS
         await refDBfoos.removeReference(req.params.data_id, STANDING_POINTS);
-        //delete the value from data[]
         await arrayDBfoos.removeArrayElement(map._id, req.params.data_id, 'data', MapName);
-        res.status(201).json(await basicDBfoos.getObj(req.params.id, PROJECTS));
+        return await basicDBfoos.getObj(req.params.id, PROJECTS);
     }
     else{
         throw new UnauthorizedError('You do not have permision to perform this operation')

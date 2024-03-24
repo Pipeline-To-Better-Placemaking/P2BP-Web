@@ -8,87 +8,28 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
 const { models } = require('mongoose')
+const routeDBfoos = require("../databaseFunctions/RouteFunctions.js");
 
 const { UnauthorizedError, BadRequestError } = require('../utils/errors')
+const {SURVEYS, SURVEY_COLS} = require('../databaseFunctions/CollectionNames.js');
 
 //route creates new map(s).  If there are multiple time slots in test, multiple timseslots are created.
-router.post('', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.body.project)
+router.post("", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+    res.status(200).json(await routeDBfoos.createMaps(req, SURVEYS, SURVEY_COLS));
+  }
+);
 
-    if(await Team.isAdmin(project.team,user._id)){
-        
-        if(req.body.timeSlots){
-            for(var i = 0; i < req.body.timeSlots.length; i++){
-                var slot = req.body.timeSlots[0]
-
-                let newSurvey = new Survey({
-                    title: slot.title,
-                    researchers: slot.researchers,
-                    project: req.body.project,
-                    sharedData: req.body.collection,
-                    date: slot.date,
-                    maxResearchers: slot.maxResearchers,
-                })
-
-                //create new survey with method from surveys models and add ref to its parent collection.
-                const survey = await Survey.addSurvey(newSurvey)
-                await Survey_Collection.addActivity(req.body.collection, survey._id)
-            }
-            res.status(201).json(await Survey_Collection.findById(req.body.collection))
-        }
-
-        let newSurvey = new Survey({
-            title: req.body.title,
-            researchers: req.body.researchers,
-            project: req.body.project,
-            sharedData: req.body.collection,
-            date: req.body.date, 
-            maxResearchers: req.body.maxResearchers,
-        })
-        const survey = await Survey.addSurvey(newSurvey)
-        await Survey_Collection.addActivity(req.body.collection,survey._id)
-        res.status(201).json(survey)
-
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }   
-})
-
-//route gets all survey data, including any collection data.
-router.get('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    const survey = await  Survey.findById(req.params.id)
-                                .populate('researchers','firstname lastname')
-                                .populate([
-                                   {
-                                   path:'sharedData',
-                                   model:'Survey_Collections',
-                                   select:'title duration ',
-                                   populate: {
-                                    path: 'area',
-                                    model: 'Areas'
-                                   }
-                                }])
-                           
-    res.status(200).json(survey)
-})
+//route gets all map data, including any collection data.
+router.get("/:id", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+    res.status(200).json(await routeDBfoos.getMapData(req, SURVEYS, SURVEY_COLS));
+  }
+);
 
 //route signs team member up to a time slot.
-router.put('/:id/claim', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    survey = await Survey.findById(req.params.id)
-    project = await Project.findById(survey.project)
-    user = await req.user
-    if(survey.researchers.length < survey.maxResearchers)
-        // adding an await in if statement below causes unwanted behavior.  Reason unkown
-        if(Team.isUser(project.team,user._id)){
-            res.status(200).json(await Survey.addResearcher(survey._id,user._id))
-        }
-        else
-            throw new UnauthorizedError('You do not have permision to perform this operation')
-    else 
-        throw new BadRequestError('Research team is already full')
-})
+router.put("/:id/claim", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+    res.status(200).json(await routeDBfoos.assignTimeSlot(req, SURVEYS, SURVEY_COLS));
+  }
+);
 
 //route reverses sign up to a time slot.
 router.delete('/:id/claim', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
@@ -136,24 +77,10 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}), async (req, 
 })
 
 //route adds survey to its relevant time slot
-router.post('/:id/data', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    survey = await Survey.findById(req.params.id)
-    if(Survey.isResearcher(survey._id, user._id)){
-        if(req.body.entries){
-            for(var i = 0; i < req.body.entries.length; i++){
-                await Survey.addEntry(survey._id,req.body.entries[i])
-            } 
-            res.status(201).json(await Survey.findById(survey._id))
-        }
-        else{
-            res.json(await Survey.addEntry(survey._id,req.body))
-       }
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
-})
+router.post("/:id/data", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+    res.status(200).json(await routeDBfoos.addTestData(req, SURVEY, SURVEY_COLS));
+  }
+);
 
 //route deletes an individual time slot from a survey
 router.delete('/:id/data/:data_id',passport.authenticate('jwt',{session:false}), async (req, res, next) => { 

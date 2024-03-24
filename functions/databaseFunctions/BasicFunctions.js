@@ -3,7 +3,6 @@ const firestore = require('../firestore');
 const {TEAMS} = require('../databaseFunctions/CollectionNames.js');
 
 const addObj = async function(newObj, collection) {
-    console.log(newObj);
     return await firestore.collection(collection).doc().set(newObj);
 }
 
@@ -21,7 +20,7 @@ const updateObj = async function (docId, updates, collection) {
     const oldObj = await firestore.collection(collection).where('_id', '==', docId).get();
     if (oldObj.empty)
     {
-        throw new Error("Invalid " + collection + "obj");
+        throw new Error("Invalid " + collection + " obj in updateObj");
     }
     let newObj;
     oldObj.forEach(async doc => {
@@ -42,12 +41,11 @@ const deleteObj = async function(docId, collection) {
     });
     return;
 }
-
 const teamCleanup = async function(teamId) {
     const team = await firestore.collection(TEAMS).where('_id', '==', teamId).get();
-    if (oldMap.empty)
+    if (team.empty)
     {
-        throw new UnauthorizedError('Invalid map');
+        throw new UnauthorizedError('Invalid team');
     }
     team.forEach((doc) => {
         basicDBfoos.deleteObj(doc._id, collection);

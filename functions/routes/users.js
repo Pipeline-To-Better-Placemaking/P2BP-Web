@@ -7,6 +7,9 @@ const emailer = require('../utils/emailer')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
 const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
+const userDBfoos = require('../databaseFunctions/UserFunctions.js');
+const { USERS } = require('../databaseFunctions/CollectionNames.js');
+
 
 const { BadRequestError, NotFoundError } = require('../utils/errors.js')
 
@@ -15,9 +18,9 @@ const { BadRequestError, NotFoundError } = require('../utils/errors.js')
 // Create a new user
 router.post('/', async (req, res, next) => {
     // Check password
-    //if (! await User.testPassword(req.body.password)) {
-    //    throw new BadRequestError('Missing or invalid field: password')
-    //}
+    if (!await userDBfoos.testPassword(req.body.password)) {
+        throw new BadRequestError('Missing or invalid field: password')
+    }
 
     const newUser = {
         _id: basicDBfoos.createId(),
@@ -30,8 +33,7 @@ router.post('/', async (req, res, next) => {
         is_verified: false,
     }
 
-    await basicDBfoos.addObj(newUser, "users");
-    console.log("Got passed addobj");
+    await basicDBfoos.addObj(newUser, USERS);
 
     //if (!await emailer.sendVerificationCode(user.email, null)) {
     //    console.error(`Could not send email to ${user.email}`)
@@ -98,32 +100,36 @@ router.get('/', passport.authenticate('jwt',{session:false}), async (req, res, n
                                 lastname: owner.lastname,
                             };
     }
-    console.log("here");
-    console.log(user);
     res.status(200).json(user)
 })
 
 // Update user info
 router.put('/', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+    const userId = await req.user._id;
+    const user = await basicDBfoos.getObj(userId, USERS);
 
-    let newUser = new User({
-        firstname: req.body.firstname,
-        lastname: req.body.lastname,
-        instituion: req.body.instituion,
-        email: req.body.email
-    })
-
-    if (req.body.password) {
-        // Check password
-        if (! await User.testPassword(req.body.password)) {
-            throw new BadRequestError('Missing or invalid field: password')
-        }
-        newUser.password = await User.createPasswordHash(req.body.password)
+    const newUser = {
+        _id: userId,
+        firstname: req.body.firstname ? req.body.firstname : user.firstname,
+        lastname: req.body.lastname ? req.body.lastname : user.lastname,
+        instituion: req.body.instituion ? req.body.instituion : user.instituion,
+        email: req.body.email ? req.body.email : user.email,
     }
 
-    const user = await User.updateUser(req.user._id, newUser)
+    console.log(newUser);
+    if (req.body.password) {
+        // Check password
+        if (!userDBfoos.testPassword(req.body.password)) {
+            throw new BadRequestError('Missing or invalid field: password')
+        }
+        // newUser.password = await userDBfoos.createPasswordHash(req.body.password);
+    }
 
-    res.status(200).json(user)
+    await basicDBfoos.updateObj(userId, newUser, USERS);
+    const user2 = await basicDBfoos.getObj(userId, USERS);
+    console.log(user);
+
+    res.status(200).json(newUser);
 })
 
 

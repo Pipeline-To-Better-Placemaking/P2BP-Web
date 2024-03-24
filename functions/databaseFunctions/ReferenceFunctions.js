@@ -3,9 +3,7 @@ const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
 
 module.exports.addReference = async function(docId, collection) {
     try {
-        console.log("docID " + docId);
         let ref = await basicDBfoos.getObj(docId, collection);
-        console.log("RefID is " + ref);
         if (!ref.refCount) {
             ref.refCount = 0;
         }

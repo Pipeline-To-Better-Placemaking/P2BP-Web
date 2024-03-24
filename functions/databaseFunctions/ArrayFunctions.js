@@ -5,12 +5,12 @@ const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
 // collection = the collection the doc is in
 // new entry is the data you want to add
 module.exports.addArrayElement = async function(docId, arrayName, collection, newEntry) {
-    const oldDoc = await firestore.collection(collection).where('_id', '==', docId).get();
-    if (oldDoc.empty)
+    const oldMap = await firestore.collection(collection).where('_id', '==', docId).get();
+    if (oldMap.empty)
     {
         throw new Error('Invalid id in addArrayElement');
     }
-    oldDoc.forEach((doc) => {
+    oldMap.forEach((doc) => {
         const newDoc = doc.data();
         if (!newDoc[arrayName]) {
             newDoc[arrayName] = [];
@@ -21,10 +21,10 @@ module.exports.addArrayElement = async function(docId, arrayName, collection, ne
     return;
 }
 
-module.exports.getArrayElement = async function(docId, entryId, arrayName, collection) {
+module.exports.getArrayElement = async function(mapId, entryId) {
     try {
         // Retrieve the document with the specified mapId
-        const mapDoc = await firestore.collection(collection).where('_id', '==', docId).get();
+        const mapDoc = await Maps.where('_id', '==', mapId).get();
 
         // Check if the document exists
         if (!mapDoc.exists) {
@@ -32,35 +32,34 @@ module.exports.getArrayElement = async function(docId, entryId, arrayName, colle
             return null;
         }
 
-        // Get the arrayName (standingPoints[], researchers[], data[]) field from the document
-        const arrayField = mapDoc.data()[arrayName];
+        // Get the data field from the document
+        const data = mapDoc.data().data;
 
         // Find the entry with the specified entryId
-        const entry = arrayField.find(entry => entry._id === entryId);
+        const entry = data.find(entry => entry._id === entryId);
 
         // Return the found entry
         return entry;
     } catch (error) {
-        console.error('Error finding data: ', error);
+        console.error('Error finding data:', error);
         return null;
     }
 }
 
-module.exports.updateArrayElement = async function(docId, dataId, newEntry, arrayName) {
-    const mapDocRef = await Maps.where('_id', '==', docId).get();
-    const dataRef = mapDocRef.collection(arrayName).where('_id', '==', dataId).get();
+module.exports.updateArrayElement = async function(mapId, dataId, newEntry) {
+    const mapDocRef = await Maps.where('_id', '==', mapId).get();
+    const dataRef = mapDocRef.collection('data').where('_id', '==', dataId).get();
 
     try {
         await dataRef.set(newEntry, { merge: true });
         return true; // Return true to indicate successful update
     } catch (error) {
-        console.error('Error updating data: ', error);
+        console.error('Error updating data:', error);
         return false; // Return false to indicate failure
     }
 }
 
-//entryId the id of the element you want to remove
-module.exports.removeArrayElement = async function(docId, entryId, arrayName, collection) {
+module.exports.removeArrayElement = async function(docId, entry, arrayName, collection) {
     const obj = await basicDBfoos.getObj(docId, collection);
     console.log(obj);
     if (obj.empty)
@@ -69,7 +68,7 @@ module.exports.removeArrayElement = async function(docId, entryId, arrayName, co
     }
     for (let i = 0; i < obj[arrayName].length; i++) {
         console.log(obj[arrayName]);
-        if (JSON.stringify(obj[arrayName][i]) === JSON.stringify(entryId))
+        if (JSON.stringify(obj[arrayName][i]) === JSON.stringify(entry))
         {
             obj[arrayName].splice(i, 1);
             break;

@@ -110,17 +110,19 @@ router.post('', passport.authenticate('jwt',{session:false}), async (req, res, n
         standingPoints: pointIds,
         team: teamId,
     }
-
     const project = await basicDBfoos.addObj(newProject, "projects");
     arrayDBfoos.addArrayElement(teamId, "projects", TEAMS, newProject._id);
-    res.status(201).json(project);
+    console.log(newProject);
+    res.status(201).json(newProject);
 })
 
 // Get data
 router.get('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     console.log("GETENDPOINT");
     const projectId = req.params.id;
+    console.log(projectId);
     let project = await basicDBfoos.getObj(projectId, PROJECTS);
+    console.log(project);
     let area = await basicDBfoos.getObj(project.area, AREAS);
     area._id = project.area;
     project.area = area;
@@ -145,11 +147,15 @@ router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res
     const user = await req.user
     const projectId = req.params.id;
     const project = await basicDBfoos.getObj(projectId, PROJECTS);
+    console.log(project.area);
+
     let newProject = {
         title: (req.body.title ? req.body.title : project.title),
         description: (req.body.description ? req.body.description : project.description),
         area: (req.body.area ? req.body.area : project.area),
     }
+
+    console.log(newProject.area);
     const authorized = await userDBfoos.isAdmin(project.team, user._id);
     if (!authorized) {
         throw new UnauthorizedError('You do not have permision to perform this operation')
@@ -157,8 +163,9 @@ router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res
     if (newProject.area > project.subareas.length){
         throw new BadRequestError('Cannot set main area to non-existant subarea')
     }
-    const updatedObj = await basicDBfoos.updateObj(project._id, newProject, PROJECTS);
-    res.status(201).json(updatedObj);
+    await basicDBfoos.updateObj(project._id, newProject, PROJECTS);
+    console.log("Hit");
+    res.status(201).json({});
 })
 
 // Delete project
@@ -167,178 +174,141 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}), async (req, 
     const projectId = req.params.id;
     const project = await basicDBfoos.getObj(projectId, PROJECTS);
     const authorized = await userDBfoos.isAdmin(project.team, user._id);
-    if(authorized) {
-        await arrayDBfoos.removeArrayElement(project.team, project._id, "projects", TEAMS);
-        res.json(await projectDBfoos.deleteProject(project._id));
+    if(!authorized) {
+        throw new UnauthorizedError('You do not have permision to perform this operation');
     }
-    else {
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    await arrayDBfoos.removeArrayElement(project.team, project._id, "projects", TEAMS);
+    res.json(await projectDBfoos.deleteProject(project._id));
 })
 
 //
 router.post('/:id/areas', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
+    const user = await req.user;
+    const project = await basicDBfoos.getObj(req.params.id, PROJECTS);
+    const authorized = await userDBfoos.isAdmin(project.team, user._id);
 
-    if(await Team.isUser(project.team,user._id)){
-        
-        if(req.body.points.length < 3)
-            throw new BadRequestError('Areas require at least three points')
-        
-            let newArea = new Area({
-            title: req.body.title,
-            points: req.body.points
-        })
-        newArea.save()
-        await Project.addArea(project._id,newArea._id)
-        res.json(newArea)
+    if(!authorized) {
+        throw new UnauthorizedError('You do not have permision to perform this operation');
     }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
+    if(req.body.points.length < 3) {
+        throw new BadRequestError('Areas require at least three points');
     }
+
+    const newArea = {
+        _id: basicDBfoos.createId(),
+        title: req.body.title,
+        points: req.body.points,
+    }
+    await basicDBfoos.addObj(newArea, "areas");
+    res.json(newArea);
 })
 
 router.put('/:id/areas/:areaId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-    area = await Area.findById(req.params.areaId)
+    const user = await req.user;
+    const project = await basicDBfoos.getObj(req.params.id, PROJECTS);
+    const authorized = await userDBfoos.isAdmin(project.team, user._id);
     
-    if(await Team.isAdmin(project.team,user._id)){
-
-        let newArea = new Area({
-            title: (req.body.title ? req.body.title :  area.title),
-            points: (req.body.points ? req.body.points : area.points)
-        })
-
-        res.status(201).json(await Area.updateArea(req.params.areaId, newArea))
+    if(!authorized) {
+        throw new UnauthorizedError('You do not have permision to perform this operation');
     }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
+    let newArea = {
+        _id: req.params.areaId,
+        title: (req.body.title ? req.body.title :  area.title),
+        points: (req.body.points ? req.body.points : area.points),
     }
+    await basicDBfoos.updateObj(req.params.areaId, newArea, AREAS);
+    res.status(201).json(newArea);
 })
 
 router.delete('/:id/areas/:areaId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-    if(await Team.isAdmin(project.team,user._id)){
-        res.status(201).json(await Project.deleteArea(project._id,req.params.areaId))
-    }
-    else{
+    const user = await req.user;
+    const project = await basicDBfoos.getObj(req.params.id, PROJECTS);
+    const authorized = await userDBfoos.isAdmin(project.team, user._id);
+    if(!authorized) {
         throw new UnauthorizedError('You do not have permision to perform this operation')
     }
+    await arrayDBfoos.removeArrayElement(req.params.id, req.params.areaId, "subareas", PROJECTS);
+    res.status(201).json({});
 })
 
 // Creates new point
 router.post('/:id/standing_points', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
+    const user = await req.user;
+    const project = await basicDBfoos.getObj(req.params.id, PROJECTS);
+    const authorized = await userDBfoos.isAdmin(project.team, user._id);
 
-    if(await Team.isUser(project.team,user._id)){   
-
-        let newPoint = new Standing_Point({
-            longitude: req.body.longitude,
-            latitude: req.body.latitude,
-            title: req.body.title,
-            refCount: 1
-        })
-        newPoint.save(function (error) {
-            console.log("Saving a point");
-            if (error) {
-              console.log("ERROR SAVING POINT: " + error);
-            } else {
-              console.log("New Point " + newPoint + " successfully added");
-            }
-        })
-       
-        await Project.addPoint(project._id,newPoint._id)
-        res.json(newPoint)
+    if(!authorized) {
+        throw new UnauthorizedError('You do not have permision to perform this operation');
     }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
+    const newPoint = {
+        _id: basicDBfoos.createId(),
+        longitude: req.body.longitude,
+        latitude: req.body.latitude,
+        title: req.body.title,
+        refCount: 1
     }
+    await arrayDBfoos.addArrayElement(project._id, "standingPoints", PROJECTS, newPoint._id);
+    res.json(newPoint);
 })
 
 // Edits a point
 router.put('/:id/standing_points/:pointId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-    point = await Standing_Point.findById(req.params.pointId)
+    const user = await req.user;
+    const point = await basicDBfoos.getObj(req.params.pointId, STANDING_POINTS);
+    const project = await basicDBfoos.getObj(req.params.id, PROJECTS);
+    const authorized = await userDBfoos.isAdmin(project.team, user._id);
 
-    if(await Team.isAdmin(project.team,user._id)){
-    
-        let newPoint = new Standing_Point({
-            title: (req.body.title ? req.body.title :  point.title),
-            latitude: (req.body.latitude ? req.body.latitude : point.latitude),
-            longitude: (req.body.longitude ? req.body.longitude : point.longitude)
-        })
-  
-        res.status(201).json(await Standing_Point.updatePoint(req.params.pointId, newPoint))
-    }
-    else{
+    if(!authorized) {
         throw new UnauthorizedError('You do not have permision to perform this operation')
     }
+    
+    let newPoint = {
+        title: (req.body.title ? req.body.title :  point.title),
+        latitude: (req.body.latitude ? req.body.latitude : point.latitude),
+        longitude: (req.body.longitude ? req.body.longitude : point.longitude)
+    }
+    console.log(newPoint);
+    console.log(req.params.pointId);
+    await basicDBfoos.updateObj(req.params.pointId, newPoint, STANDING_POINTS);
+    res.status(201).json(newPoint);
 })
 
 // Deletes
 router.delete('/:id/standing_points/:pointId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-    if(await Team.isAdmin(project.team,user._id)){
-        res.status(201).json(await Project.deletePoint(project._id,req.params.pointId))
+    const user = await req.user
+    const project = await basicDBfoos.getObj(req.params.id, PROJECTS);
+    const authorized = await userDBfoos.isAdmin(project.team, user._id);
+    if(!authorized) {
+        throw new UnauthorizedError('You do not have permision to perform this operation');
     }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    await arrayDBfoos.removeArrayElement(project._id, req.params.pointId, "standingPoints", PROJECTS);
+    await refDBfoos.removeReference(req.params.pointId, STANDING_POINTS);
+    res.status(201).json({});
 })
 
 router.post('/:id/stationary_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     const userId = await req.user._id;
     const projectId = req.params.id;
     const obj = req.body;
-    const newCollection = await projectDBfoos.addMap(userId, projectId, obj, STATIONARY_COLS);
-    res.json(newCollection);
+    const newCollecton = await projectDBfoos.addMap(userId, projectId, obj, STATIONARY_COLS, "stationaryCollections");
+    res.json(newCollecton);
 })
 
 router.put('/:id/stationary_collections/:collectionId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-
-    user = await req.user
-    project = await Project.findById(req.params.id)
-    collection = await Stationary_Collection.findById(req.params.collectionId)
-
-    if(await Team.isAdmin(project.team,user._id)){
-
-        let newCollection = new Stationary_Collection({
-                title: (req.body.title ? req.body.title : collection.title),
-                date: (req.body.date ? req.body.date : collection.date),
-                area: (req.body.area ? req.body.area : collection.area),
-                duration: (req.body.duration ? req.body.duration : collection.duration)
-        })
-
-        if(req.body.area){
-             await Area.addRefrence(req.body.area)
-             await Area.removeRefrence(collection.area)
-        }
-
-        res.status(201).json(await Stationary_Collection.updateCollection(req.params.collectionId, newCollection))
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    const userId = await req.user._id;
+    const projectId = req.params.id;
+    const obj = req.body;
+    const collectionId = req.params.collectionId;
+    const newCollecton = await projectDBfoos.editCol(userId, projectId, obj, STATIONARY_COLS, collectionId);
+    res.json(newCollecton);
 })
 
 router.delete('/:id/stationary_collections/:collectionId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-    collection = await Stationary_Collection.findById(req.params.collectionId)
-
-    if(await Team.isAdmin(project.team,user._id)){
-        await Area.removeRefrence(collection.area)
-        res.status(201).json(await Project.deleteStationaryCollection(project._id, req.params.collectionId))
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    const userId = await req.user._id;
+    const projectId = req.params.id;
+    const collectionId = req.params.collectionId;
+    const newCollecton = await projectDBfoos.editCol(userId, projectId, STATIONARY_COLS, collectionId);
+    res.status(201).json(newCollecton);
 })
 
 router.post('/:id/moving_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
@@ -408,28 +378,11 @@ router.delete('/:id/moving_collections/:collectionId', passport.authenticate('jw
 
 
 router.post('/:id/sound_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-
-    if(await Team.isUser(project.team,user._id)){   
-
-        let newCollection = new Sound_Collection({
-            title: req.body.title,
-            date: req.body.date,
-            area: req.body.area,
-            duration: req.body.duration
-        })
-
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
-
-       
-        await Project.addSoundCollection(project._id,newCollection._id)
-        res.json(newCollection)
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    const userId = await req.user._id;
+    const projectId = req.params.id;
+    const obj = req.body;
+    const newCollecton = await projectDBfoos.addMap(userId, projectId, obj, SOUND_COLS, "soundCollections");
+    res.json(newCollecton);
 })
 
 router.put('/:id/sound_collections/:collectionId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
@@ -440,12 +393,12 @@ router.put('/:id/sound_collections/:collectionId', passport.authenticate('jwt',{
     if(await Team.isAdmin(project.team,user._id)){
     
         
-        let newCollection = new Sound_Collection({
+        let newCollection = {
                 title: (req.body.title ? req.body.title : collection.title),
                 date: (req.body.date ? req.body.date : collection.date),
                 area: (req.body.area ? req.body.area : collection.area),
                 duration: (req.body.duration ? req.body.duration : collection.duration)
-        })
+        }
 
         if(req.body.area){
             await Area.addRefrence(req.body.area)
@@ -473,30 +426,12 @@ router.delete('/:id/sound_collections/:collectionId', passport.authenticate('jwt
     }
 })
 
-
 router.post('/:id/nature_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-
-    if(await Team.isUser(project.team,user._id)){   
-
-        let newCollection = new Nature_Collection({
-            title: req.body.title,
-            date: req.body.date,
-            area: req.body.area,
-            duration: req.body.duration
-        })
-
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
-
-       
-        await Project.addNatureCollection(project._id,newCollection._id)
-        res.json(newCollection)
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    const userId = await req.user._id;
+    const projectId = req.params.id;
+    const obj = req.body;
+    const newCollecton = await projectDBfoos.addMap(userId, projectId, obj, NATURE_COLS, "natureCollections");
+    res.json(newCollecton);
 })
 
 router.put('/:id/nature_collections/:collectionId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
@@ -541,28 +476,11 @@ router.delete('/:id/nature_collections/:collectionId', passport.authenticate('jw
 })
 
 router.post('/:id/light_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-
-    if(await Team.isUser(project.team,user._id)){   
-
-        let newCollection = new Light_Collection({
-            title: req.body.title,
-            date: req.body.date,
-            area: req.body.area,
-            duration: req.body.duration
-        })
-
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
-
-       
-        await Project.addLightCollection(project._id,newCollection._id)
-        res.json(newCollection)
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    const userId = await req.user._id;
+    const projectId = req.params.id;
+    const obj = req.body;
+    const newCollecton = await projectDBfoos.addMap(userId, projectId, obj, LIGHT_COLS, "lightCollections");
+    res.json(newCollecton);
 })
 
 router.put('/:id/light_collections/:collectionId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
@@ -607,28 +525,11 @@ router.delete('/:id/light_collections/:collectionId', passport.authenticate('jwt
 })
 
 router.post('/:id/boundaries_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-
-    if(await Team.isUser(project.team,user._id)){   
-
-        let newCollection = new Boundaries_Collection({
-            title: req.body.title,
-            date: req.body.date,
-            area: req.body.area,
-            duration: req.body.duration
-        })
-
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
-
-       
-        await Project.addBoundariesCollection(project._id,newCollection._id)
-        res.json(newCollection)
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    const userId = await req.user._id;
+    const projectId = req.params.id;
+    const obj = req.body;
+    const newCollecton = await projectDBfoos.addMap(userId, projectId, obj, BOUNDARIES_COLS, "boundariesCollections");
+    res.json(newCollecton);
 })
 
 router.put('/:id/boundaries_collections/:collectionId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
@@ -675,28 +576,11 @@ router.delete('/:id/boundaries_collections/:collectionId', passport.authenticate
 //POST, PUT, DELETE for section cutter
 
 router.post('/:id/section_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-
-    if(await Team.isUser(project.team,user._id)){   
-
-        let newCollection = new Section_Collection({
-            title: req.body.title,
-            date: req.body.date,
-            area: req.body.area,
-            duration: req.body.duration
-        })
-
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
-
-       
-        await Project.addSectionCollection(project._id,newCollection._id)
-        res.json(newCollection)
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    const userId = await req.user._id;
+    const projectId = req.params.id;
+    const obj = req.body;
+    const newCollecton = await projectDBfoos.addMap(userId, projectId, obj, SECTION_COLS, "sectionCols");
+    res.json(newCollecton);
 })
 
 router.delete('/:id/section_collections/:collectionId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
@@ -743,28 +627,11 @@ router.put('/:id/section_collections/:collectionId', passport.authenticate('jwt'
 
 
 router.post('/:id/order_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-
-    if(await Team.isUser(project.team,user._id)){   
-
-        let newCollection = new Order_Collection({
-            title: req.body.title,
-            date: req.body.date,
-            area: req.body.area,
-            duration: req.body.duration
-        })
-
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
-
-       
-        await Project.addOrderCollection(project._id,newCollection._id)
-        res.json(newCollection)
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    const userId = await req.user._id;
+    const projectId = req.params.id;
+    const obj = req.body;
+    const newCollecton = await projectDBfoos.addMap(userId, projectId, obj, ORDER_COLS, "orderCollections");
+    res.json(newCollecton);
 })
 
 router.put('/:id/order_collections/:collectionId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
@@ -809,27 +676,11 @@ router.delete('/:id/order_collections/:collectionId', passport.authenticate('jwt
 })
 
 router.post('/:id/survey_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-
-    if(await Team.isUser(project.team,user._id)){   
-
-        let newCollection = new Survey_Collection({
-            title: req.body.title,
-            date: req.body.date,
-            area: req.body.area,
-            duration: req.body.duration
-        })
-
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
-       
-        await Project.addSurveyCollection(project._id,newCollection._id)
-        res.json(newCollection)
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    const userId = await req.user._id;
+    const projectId = req.params.id;
+    const obj = req.body;
+    const newCollecton = await projectDBfoos.addMap(userId, projectId, obj, SURVEY_COLS, "surveyCollections");
+    res.json(newCollecton);
 })
 
 router.put('/:id/survey_collections/:collectionId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
@@ -872,26 +723,11 @@ router.delete('/:id/survey_collections/:collectionId', passport.authenticate('jw
 })
 
 router.post('/:id/program_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-
-    if(await (Team.isUser(project.team,user._id) || Team.isOwner(project.team, user._id) || Team.isAdmin(project.team, user._id))){   
-
-        let newCollection = new Program_Collection({
-            title: req.body.title,
-            date: req.body.date,
-            area: req.body.area,
-            duration: req.body.duration
-        })
-
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
-        await Project.addProgramCollection(project._id,newCollection._id)
-        res.json(newCollection)
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    const userId = await req.user._id;
+    const projectId = req.params.id;
+    const obj = req.body;
+    const newCollecton = await projectDBfoos.addMap(userId, projectId, obj, PROGRAM_COLS, "programCollections");
+    res.json(newCollecton);
 })
 
 router.put('/:id/program_collections/:collectionId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
@@ -935,27 +771,11 @@ router.delete('/:id/program_collections/:collectionId', passport.authenticate('j
     }
 })
 router.post('/:id/access_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-    if(await Team.isUser(project.team,user._id)){   
-
-        let newCollection = new Access_Collection({
-            title: req.body.title,
-            date: req.body.date,
-            area: req.body.area,
-            duration: req.body.duration
-        })
-
-        await newCollection.save()
-        await Area.addRefrence(newCollection.area)
-
-       
-        await Project.addAccessCollection(project._id,newCollection._id)
-        res.json(newCollection)
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    const userId = await req.user._id;
+    const projectId = req.params.id;
+    const obj = req.body;
+    const newCollecton = await projectDBfoos.addMap(userId, projectId, obj, ACCESS_COLS, "accessCollections");
+    res.json(newCollecton);
 })
 
 router.put('/:id/access_collections/:collectionId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {

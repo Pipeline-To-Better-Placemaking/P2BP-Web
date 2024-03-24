@@ -9,115 +9,27 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
 const { models } = require('mongoose')
-
-
+const routeDBfoos = require("../databaseFunctions/RouteFunctions.js");
 const { UnauthorizedError, BadRequestError } = require('../utils/errors')
+const {PROGRAM_MAPS, PROGRAM_COLS} = require('../databaseFunctions/CollectionNames.js');
 
 //route creates new map(s).  If there are multiple time slots in test, multiple timseslots are created.
-router.post('', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.body.project)
-
-    if (await Team.isAdmin(project.team, user._id)) {
-
-        if (req.body.timeSlots)
-            for (var i = 0; i < req.body.timeSlots.length; i++) {
-                var slot = req.body.timeSlots[0]
-
-                let newMap = new Map({
-                    title: slot.title,
-                    researchers: slot.researchers,
-                    project: req.body.project,
-                    sharedData: req.body.collection,
-                    date: slot.date,
-                    maxResearchers: slot.maxResearchers,
-                    data: req.body.data
-                })
-
-                //create new map with method from _map models and add ref to its parent collection.
-                const map = await Map.addMap(newMap)
-                await Program_Collection.addActivity(req.body.collection, map._id)
-
-                res.status(201).json(await Program_Collection.findById(req.body.collection))
-            }
-
-        //note that boundaries does not use any standing points
-
-        let newMap = new Map({
-            title: req.body.title,
-            researchers: req.body.researchers,
-            project: req.body.project,
-            sharedData: req.body.collection,
-            date: req.body.date,
-            maxResearchers: req.body.maxResearchers,
-            data: req.body.data
-        })
-        const map = await Map.addMap(newMap)
-        await Program_Collection.addActivity(req.body.collection, map._id)
-        res.status(201).json(map)
-
-    }
-    else {
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
-})
+router.post("", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+    res.status(200).json(await routeDBfoos.createMaps(req, PROGRAM_MAPS, PROGRAM_COLS));
+  }
+);
 
 //route gets all map data, including any collection data.
-router.get('/:id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
-    const map = await Map.findById(req.params.id)
-        .populate('researchers', 'firstname lastname')
-        .populate([
-            {
-                path: 'sharedData',
-                model: 'Program_Collections',
-                select: 'title duration',
-                populate: {
-                    path: 'area',
-                    model: 'Areas'
-                }
-            }])
-        .populate([{
-            path: 'data',
-            populate: {
-                path: 'floorData',
-                model: 'Program_Floors',
-            }
-        }])
-
-    const promises = map.data[0].floors.map(async (floor, index) => {
-        const updatedFloor = await Floor.findById(floor);
-
-        if (updatedFloor) {
-            map.data[0].floorData.push(updatedFloor);
-            return updatedFloor.toObject();
-        }
-        return floor;
-    });
-
-    Promise.all(promises).then((updatedFloors) => {
-        var result = map;
-        res.status(200).json(result);
-    }).catch((error) => {
-        console.error(error);
-        res.status(500).json({ message: 'Error updating floor data' });
-    });
-})
+router.get("/:id", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+    res.status(200).json(await routeDBfoos.getMapData(req, PROGRAM_MAPS, PROGRAM_COLS));
+  }
+);
 
 //route signs team member up to a time slot.
-router.put('/:id/claim', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
-    map = await Map.findById(req.params.id)
-    project = await Project.findById(map.project)
-    user = await req.user
-    if (map.researchers.length < map.maxResearchers)
-        // adding an await in if statement below causes unwanted behavior.  Reason unkown
-        if (Team.isUser(project.team, user._id)) {
-            res.status(200).json(await Map.addResearcher(map._id, user._id))
-        }
-        else
-            throw new UnauthorizedError('You do not have permision to perform this operation')
-    else
-        throw new BadRequestError('Research team is already full')
-})
+router.put("/:id/claim", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+    res.status(200).json(await routeDBfoos.assignTimeSlot(req, PROGRAM_MAPS, PROGRAM_COLS));
+  }
+);
 
 //route reverses sign up to a time slot.
 router.delete('/:id/claim', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
@@ -167,24 +79,10 @@ router.delete('/:id', passport.authenticate('jwt', { session: false }), async (r
 })
 
 //route adds test data to its relevant time slot
-router.post('/:id/data', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
-    user = await req.user
-    map = await Map.findById(req.params.id)
-    if (Map.isResearcher(map._id, user._id)) {
-        if (req.body.entries) {
-            for (var i = 0; i < req.body.entries.length; i++) {
-                await Map.addEntry(map._id, req.body.entries[i])
-            }
-            res.status(201).json(await Map.findById(map._id))
-        }
-        else {
-            res.json(await Map.addEntry(map._id, req.body))
-        }
-    }
-    else {
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
-})
+router.post("/:id/data", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+    res.status(200).json(await routeDBfoos.addTestData(req, PROGRAM_MAPS, PROGRAM_COLS));
+  }
+);
 
 //route edits the data object for any already created tested time slots.  Essentially redoing a test run for a time slot 
 router.put('/:id/data/:data_id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {

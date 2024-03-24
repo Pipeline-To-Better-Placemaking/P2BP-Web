@@ -21,7 +21,7 @@ const {
         SECTION_MAPS,
         STATIONARY_MAPS,
         TEAMS,
-        USERS
+        USERS,
     } = require('../databaseFunctions/CollectionNames.js');
 
 const { UnauthorizedError, NotFoundError, BadRequestError } = require('../utils/errors');
@@ -104,16 +104,16 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}),async (req, r
     try {
         const teamId = req.params.id;
         const user = req.user;
-         
+
         // Check if the user is authorized to delete the team
         const authorized = await userDBfoos.isAdmin(teamId, user._id);
         if (!authorized) {
             throw new UnauthorizedError('You do not have permission to perform this operation');
         }
- 
+
         // Delete all map collections associated with projects belonging to the team
         const team = await basicDBfoos.getObj(teamId, TEAMS);
- 
+
         //delete ALL of the map collections which contain a projectId which belongs to the team
         if(team.projects.length){
             for(const proj of team.projects) {
@@ -129,13 +129,13 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}),async (req, r
                 await refDBfoos.projectCleanup(proj, STATIONARY_MAPS);
             }
         }
-     
+
         // Delete team id in all User docs
         await arrayDBfoos.removeTeamFromAllUsers(teamId);
 
         // Delete the team itself
         await basicDBfoos.deleteObj(teamId, TEAMS);
- 
+
         res.json({ message: 'Team and associated data deleted successfully' });
         } catch (error) {
             next(error);
