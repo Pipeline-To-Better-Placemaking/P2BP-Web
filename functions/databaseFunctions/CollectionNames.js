@@ -12,6 +12,7 @@ const NATURE_MAPS     = "nature_maps";
 const ORDER_COLS      = "order_collections";
 const ORDER_MAPS      = "order_maps";
 const PROGRAM_COLS    = "program_collections";
+const PROGRAM_FLOORS  = "program_floors";
 const PROGRAM_MAPS    = "program_maps";
 const PROJECTS        = "projects";
 const SECTION_COLS    = "section_collections";
@@ -42,6 +43,7 @@ module.exports = {
     ORDER_COLS,
     ORDER_MAPS,
     PROGRAM_COLS,
+    PROGRAM_FLOORS,
     PROGRAM_MAPS,
     PROJECTS,
     SECTION_COLS,

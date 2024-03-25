@@ -53,7 +53,7 @@ module.exports.removeResearcher = async function(mapId, userId) {
         for (let i = 0; i < array.length; i++) {
             if (array[i]._id === userId)
             {
-                array.splice(i, 0);
+                array.splice(i, 1);
                 break;
             }
         }

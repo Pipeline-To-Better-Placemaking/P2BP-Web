@@ -1,4 +1,7 @@
 const mongoose = require('mongoose')
+const { UnauthorizedError } = require('../utils/errors')
+const { firestore } = require('googleapis/build/src/apis/firestore')
+const collectionNames = require('../databaseFunctions/CollectionNames.js')
 
 const Date = mongoose.Schema.Types.Date
 const ObjectId = mongoose.Schema.Types.ObjectId
@@ -52,16 +55,15 @@ const Counter = mongoose.model('Survey_Key_Tracker', survey_key_schema)
 module.exports.addSurvey = async function(newSurvey) {
     var builderString = "3UROGSWIVE01A9LMKQB7FZ6DJ4NC28Y5HTXP"
 
-    var counter = await Counter.findOne()
-    if(counter == null){
-        counter = new Counter({
+    var counterRef = await firestore.collection(collectionNames.SURVEY_KEYS).where('_id', '==', '629d3b326d4bb4000466de25').get();//current counter id
+    if(!counterRef.empty){ //if it doesn't exist, create one and initialize the counter value to 0
+        counterRef = await firestore.collection(collectionNames.SURVEY_KEYS).add({
             counter: 0
-        })
+        });
     }
 
-    var count = counter.counter
-    counter.counter = count + 1
-    await counter.save()
+    var count = counterRef[0].counter;//save the old count value
+    await counterRef[0].update({counter: count + 1});//increment and update counter
 
     var keyInt = (count * 823543 + 23462) % 2176782336
     var keyString = ""
@@ -71,78 +73,140 @@ module.exports.addSurvey = async function(newSurvey) {
         keyInt = Math.floor(Math.random()*keyInt/36)
     }
 
-    newSurvey.key = keyString
-    
-    return await newSurvey.save()
+    newSurvey.key = keyString//set the key value in the survey doc to the generated keystring
+
+    return await firestore.collection(collectionNames.SURVEYS).add(newSurvey);//return whether it was successfully updated
 }
 
 module.exports.updateSurvey = async function (surveyId, newSurvey) {
-    return await Surveys.updateOne(
-        { _id: surveyId },
-        { $set: {
-            title: newSurvey.title,
-            date: newSurvey.date,
-            maxResearchers: newSurvey.maxResearchers,
-        }}
-    )
+    const survey = await firestore.collection(collectionNames.SURVEYS).where('_id', '==', surveyId).get();
+    if (survey.empty)
+    {
+        throw new UnauthorizedError("Invalid " + firestore.collection(collectionNames.SURVEYS) + " survey");
+    }
+    const surveyDoc = survey[0];
+    return await surveyDoc.update({
+        title: newSurvey.title,
+        date: newSurvey.date,
+        maxResearchers: newSurvey.maxResearchers
+    });
 }
 
 module.exports.deleteSurvey = async function(surveyId) {
-    return await Surveys.findByIdAndDelete(surveyId)
+    const survey = await firestore.collection(collectionNames.SURVEYS).where('_id', '==', surveyId).get();
+    if (survey.empty)
+    {
+        throw new UnauthorizedError("Invalid " + firestore.collection(collectionNames.SURVEYS) + " survey");
+    }
+    survey.forEach(doc => {
+        firestore.collection(collectionNames.SURVEYS).doc(doc.id).delete();
+    });
+    return;
 }
 
 module.exports.projectCleanup = async function(projectId) {
-    return await Surveys.deleteMany({ project: projectId })
+    const survey = await firestore.collection(collectionNames.PROJECTS).where('_id', '==', projectId).get();
+    if (survey.empty)
+    {
+        throw new UnauthorizedError("Invalid " + firestore.collection(collectionNames.PROJECTS) + " survey");
+    }
+    survey.forEach(doc => {
+        firestore.collection(collectionNames.PROJECTS).doc(doc.id).delete();
+    });
+    return;
 }
 
 module.exports.addResearcher = async function(surveyId, userId){
-    return await Surveys.updateOne(
-        { _id: surveyId },
-        { $push: { researchers: userId}}
-    )
+    const survey = await firestore.collection(collectionNames.SURVEYS).where('_id', '==', surveyId).get();
+    if (survey.empty)
+    {
+        throw new UnauthorizedError("Invalid " + firestore.collection(collectionNames.SURVEYS) + " survey");
+    }
+    survey.forEach(doc => {
+        const newDoc = doc.data();
+        newDoc.researchers.push(newDoc);
+        firestore.collection(collectionNames.SURVEYS).doc(doc.id).update(newDoc);
+    });
+    return;
 }
 
 module.exports.removeResearcher = async function(surveyId, userId){
-    return await Surveys.updateOne(
-        { _id: surveyId },
-        { $pull: { researchers: userId}}
-    )
+    const oldSurvey = await firestore.collection(collectionNames.SURVEYS).where('_id', '==', surveyId).get();
+    if (oldSurvey.empty)
+    {
+        throw new UnauthorizedError('Invalid survey');
+    }
+    oldSurvey.forEach(doc => {
+        const newDoc = doc.data();
+        array = newDoc.researchers;
+
+        for (let i = 0; i < array.length; i++)
+        {
+            if (array[i]._id === userId)
+            {
+                array.splice(i, 1);
+                break;
+            }
+        }
+        firestore.collection(collectionNames.SURVEYS).doc(doc.id).update(newDoc);
+    });
+    return;
 }
 
 module.exports.isResearcher = async function(surveyId, userId){
-    try{
-        const doc = await Surveys.find(
+    const oldSurvey = await firestore.collection(collectionNames.SURVEYS).where('_id', '==', surveyId).get();
+    if (oldSurvey.empty)
+    {
+        throw new UnauthorizedError('Invalid survey');
+    }
+    oldSurvey.forEach(doc => {
+        array = doc.data().researchers;
+
+        for (let i = 0; i < array.length; i++)
+        {
+            if (array[i]._id === userId)
             {
-                _id: surveyId, 
-                researchers: { $elemMatch:  userId }
+                return true;
             }
-        )
-    }catch(error){
-        return false
-    }
-    if (doc.length === 0) {
-        return false
-    }
-    return true
+        }
+    });
+    return false;
 }
 
 module.exports.addEntry = async function(surveyId, newEntry) {
+    const survey = await firestore.collection(collectionNames.SURVEYS).where('_id', '==', surveyId).get();
+    if (survey.empty)
+    {
+        throw new UnauthorizedError("Invalid " + firestore.collection(collectionNames.SURVEYS) + " survey");
+    }
     var entry = new Entry({
         time: newEntry.time,
     })
-
-    return await Surveys.updateOne(
-        { _id: surveyId },
-        { $push: { data: entry}}
-    )
+    try {
+        await survey.update({
+            data: firebase.firestore.FieldValue.arrayUnion(entry)
+        });
+        return true; // Return true to indicate successful addition
+    } catch (error) {
+        console.error('Error adding entry:', error);
+        return false; // Return false to indicate failure
+    }
 }
 
-
 module.exports.deleteEntry = async function(surveyId, entryId) {
-
-    return await Surveys.updateOne(
-        { _id: surveyId },
-        { $pull: { data: {_id:entryId }}
-        })
+    const survey = await firestore.collection(collectionNames.SURVEYS).where('_id', '==', surveyId).get();
+    if (survey.empty)
+    {
+        throw new UnauthorizedError("Invalid " + firestore.collection(collectionNames.SURVEYS) + " survey");
+    }
+    try {
+        await survey.update({
+            data: firebase.firestore.FieldValue.arrayRemove({_id: entryId})
+        });
+        return true; // Return true to indicate successful deletion
+    } catch (error) {
+        console.error('Error deleting entry:', error);
+        return false; // Return false to indicate failure
+    }
 }
 

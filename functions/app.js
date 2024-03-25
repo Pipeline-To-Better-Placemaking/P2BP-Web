@@ -45,6 +45,7 @@ app.use(cors())
 //parse requests, could just use express.json()
 app.use(bodyParser.json())
 
+const test          = require('./routes/test.js')
 const loginApi      = require('./routes/login.js')
 const teamApi       = require('./routes/teams.js')
 const projectApi    = require('./routes/projects.js')
@@ -66,6 +67,7 @@ const programApi    = require('./routes/program_maps.js')
 const floorsApi     = require('./routes/program_floors.js')
 
 //first parameter will be the directory name used from front end to access these routes
+app.use('/api/test',           test)
 app.use('/api/login',           loginApi)
 app.use('/api/teams',           teamApi)
 app.use('/api/projects',        projectApi)
