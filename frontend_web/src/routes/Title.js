@@ -77,6 +77,7 @@ export default function Title(props) {
     const loginUser = async (e) => {
 
         try {
+            console.log('login try');
             const response = await axios.post('/login', JSON.stringify({ email: values.email, password: values.password }), {
                headers: { 'Content-Type': 'application/json' },
                withCredentials: true
@@ -88,10 +89,10 @@ export default function Title(props) {
 
             //redirect user to url/home
             nav('/home', { state: { userToken: user } });
-
         } catch(error){
             //user login error
-            //console.log('ERROR: ', error);
+            console.log('ERROR: ', error);
+
             setMessage(error.response.data?.message);
             loginResponse.current.style.display = 'inline-block';
             return;

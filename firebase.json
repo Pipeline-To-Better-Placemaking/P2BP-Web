@@ -13,10 +13,16 @@
   ],
   "hosting": {
     "public": "frontend_web/build",
-    "rewrites": [{
-      "source": "**",
-      "function": "app"
-    }],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "function": "app"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",

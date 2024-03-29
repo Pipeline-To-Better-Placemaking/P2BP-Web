@@ -11,7 +11,14 @@ const errorHandler = require('./middlewares/error_handler')
 const log = require('./utils/log')
 const firestore = require('./firestore');
 require('express-async-errors')
+require('./utils/passport.js')(passport)
 
+const expressSession = require('express-session')({
+    secret: config.PRIVATE_KEY,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {maxAge: 1000}
+});
 
 firestore.collection('users').get()
   .then((snapshot) => {
@@ -40,7 +47,16 @@ connect()
 const app = express();
 
 //allow cross-origin requests
-app.use(cors())
+// let corsOptions = {
+//    origin : ['http://localhost:5000'],
+// }
+var corsOptions = {
+    origin: ['http://localhost:5000','http://better-placemaking.web.app'],
+	credentials: true
+}
+
+app.use(cors(corsOptions))
+//app.use(cors())
 
 //parse requests, could just use express.json()
 app.use(bodyParser.json())
@@ -86,19 +102,11 @@ app.use('/api/password_reset',  resetApi)
 app.use('/api/program_maps',    programApi)
 app.use('/api/program_floors',  floorsApi)
 
+app.use(expressSession);
 app.use(passport.initialize());
 app.use(passport.session());
-require('./utils/passport.js')(passport)
-
-const expressSession = require('express-session')({
-    secret: config.FB_API_KEY,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {maxAge: 1000}
-});
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(expressSession);
 
 // Handles errors. express-async-errors ensures this is invoked automatically
 // by any errors thrown anywhere in previous routes or middlewares.
@@ -108,13 +116,13 @@ app.use(errorHandler)
 app.use(express.static(path.join(__dirname, 'frontend_web/build')));
 
 //* allows a dynamic build of all files in frontend_web
- app.get('/*', function (req, res) {
+app.get('/*', function (req, res) {
    res.sendFile(path.join(__dirname, 'frontend_web','build', 'index.html'));
  });
 
-//const server = app.listen(config.PORT, () => {
-//    log.info(`Server is running on port ${config.PORT}`)
-//})
+// app.listen(config.PORT, () => {
+//     log.info(`Server is running on port ${config.PORT}`);
+// });
 
 //module.exports = server
 exports.app = functions.https.onRequest(app);

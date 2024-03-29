@@ -18,3 +18,4 @@ module.exports = function async(passport){
         return done(err, false)
     }))
 }
+

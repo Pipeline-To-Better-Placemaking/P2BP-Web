@@ -1,7 +1,7 @@
 //.env will not be published to github.  Access to keys can be found in dashboard of heroku application
 require('dotenv').config()
 
-let PORT = process.env.PORT
+let PORT = process.env.POR
 let DB_URI = process.env.DB_URI
 let PRIVATE_KEY = process.env.PRIVATE_KEY
 let PROJECT_EMAIL = process.env.PROJECT_EMAIL
@@ -13,6 +13,8 @@ let GOOGLE_MAP_KEY = process.env.GOOGLE_MAP_KEY
 let TEST_DB_URI = process.env.TEST_DB_URI
 let JEST_TEST_URI = process.env.JEST_TEST_URI
 
+console.log("NODE ENV");
+console.log(process.env.NODE_ENV);
 
 if (process.env.NODE_ENV === 'dev') {
 	DB_URI = process.env.TEST_DB_URI
@@ -23,6 +25,9 @@ if (process.env.NODE_ENV === 'test') {
 	DB_URI = process.env.JEST_TEST_URI
     PRIVATE_KEY = process.env.TEST_PRIVATE_KEY
 }
+
+console.log("FUCKING KEY");
+console.log(PRIVATE_KEY);
 
 module.exports = {
     PORT,

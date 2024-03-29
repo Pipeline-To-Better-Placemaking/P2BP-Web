@@ -11,11 +11,14 @@ const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
 
 const { UnauthorizedError } = require('../utils/errors')
 
+
 // Login -
 // Generates and responds w/ json web token if email and password match a user
 // Responds w/ 401 otherwise
 router.post('/', async (req,res,next) => {
+
     const email = req.body.email.toLowerCase()
+
 
     const password = req.body.password
 
