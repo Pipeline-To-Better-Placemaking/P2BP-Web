@@ -31,6 +31,29 @@ export default function ActivityPage(props) {
     var selectedID = '';
     var selectedType = '';
 
+    const excelFileRef = React.useRef(null);
+    const [excelSelected, setExcelSelected] = React.useState(false);
+    const csvFileRef = React.useRef(null);
+    const [csvSelected, setCSVSelected] = React.useState(false);
+
+    // change the state of excelSelected
+    const excelSelectedToggle = () => {
+        if (excelSelected) {
+            setExcelSelected(false);
+        } else {
+            setExcelSelected(true);
+        }
+    }
+
+    // change the state of csvSelected
+    const csvSelectedToggle = () => {
+        if (csvSelected) {
+            setCSVSelected(false);
+        } else {
+            setCSVSelected(true);
+        }
+    }
+
     const openConfirmation = (cat, title, id) => (e) => {
         // Opens confirmation window for deleting a project
         const popup = document.getElementById('deleteWindow');
@@ -174,24 +197,77 @@ export default function ActivityPage(props) {
         var worksheetsection = XLSX.utils.json_to_sheet(section);
         var worksheetprogram = XLSX.utils.json_to_sheet(program);
 
-        // Append worksheets to workbook and name them
-        XLSX.utils.book_append_sheet(workbook, worksheetord, 'AbsenceOfOrder');
-        XLSX.utils.book_append_sheet(workbook, worksheetsound, 'AcousticalProfile');
-        XLSX.utils.book_append_sheet(workbook, worksheetaccess, 'IdentifyingAccess');
-        XLSX.utils.book_append_sheet(workbook, worksheetprogram, 'IdentifyingProgram');
-        XLSX.utils.book_append_sheet(workbook, worksheetlight, 'LightingProfile');
-        XLSX.utils.book_append_sheet(workbook, worksheetnat, 'NaturePrevalence');
-        XLSX.utils.book_append_sheet(workbook, worksheetmov, 'PeopleInMotion');
-        XLSX.utils.book_append_sheet(workbook, worksheetstat, 'PeopleInPlace');
-        XLSX.utils.book_append_sheet(workbook, worksheetsection, 'SectionCutter');
-        XLSX.utils.book_append_sheet(workbook, worksheetbounds, 'SpatialBoundaries');
+        // Determine whether to export as .xlsx or .csv
+        if (excelSelected == true) {
+            console.log("1: excelSelected: ", excelSelected, " csvSelected: ", csvSelected);
 
-        
-        // Excel Format
-        XLSX.writeFileXLSX(workbook, `${props.title}.xlsx`);
+            // Append worksheets to workbook and name them
+            XLSX.utils.book_append_sheet(workbook, worksheetord, 'AbsenceOfOrder');
+            XLSX.utils.book_append_sheet(workbook, worksheetsound, 'AcousticalProfile');
+            XLSX.utils.book_append_sheet(workbook, worksheetaccess, 'IdentifyingAccess');
+            XLSX.utils.book_append_sheet(workbook, worksheetprogram, 'IdentifyingProgram');
+            XLSX.utils.book_append_sheet(workbook, worksheetlight, 'LightingProfile');
+            XLSX.utils.book_append_sheet(workbook, worksheetnat, 'NaturePrevalence');
+            XLSX.utils.book_append_sheet(workbook, worksheetmov, 'PeopleInMotion');
+            XLSX.utils.book_append_sheet(workbook, worksheetstat, 'PeopleInPlace');
+            XLSX.utils.book_append_sheet(workbook, worksheetsection, 'SectionCutter');
+            XLSX.utils.book_append_sheet(workbook, worksheetbounds, 'SpatialBoundaries');
 
-        // CSV universal Format, in case this is preferred
-        //XLSX.writeFileXLSX(workbook, 'PlaceProject.csv');
+            // export data
+            // Excel Format
+            XLSX.writeFileXLSX(workbook, `${props.title}.xlsx`);
+
+            // reset excelSelected
+            excelSelectedToggle();
+        }
+
+        if (csvSelected == true) {
+            console.log("2: excelSelected: ", excelSelected, " csvSelected: ", csvSelected);
+
+            // convert worksheets to csv and download
+            var workbook1 = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook1, worksheetord, 'AbsenceOfOrder')
+            XLSX.writeFile(workbook1, 'AbsenceOfOrder.csv', {bookType:"csv", FS:", "});
+
+            var workbook2 = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook2, worksheetsound, 'AcousticalProfile')
+            XLSX.writeFile(workbook2, 'AcousticalProfile.csv', {bookType:"csv", FS:", "});
+
+            var workbook3 = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook3, worksheetaccess, 'IdentifyingAccess')
+            XLSX.writeFile(workbook3, 'IdentifyingAccess.csv', {bookType:"csv", FS:", "});
+
+            var workbook4 = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook4, worksheetprogram, 'IdentifyingProgram')
+            XLSX.writeFile(workbook4, 'IdentifyingProgram.csv', {bookType:"csv", FS:", "});
+
+            var workbook5 = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook5, worksheetlight, 'LightingProfile')
+            XLSX.writeFile(workbook5, 'LightingProfile.csv', {bookType:"csv", FS:", "});
+
+            var workbook6 = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook6, worksheetnat, 'NaturePrevalence')
+            XLSX.writeFile(workbook6, 'NaturePrevalence.csv', {bookType:"csv", FS:", "});
+
+            var workbook7 = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook7, worksheetmov, 'PeopleInMotion')
+            XLSX.writeFile(workbook7, 'PeopleInMotion.csv', {bookType:"csv", FS:", "});
+
+            var workbook8 = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook8, worksheetstat, 'PeopleInPlace')
+            XLSX.writeFile(workbook8, 'PeopleInPlace.csv', {bookType:"csv", FS:", "});
+
+            var workbook9 = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook9, worksheetsection, 'SectionCutter')
+            XLSX.writeFile(workbook9, 'SectionCutter.csv', {bookType:"csv", FS:", "});
+
+            var workbook10 = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook10, worksheetbounds, 'SpatialBoundaries')
+            XLSX.writeFile(workbook10, 'SpatialBoundaries.csv', {bookType:"csv", FS:", "});
+
+            // reset csvSelected
+            csvSelectedToggle();
+        }
     }
 
     const deleteActivity = async (e) => {
@@ -229,7 +305,8 @@ export default function ActivityPage(props) {
                             >
                                 <APDialog />
                                 <Typography variant='h6'>  Activity Results</Typography>
-                                <Button onClick={ exportData }>Export Data</Button>
+                                <Button style={{margin: '0px 20px'}} ref={csvFileRef} onClick={ () => {exportData(); csvSelectedToggle();} }>Export Data as CSV File (downloads all tests as separate files)</Button>
+                                <Button style={{margin: '0px 20px'}} ref={excelFileRef} onClick={ () => {exportData(); excelSelectedToggle();}  }>Export Data as Excel File</Button>
                             </TableCell>
                         </TableRow>
                     </TableHead>

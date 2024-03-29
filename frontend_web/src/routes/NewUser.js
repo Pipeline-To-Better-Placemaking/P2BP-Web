@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
+import Image from 'react-bootstrap/Image';
 import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
@@ -13,6 +14,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Back from '@mui/icons-material/ArrowBackRounded';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from '../api/axios.js';
+import logo1 from '../images/PtBPLogo.png';
 
 import './routes.css';
 const registerURL = '/users'
@@ -141,16 +143,73 @@ export default function NewUser(props) {
         }
     }
 
-    return(
-        <div id='newUser'>
-            <div className='pageTemplate'>
+    const BackgroundImageComponentSignUp = () => {
+        const backgroundImageRefSignUp = React.useRef(null);
+        const [imageLoadedSignUp, setImageLoadedSignUp] = React.useState(false);
+
+        /*
+        runs only once
+        allows background color to change depending on whether background image loaded
+        */
+        React.useEffect(() => {
+            /* get the page element by using its class name */
+            var pageElementsSignUp = document.getElementsByClassName("pageTemplateSignUp");
+
+            if (pageElementsSignUp.length > 0) {
+                
+                /* check that image loaded */
+                const imageLoadedSignUpCheck = () => {
+                    // if the image successfully loads, stores image url
+                    const isImageLoadedSignUp = window.getComputedStyle(backgroundImageRefSignUp.current, '::before').getPropertyValue('background-image');
+
+                    // check that isImageLoadedSignUp isn't null/undefined, then check that it isn't none
+                    if ((isImageLoadedSignUp) && (isImageLoadedSignUp !== 'none' )) {
+                        setImageLoadedSignUp(true);
+                    } else {
+                        console.log("image did not load, ", isImageLoadedSignUp);
+                    }
+                };
+                imageLoadedSignUpCheck();
+
+                // check that the image is still loading if the window is resized
+                window.addEventListener('resize', imageLoadedSignUpCheck);
+                return() => {
+                    window.removeEventListener('resize', imageLoadedSignUpCheck);
+                }
+            } else {
+                console.log("page element was not found");
+            }
+
+        }, []);
+
+        React.useEffect(() => {
+            /* get the page element by using its class name */
+            var pageElementsSignUp = document.getElementsByClassName("pageTemplateSignUp");
+
+            if (pageElementsSignUp.length > 0) {
+                var pageElementSignUp = pageElementsSignUp[0];
+
+                /* add classes with different background colors depending on whether the image loaded */
+                if (imageLoadedSignUp == true) {
+                    pageElementSignUp.classList.add("backgroundImageSignUpLoaded");
+                    pageElementSignUp.classList.remove("backgroundImageSignUpNotLoaded");
+                } else {
+                    pageElementSignUp.classList.add("backgroundImageSignUpNotLoaded");
+                    pageElementSignUp.classList.remove("backgroundImageSignUpLoaded");
+                }
+            } else {
+                console.log("page element was not found");
+            }
+        }, [imageLoadedSignUp]);
+
+        return(
+            <div className='pageTemplateSignUp' id='newuser' ref={backgroundImageRefSignUp}>
                 <Link className='backButton' to='/'><Back className='iconShadow' /></Link>
-                {/* tagBox - sizing for form card, on Title.js as well */}
-                <div className='tagBox'>
-                    <Card className='pageCard'>
+                    <Card className='pageCard' style={{ backgroundColor: '#ddddddbb', padding: '30px 95px 0px 95px', backdropFilter: 'blur(4px)'}}>
                         <Card.Body>
-                            <h3>Create an Account</h3>
-                            <span>All fields ending with * are required</span>
+                            <h3><b>Welcome</b></h3>
+                            <p><i>Create your account by filling in the form.</i></p>
+                            
                             <br/>
                             <Box component='form' sx={{ display: 'flex', flexWrap: 'wrap' }}>
                                 <span ref={ registerResponse } style={{ display: 'none', color: 'red' }}>{message}</span>
@@ -165,6 +224,7 @@ export default function NewUser(props) {
                                     onChange={ handleChange }
                                     required
                                     ref={ fn }
+                                    style={{ width: '150%' }}
                                 />
                                 <span ref={ lnameMess } style={{ display: 'none', color: 'red' }}>{ message }</span>
                                 <TextField 
@@ -177,6 +237,7 @@ export default function NewUser(props) {
                                     onChange={ handleChange }
                                     required
                                     ref={ ln }
+                                    style={{ width: '150%' }}
                                 />
                                 <span ref={ emMess } style={{ display: 'none', color: 'red' }}>{ message }</span>
                                 <TextField 
@@ -189,6 +250,7 @@ export default function NewUser(props) {
                                     onChange={ handleChange }
                                     required
                                     ref={ em }
+                                    style={{ width: '150%' }}
                                 />
                                 <span ref={ pwMess } style={{ display: 'none', color: 'red' }}>{ message }</span>
                                 <FormControl sx={{ m: 1}} variant='outlined'>
@@ -213,6 +275,7 @@ export default function NewUser(props) {
                                             </InputAdornment>
                                         }
                                         label='Password'
+                                        style={{ width: '150%' }}
                                     />
                                 </FormControl>
                                 <FormControl sx={{ m: 1 }} variant='outlined'>
@@ -242,23 +305,31 @@ export default function NewUser(props) {
                                             </InputAdornment>
                                         }
                                         label='Confirm Password'
+                                        style={{ width: '150%' }}
                                     />
                                 </FormControl>
+                                <span>All fields ending with * are required</span>
                                 <br/><br/>
                                 <Button 
                                     className='scheme' 
                                     type='submit' 
-                                    size='lg' 
+                                    size='small' 
                                     id='newUserButton' 
                                     onClick={ handleSubmit }
+                                    style={{ borderRadius: '10px', backgroundColor: 'rgba(254, 216, 6, 0.7)'}}
                                 >
-                                    Create
+                                    Sign Up
                                 </Button>
                             </Box>
+                            <br/><br/>
+                            <div className='logo'>
+                                <Image src={ logo1 }  alt='logo' id='logo1' style={{width: '40px', height: 'auto'}}/>
+                            </div>
                         </Card.Body>
                     </Card>
-                </div>
             </div>
-        </div>
-    );
+        );
+    }
+
+    return <BackgroundImageComponentSignUp />
 }

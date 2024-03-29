@@ -8,10 +8,6 @@
         display: block;
     }
 
-    div.pageTemplate {
-        padding: 10px 1vw;
-    }
-
     .tagBox {
         width: 80vw;
         height: 60vh;
@@ -69,19 +65,19 @@
 
 a.backButton{
     box-shadow: none;
-    width: 2.5em;
+    width: 1.5em;
     height: auto;
     position: fixed;
-    top: 20px;
-    left: 20px;
+    top: 40px;
+    left: 40px;
 }
 
 a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
-    width: 2.5em;
+    width: 1.5em;
     height: auto;
     position: fixed;
-    top: 20px;
-    left: 20px;
+    top: 40px;
+    left: 40px;
     color: white;
     box-shadow: none;
 }
@@ -155,10 +151,98 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     justify-content: center;
 }
 
-.pageTemplate {
+.initpageTemplate { /* Default Page template */
     text-align: center;
     align-items: center;
     background-color: #006FD6;
+    /*border-radius: 10px;*/
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-content: center;
+    min-height: calc(100vh - 40px);
+    padding: 2.12vh 5vw;
+    z-index: -2;
+    box-sizing: content-box;
+    width: calc(100% - (padding-left + padding-right));
+    height: auto; /* or specify a fixed height if needed */
+}
+#resetPass, #faqPage{
+    background-color: #006FD6;
+    background-position: center;
+    overflow: hidden;
+}
+
+.pageTemplateLogin {
+    text-align: center;
+    align-items: center;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-content: center;
+    min-height: calc(100vh - 0vh);
+    padding: 5vh 5vw;
+    position: relative;
+}
+.pageTemplateLogin::before {
+    content: "";
+    background-image: url("../images/blueprint-blurred.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0.9;
+}
+.backgroundImageLoginLoaded {
+    /* Use this background color when the image loads*/
+    background-color: #1E1E1E;
+}
+.backgroundImageLoginNotLoaded {
+    /* Use this background color when the image is not loaded*/
+    background-color: #006FD6;
+}
+
+.pageTemplateSignUp {
+    text-align: center;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-content: center;
+    min-height: calc(100vh - 0px);
+    padding: 2.12vh 5vw;
+    position: relative;
+    height: auto; /* or specify a fixed height if needed */
+}
+.pageTemplateSignUp::before {
+    content: "";
+    background-image: url("../images/city_blurred.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    width: calc(100%);
+    height: calc(100%);
+    opacity: 0.9;
+}
+.backgroundImageSignUpLoaded {
+    /* Use this background color when the image loads*/
+    background-color: #1E1E1E;
+}
+.backgroundImageSignUpNotLoaded {
+    /* Use this background color when the image is not loaded*/
+    background-color: #006FD6;
+}
+
+#forgotPass {
+    padding: 20px;
+}
+.pageTemplateForgotPassword {
+    text-align: center;
+    align-items: center;
     border-radius: 10px;
     display: flex;
     flex-direction: row;
@@ -166,8 +250,30 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     align-content: center;
     min-height: calc(100vh - 40px);
     padding: 5vh 5vw;
-    z-index: -2;
+    position: relative;
 }
+.pageTemplateForgotPassword::before {
+    content: "";
+    background-image: url("../images/blueprint-blurred.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    opacity: 0.9;
+}
+.backgroundImageForgotPasswordLoaded {
+    /* Use this background color when the image loads*/
+    background-color: #1E1E1E;
+}
+.backgroundImageForgotPasswordNotLoaded {
+    /* Use this background color when the image is not loaded*/
+    background-color: #006FD6;
+}
+
 div#faqPage div.pageTemplate{
     text-align: left;
     flex-direction: column;
@@ -175,13 +281,16 @@ div#faqPage div.pageTemplate{
 }
 
 div#tOC{
-    background-color: #FFFFFF;
+    background-color: #DDDDDDBB;
     padding: 10px;
     border-radius: 10px;
     color: black;
     width: 60vw;
     text-align: center;
-    margin-bottom: 15px;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    margin: 1.5vh calc((100% - 60vw) / 2);
 }
 
 div.pageTemplate > h2{
@@ -214,10 +323,6 @@ div.pageTemplate > h2{
     min-height: 30vh;
     max-height: 80vh;
     z-index: 3;
-}
-
-#titlePage, #forgotPass, #resetPass, #faqPage {
-    padding: 20px;
 }
 
 .testBox{
@@ -373,10 +478,6 @@ form.MuiBox-root {
     align-items: center;
     height: calc(100vh - 69px);
     padding-top: 25px;
-}
-
-#newUser {
-    padding: 20px;
 }
 
 #newUserButton, #newTeamFormButton {
