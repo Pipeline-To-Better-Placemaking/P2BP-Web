@@ -1,9 +1,8 @@
-//decodes jwt key which authorizes access to most routes
-
 const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
-const User = require('../models/users.js')
+const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
 const config = require('./config.js')
+const {USERS} = require('../databaseFunctions/CollectionNames.js');
 
 module.exports = function async(passport){
     var opts = {}
@@ -11,8 +10,7 @@ module.exports = function async(passport){
     opts.secretOrKey = config.PRIVATE_KEY
 
     passport.use(new JwtStrategy(opts, async(jwt_payload, done) => {
-        //extract user by ID
-         const userId = await User.getUserById(jwt_payload._id)
+        const userId = await basicDBfoos.getObj(jwt_payload._id, USERS);
         if(userId)
         {
             return done(null,userId)
@@ -20,3 +18,4 @@ module.exports = function async(passport){
         return done(err, false)
     }))
 }
+

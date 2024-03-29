@@ -4,14 +4,29 @@ const User = require('../models/users.js')
 const emailer = require('../utils/emailer')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
+const firestore = require('../firestore');
 
 //sends the user an email to reset the password
 router.post('/', async (req, res, next) => {
 
     try{
-        var user = await User.findUserByEmail(req.body.email)
-        
-        if (!user){ throw new UnauthorizedError('This email does not have a registered account') }
+        var user = await firestore.collection('users').where('email', '==', email).get()
+        .then((snapshot) => {
+            var user = null;
+            snapshot.forEach((doc) => {
+                if (user !== null)
+                {
+                    // This only happens if somehow you have multiple users with the same email
+                    throw new UnauthorizedError('Invalid user');
+                }
+                user = doc.data();
+            });
+            if (user === null)
+            {
+                throw new UnauthorizedError('Couldn\'t find user');
+            }
+            return user;
+        })
 
         const token = jwt.sign({ _id: user._id, email: user.email }, config.PRIVATE_KEY, {
             expiresIn: 86400 //1 day

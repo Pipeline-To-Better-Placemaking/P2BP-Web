@@ -6,6 +6,9 @@ const User = require('../models/users.js')
 const emailer = require('../utils/emailer')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
+const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
+const userDBfoos = require('../databaseFunctions/UserFunctions.js');
+const { USERS } = require('../databaseFunctions/CollectionNames.js');
 
 
 const { BadRequestError, NotFoundError } = require('../utils/errors.js')
@@ -15,33 +18,36 @@ const { BadRequestError, NotFoundError } = require('../utils/errors.js')
 // Create a new user
 router.post('/', async (req, res, next) => {
     // Check password
-    if (! await User.testPassword(req.body.password)) {
+    if (!await userDBfoos.testPassword(req.body.password)) {
         throw new BadRequestError('Missing or invalid field: password')
     }
 
-    let newUser = new User({
+    const newUser = {
+        _id: basicDBfoos.createId(),
         firstname: req.body.firstname,
         lastname: req.body.lastname,
-        instituion: req.body.instituion,
         email: req.body.email,
-        password: req.body.password
-    })
-
-    const user = await User.addUser(newUser)
-
-    if (!await emailer.sendVerificationCode(user.email, null)) {
-        console.error(`Could not send email to ${user.email}`)
+        password: req.body.password,
+        invites: [],
+        teams: [],
+        is_verified: false,
     }
 
+    await basicDBfoos.addObj(newUser, USERS);
+
+    //if (!await emailer.sendVerificationCode(user.email, null)) {
+    //    console.error(`Could not send email to ${user.email}`)
+    //}
+
     // Automatically log the user in
-    const token = jwt.sign({ _id: user._id, email: user.email }, config.PRIVATE_KEY, {
+    const token = jwt.sign({ _id: newUser._id, email: newUser.email }, config.PRIVATE_KEY, {
         expiresIn: 86400 //1 day
     })
 
     res.status(201).json({
         success: true,
         token: token,
-        user: user
+        user: newUser
     })
 })
 
@@ -74,44 +80,56 @@ router.get('/:id', async (req, res, next) => {
 // Get my own user info, requires token authentication
 // TODO: this should probably use a different path than just /
 router.get('/', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    // Make a query for the user, excluding fields that the user should not see
-    var user = await User.findById(req.user._id)
-        .select('-password -verification_code -verification_timeout')
-        .populate('teams', 'title')
-        .populate('invites','title')
-
-    user = user.toJSON()
-    
-    for(var i = 0; i < user.invites.length; i++){
-        const owner = await Team.getOwner(user.invites[i]._id)
-        user.invites[i].firstname = owner.firstname
-        user.invites[i].lastname = owner.lastname
+    console.log(req.user._id);
+    let user = await basicDBfoos.getObj(req.user._id, "users");
+    for (let i = 0; i < user.teams.length; i++) {
+        const teamId = user.teams[i];
+        const team = await basicDBfoos.getObj(teamId, "teams");
+        user.teams[i] = {_id: teamId, title: team.title};
     }
 
+    for (let i = 0; i < user.invites.length; i++) {
+        const inviteId = user.invites[i];
+        const invite = await basicDBfoos.getObj(inviteId, "teams");
+        const ownerId = userDBfoos.getOwner(invite);
+        const owner = await basicDBfoos.getObj(ownerId)
+        user.invites[i] =   {
+                                _id: inviteId,
+                                title: invite.title,
+                                firstname: owner.firstname,
+                                lastname: owner.lastname,
+                            };
+    }
     res.status(200).json(user)
 })
 
 // Update user info
 router.put('/', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+    const userId = await req.user._id;
+    const user = await basicDBfoos.getObj(userId, USERS);
 
-    let newUser = new User({
-        firstname: req.body.firstname,
-        lastname: req.body.lastname,
-        instituion: req.body.instituion,
-        email: req.body.email
-    })
-
-    if (req.body.password) {
-        // Check password
-        if (! await User.testPassword(req.body.password)) {
-            throw new BadRequestError('Missing or invalid field: password')
-        }
-        newUser.password = await User.createPasswordHash(req.body.password)
+    const newUser = {
+        _id: userId,
+        firstname: req.body.firstname ? req.body.firstname : user.firstname,
+        lastname: req.body.lastname ? req.body.lastname : user.lastname,
+        instituion: req.body.instituion ? req.body.instituion : user.instituion,
+        email: req.body.email ? req.body.email : user.email,
     }
 
-    const user = await User.updateUser(req.user._id, newUser)
+    console.log(newUser);
+    if (req.body.password) {
+        // Check password
+        if (!userDBfoos.testPassword(req.body.password)) {
+            throw new BadRequestError('Missing or invalid field: password')
+        }
+        // newUser.password = await userDBfoos.createPasswordHash(req.body.password);
+    }
 
-    res.status(200).json(user)
+    await basicDBfoos.updateObj(userId, newUser, USERS);
+    const user2 = await basicDBfoos.getObj(userId, USERS);
+    console.log(user);
+
+    res.status(200).json(newUser);
 })
 
 

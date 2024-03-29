@@ -205,5 +205,3 @@ module.exports.getUserById = (id) =>
         })
     })
 }
-
-

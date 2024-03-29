@@ -8,51 +8,48 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config.js')
 const { models } = require('mongoose')
+const basicDBfoos = require('../databaseFunctions/BasicFunctions.js')
+const arrayDBfoos = require('../databaseFunctions/ArrayFunctions.js')
+const {PROGRAM_FLOORS} = require('../databaseFunctions/CollectionNames.js')
 
 const { UnauthorizedError, BadRequestError } = require('../utils/errors.js')
 
 //route creates new floor(s).  If there are multiple floors in building, multiple floors are created.
 router.post('', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
-    user = await req.user
-    dataId = await req.dataId
+    const dataId = await req.dataId;
+    let programs = new Array(1);
+    const data = programs.push();
 
-    //note that boundaries does not use any standing points
-
-    let newFloor = new Floor({
+    const newFloor = {
+        _id: {$oid: basicDBfoos.createId()},
         map: req.body.mapId,
         floorNum: req.body.floorNum,
-        programCount: req.body.programCount
-    })
+        programCount: req.body.programCount,
+        programs: [dataId],
+    }
 
     //create new map with method from _map models and add ref to its parent collection.
-    const floor = await Floor.addFloor(newFloor)
-    console.log(floor)
-    await Map.addFloor(req.body.mapId, dataId, floor._id)
+    const floor = await basicDBfoos.addObj(newFloor, PROGRAM_FLOORS);
 
-    res.status(201).json(await Floor.findById(floor._id))
-
-
+    res.status(201).json(floor);
 })
 
 
 //route gets a floor
 router.get('/:id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
-    const floor = await Floor.findById(req.params.id)
-
+    const id = req.params.id;
+    const floor = await basicDBfoos.getObj(id, PROGRAM_FLOORS);
     res.status(200).json(floor)
 })
 
 
 //route deletes a floor from a map
 router.delete('/:id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
-    user = await req.user
-    floor = await Floor.findById(req.params.id)
-    map = await Map.findById(floor.map)
+    const floor = await basicDBfoos.getObj(req.params.id)
+    const map = await basicDBfoos.getObj(floor.map)
 
     await Map.deleteFloor(map._id, floor._id)
     res.json(await Floor.deleteFloor(floor._id))
-
-
 })
 
 
