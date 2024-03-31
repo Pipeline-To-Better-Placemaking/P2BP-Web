@@ -136,6 +136,7 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}),async (req, r
         }
  })
 
+ // Send an invite
 router.post('/:id/invites', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     const teamId = req.params.id;
     const user = await req.user;
