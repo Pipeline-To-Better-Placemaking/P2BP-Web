@@ -57,20 +57,18 @@ export default function Title(props) {
         e.preventDefault();
 
         if (values.email === '' || values.email.length <= 3){
-            pwMess.current.style.display = 'none';
             setMessage('Please provide an email');
-            emMess.current.style.display = 'inline-block';
+            loginResponse.current.style.display = 'inline-block';
             em.current.focus();
             return;
         } else if (values.password === '' || values.password.length <= 3){
-            emMess.current.style.display = 'none';
             setMessage('Please provide a password');
-            pwMess.current.style.display = 'inline-block';
+            loginResponse.current.style.display = 'inline-block';
             pw.current.focus();
             return;
         } else {
-            emMess.current.style.display = 'none';
-            pwMess.current.style.display = 'none';
+            loginResponse.current.style.display = 'none';
+
             loginUser(e);
         }
     }
@@ -112,8 +110,8 @@ export default function Title(props) {
                         <p><i>Please Login.</i></p>
                         <Card.Body>
                             <Box id='titleBox' component='form' sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                                <span id='errmsg' ref={loginResponse} >{message}</span>
-                                <span id='errmsg' ref={emMess} >{message}</span>
+                                
+
                                 <TextField 
                                     className='nonFCInput' 
                                     id='outlined-search' 
@@ -124,7 +122,7 @@ export default function Title(props) {
                                     onChange={handleChange} 
                                     ref={em}
                                 />
-                                <span id='errmsg' ref={pwMess} >{message}</span>
+
                                 {/* Form Control component to hold MUI visibility changing password field */}
                                 <FormControl sx={{ m: 1 }} variant='outlined'>
                                     <InputLabel htmlFor='outlined-adornment-password'>Password</InputLabel>
@@ -150,6 +148,8 @@ export default function Title(props) {
                                         label='Password'
                                     />
                                 </FormControl>
+                                <span id='errmsg' ref={loginResponse} >{message}</span>
+                                <br></br>
                                 <Button 
                                     className='scheme' 
                                     id='loginButton' 
