@@ -151,6 +151,12 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     justify-content: center;
 }
 
+#errmsg {
+    color: rgb(210, 0, 0);
+    display: 'none';
+    font-size: 12px;
+}
+
 .initpageTemplate { /* Default Page template */
     text-align: center;
     align-items: center;
@@ -166,6 +172,8 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     box-sizing: content-box;
     width: calc(100% - (padding-left + padding-right));
     height: auto; /* or specify a fixed height if needed */
+
+    white-space: normal;
 }
 #newuser.initpageTemplate {
     background-image: url('../images/city_blurred.jpg'); /* Background Image*/

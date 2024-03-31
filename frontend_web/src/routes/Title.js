@@ -108,12 +108,12 @@ export default function Title(props) {
                 <Link className='backButton' to='/'><Back className='iconShadow' /></Link>
                 <div className='tagBox'>
                     <Card className='formCard' style={{ backgroundColor: '#ddddddbb', padding: '30px 35px 0px 35px'}}>
-                        <h3><b>Welcome Back,</b></h3>
+                        <h3><b>Welcome,</b></h3>
                         <p><i>Please Login.</i></p>
                         <Card.Body>
                             <Box id='titleBox' component='form' sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                                <span ref={loginResponse} style={{ display: 'none', color: 'red' }}>{message}</span>
-                                <span ref={emMess} style={{ display: 'none', color: 'red' }}>{message}</span>
+                                <span id='errmsg' ref={loginResponse} >{message}</span>
+                                <span id='errmsg' ref={emMess} >{message}</span>
                                 <TextField 
                                     className='nonFCInput' 
                                     id='outlined-search' 
@@ -124,7 +124,7 @@ export default function Title(props) {
                                     onChange={handleChange} 
                                     ref={em}
                                 />
-                                <span ref={pwMess} style={{ display: 'none', color: 'red' }}>{message}</span>
+                                <span id='errmsg' ref={pwMess} >{message}</span>
                                 {/* Form Control component to hold MUI visibility changing password field */}
                                 <FormControl sx={{ m: 1 }} variant='outlined'>
                                     <InputLabel htmlFor='outlined-adornment-password'>Password</InputLabel>
