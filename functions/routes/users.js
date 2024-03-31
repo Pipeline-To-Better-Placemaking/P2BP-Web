@@ -134,23 +134,24 @@ router.put('/', passport.authenticate('jwt',{session:false}), async (req, res, n
 
 
 // Accept invite
-router.post('/invites', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+router.post('/invites', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
+    try {
+        const user = await req.user
 
-    let user = await req.user
+        for (let i = 0; i < req.body.responses.length; i++) {
+            const response = req.body.responses[i]
 
-    for( i = 0; i < req.body.responses.length; i++){
-
-        var response = req.body.responses[i]
-
-        if (response.accept == true && user.invites.includes(response.team)){
-            await Team.addUser(response.team,user._id)
-            await User.addTeam(user._id, response.team)
+            if (response.accept && user.invites.includes(response.team)) {
+                await Team.addUser(response.team,user._id)
+                await User.addTeam(user._id, response.team)
+            }
+            await User.deleteInvite(user._id,response.team)
         }
-        await User.deleteInvite(user._id,response.team)
+
+        res.status(200).json(user)
+    } catch (error) {
+        next(error);
     }
-
-    res.status(200).json(user)
-
 })
 
 module.exports = router
