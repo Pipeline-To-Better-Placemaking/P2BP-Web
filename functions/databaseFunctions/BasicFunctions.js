@@ -24,7 +24,7 @@ const updateObj = async function (docId, updates, collection) {
     }
     let newObj;
     oldObj.forEach(async doc => {
-        newObj = await firestore.collection(collection).doc(doc.id).update(updates)
+        newObj = await firestore.collection(collection).doc(doc.id).update(updates);
         console.log(newObj);
     });
     return newObj;
