@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
 const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
 const userDBfoos = require('../databaseFunctions/UserFunctions.js');
-const { USERS } = require('../databaseFunctions/CollectionNames.js');
+const { USERS, TEAMS } = require('../databaseFunctions/CollectionNames.js');
 
 
 const { BadRequestError, NotFoundError } = require('../utils/errors.js')
@@ -80,19 +80,18 @@ router.get('/:id', async (req, res, next) => {
 // Get my own user info, requires token authentication
 // TODO: this should probably use a different path than just /
 router.get('/', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    console.log(req.user._id);
-    let user = await basicDBfoos.getObj(req.user._id, "users");
+    let user = await basicDBfoos.getObj(req.user._id, USERS);
     for (let i = 0; i < user.teams.length; i++) {
         const teamId = user.teams[i];
-        const team = await basicDBfoos.getObj(teamId, "teams");
+        const team = await basicDBfoos.getObj(teamId, TEAMS);
         user.teams[i] = {_id: teamId, title: team.title};
     }
 
     for (let i = 0; i < user.invites.length; i++) {
         const inviteId = user.invites[i];
-        const invite = await basicDBfoos.getObj(inviteId, "teams");
+        const invite = await basicDBfoos.getObj(inviteId, TEAMS);
         const ownerId = userDBfoos.getOwner(invite);
-        const owner = await basicDBfoos.getObj(ownerId)
+        const owner = await basicDBfoos.getObj(ownerId, USERS)
         user.invites[i] =   {
                                 _id: inviteId,
                                 title: invite.title,
@@ -100,7 +99,7 @@ router.get('/', passport.authenticate('jwt',{session:false}), async (req, res, n
                                 lastname: owner.lastname,
                             };
     }
-    res.status(200).json(user)
+    res.status(200).json(user);
 })
 
 // Update user info
@@ -134,24 +133,18 @@ router.put('/', passport.authenticate('jwt',{session:false}), async (req, res, n
 
 
 // Accept invite
-router.post('/invites', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
-    try {
-        const user = await req.user
+router.post('/invites', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+    const user = await req.user
+    for(i = 0; i < req.body.responses.length; i++) {
+        const response = req.body.responses[i]
 
-        for (let i = 0; i < req.body.responses.length; i++) {
-            const response = req.body.responses[i]
-
-            if (response.accept && user.invites.includes(response.team)) {
-                await Team.addUser(response.team,user._id)
-                await User.addTeam(user._id, response.team)
-            }
-            await User.deleteInvite(user._id,response.team)
+        if (response.accept && user.invites.includes(response.team)){
+            await arrayDBfoos.addArrayElement(user._id, "teams", USERS, response.team);
+            await arrayDBfoos.addArrayElement(response.team, "users", TEAMS, {role: "user", user: user._id});
         }
-
-        res.status(200).json(user)
-    } catch (error) {
-        next(error);
+        await arrayDBfoos.removeArrayElement(user._id, response.team, "invites", USERS);
     }
+    res.status(200).json(user);
 })
 
 module.exports = router
