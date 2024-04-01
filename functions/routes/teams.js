@@ -4,6 +4,7 @@ const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
 const arrayDBfoos = require('../databaseFunctions/ArrayFunctions.js');
 const userDBfoos = require('../databaseFunctions/UserFunctions.js');
 const refDBfoos = require('../databaseFunctions/ReferenceFunctions.js');
+const projectDBfoos = require('../databaseFunctions/ProjectFunctions.js');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const config = require('../utils/config');
@@ -115,18 +116,11 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}),async (req, r
         const team = await basicDBfoos.getObj(teamId, TEAMS);
 
         //delete ALL of the map collections which contain a projectId which belongs to the team
-        if(team.projects.length){
-            for(const proj of team.projects) {
-                await refDBfoos.projectCleanup(proj, ACCSESS_MAPS);
-                await refDBfoos.projectCleanup(proj, BOUNDARIES_MAPS);
-                await refDBfoos.projectCleanup(proj, LIGHT_MAPS);
-                await refDBfoos.projectCleanup(proj, MOVING_MAPS);
-                await refDBfoos.projectCleanup(proj, NATURE_MAPS);
-                await refDBfoos.projectCleanup(proj, ORDER_MAPS);
-                await refDBfoos.projectCleanup(proj, PROGRAM_MAPS);
-                await refDBfoos.projectCleanup(proj, SECTION_MAPS);
-                await refDBfoos.projectCleanup(proj, SOUND_MAPS);
-                await refDBfoos.projectCleanup(proj, STATIONARY_MAPS);
+        if (team.projects && team.projects.length > 0) {
+            for (const project of team.projects) {
+                console.log(`Deleting project ${project}`);
+                await projectDBfoos.deleteProject(project);
+                console.log(`Project ${project} deleted successfully`);
             }
         }
 
@@ -142,6 +136,7 @@ router.delete('/:id', passport.authenticate('jwt',{session:false}),async (req, r
         }
  })
 
+ // Send an invite
 router.post('/:id/invites', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     const teamId = req.params.id;
     const user = await req.user;
