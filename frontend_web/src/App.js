@@ -25,7 +25,6 @@ import FAQ from './routes/FAQ';
 
 
 export default function App() {
-    console.log('FE STARTING');
     // token is currently stored in app state
     const [token, setToken] = React.useState(sessionStorage.userToken ? JSON.parse(sessionStorage.userToken) : null);
 
@@ -34,7 +33,6 @@ export default function App() {
     
     // Set user vars to access the user home page
     function handleOnLogin(active, token) {
-        console.log('LOGIN ROUTE');
         // Will be used to block users from user pages unless logged in
         setState(active);
         setToken(token);
@@ -80,8 +78,6 @@ export default function App() {
     // Pages to be accessed by a logged in user
     // can be reached at (heroku-url)/home/(any component path below), ex: (url)/home/settings
     function UserRoutes() {
-        console.log('USER ROUTES');
-        
         const passLogout = (active) => {
             handleOnLogout(active);
         }
@@ -105,7 +101,6 @@ export default function App() {
         );
     } 
 
-    // (heroku-url)/(any path below)
     return(
         <Router>
             <Routes>
