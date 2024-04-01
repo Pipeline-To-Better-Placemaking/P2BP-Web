@@ -80,7 +80,7 @@ export default function Title(props) {
 
         setTimeout(() => {
             setButtonText('Login');
-        }, 5000);
+        }, 10000);
     }
 
     const loginUser = async (e) => {
