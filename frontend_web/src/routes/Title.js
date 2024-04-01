@@ -163,7 +163,7 @@ export default function Title(props) {
             <div id='titlePage'>
                 <div className='pageTemplateLogin' id='login' ref={backgroundImageRefLogin}>
                     {/* tag - sizing for logo/tag (title text) */}
-                    <Link className='backButton' to='/'><Back className='iconShadow' /></Link>
+                    {/* <Link className='backButton' to='/'><Back className='iconShadow' /></Link> */}
                         <Card className='formCard' style={{ backgroundColor: '#ddddddbb', padding: '30px 102px 0px 102px', backdropFilter: 'blur(4px)'}}>
                             <h3><b>Welcome Back,</b></h3>
                             <p><i>Please Login.</i></p>
