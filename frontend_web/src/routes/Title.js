@@ -16,6 +16,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './routes.css';
 import Back from '@mui/icons-material/ArrowBackRounded';
 import logo1 from '../images/PtBPLogo.png';
+import {TailSpin} from 'react-loading-icons';
 
 export default function Title(props) {
     // Props from App.js, login function to pass user/token info to AppNavBar
@@ -27,6 +28,8 @@ export default function Title(props) {
         showPassword: false
     });
 
+    const [loading, setLoading]= React.useState(false);
+    const [buttonText, setButtonText] = React.useState('Login');
     const [message, setMessage] = React.useState('');
     const em = React.useRef(null);
     const pw = React.useRef(null);
@@ -55,6 +58,7 @@ export default function Title(props) {
     //Needs a handle login function for login field feedback i.e. incorrect email or password
     const handleLogin = (e) => {
         e.preventDefault();
+        setButtonText('Loading...');
 
         if (values.email === '' || values.email.length <= 3){
             pwMess.current.style.display = 'none';
@@ -73,12 +77,17 @@ export default function Title(props) {
             pwMess.current.style.display = 'none';
             loginUser(e);
         }
+
+        setTimeout(() => {
+            setButtonText('Login');
+        }, 10000);
     }
 
     const loginUser = async (e) => {
 
         try {
             console.log('login try');
+            setLoading(true);
             const response = await axios.post('/login', JSON.stringify({ email: values.email, password: values.password }), {
                headers: { 'Content-Type': 'application/json' },
                withCredentials: true
@@ -90,6 +99,7 @@ export default function Title(props) {
 
             //redirect user to url/home
             nav('/home', { state: { userToken: user } });
+            setLoading(false);
         } catch(error){
             //user login error
             console.log('ERROR: ', error);
@@ -215,8 +225,9 @@ export default function Title(props) {
                                         style={{backgroundColor: 'rgba(254, 216, 6, 0.7)'}} 
                                         onClick={ handleLogin }
                                     >
-                                        Log in
+                                        {buttonText}
                                     </Button>
+                                    {!loading ?(<div></div>) : (<div className='tailSpin'><TailSpin/></div>)}
                                     <Link to='/forgot_password' style={{fontSize: 'small'}}> Forgot Password? </Link>
                                 </Box>
                                 <div className='d-grid'>

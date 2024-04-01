@@ -660,3 +660,10 @@ div#accountPage h1 {
         transform: rotate(360deg);
     }
 }
+
+.tailSpin {
+	display:flex;
+	align-items:center;
+	justify-content:center;
+    padding-top: 5px;
+}

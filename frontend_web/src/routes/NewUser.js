@@ -15,6 +15,7 @@ import Back from '@mui/icons-material/ArrowBackRounded';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from '../api/axios.js';
 import logo1 from '../images/PtBPLogo.png';
+import {TailSpin} from 'react-loading-icons';
 
 import './routes.css';
 const registerURL = '/users'
@@ -23,6 +24,9 @@ export default function NewUser(props) {
     //Props from App.js will log user in after success
     let nav = useNavigate();
     // to access fname lname...etc values.fname, do not access show(Confirm)Password
+    const [loading, setLoading]= React.useState(false);
+    const [buttonText, setButtonText] = React.useState('Sign Up');
+
     const [values, setValues] = React.useState({
         fname: '',
         lname: '',
@@ -124,17 +128,23 @@ export default function NewUser(props) {
     }
 
     const submitNewUser = async (e) => {
+        setButtonText('Loading...');
         //register new user instead of login, not saving data
         try{
+            setLoading(true);
             const response = await axios.post(registerURL, JSON.stringify({ firstname: values.fname, lastname: values.lname, email: values.email, password: values.password }), {
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
             });
-            
             let user = response.data;
             props.onLogin(true, user);
             //redirect user to url/home
             nav('/home', { replace: true });
+            setTimeout(() => {
+                setButtonText('Sign Up');
+            }, 10000);
+
+            setLoading(false);
         } catch (error) {
             //user login error
             setMessage(error.response.data?.message);
@@ -318,8 +328,9 @@ export default function NewUser(props) {
                                     onClick={ handleSubmit }
                                     style={{ borderRadius: '10px', backgroundColor: 'rgba(254, 216, 6, 0.7)'}}
                                 >
-                                    Sign Up
+                                    {buttonText}
                                 </Button>
+                                {!loading ?(<div></div>) : (<div className='tailSpin'><TailSpin/></div>)}
                             </Box>
                             <br/><br/>
                             <div className='logo'>
