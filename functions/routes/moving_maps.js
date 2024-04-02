@@ -36,7 +36,6 @@ router.put('/:id/claim', passport.authenticate('jwt',{session:false}), async (re
 });
 
 //route reverses sign up to a time slot.
-// Untested
 router.delete('/:id/claim', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
     res.status(200).json(await routeDBfoos.clearTimeSlot(req, MOVING_MAPS));
 });

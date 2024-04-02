@@ -7,6 +7,7 @@ const arrayDBfoos = require('../databaseFunctions/ArrayFunctions.js');
 const projectDBfoos = require('../databaseFunctions/ProjectFunctions.js');
 const routeDBfoos = require('../databaseFunctions/RouteFunctions.js')
 const userDBfoos = require('../databaseFunctions/UserFunctions.js');
+const firestore = require('../firestore');
 const {
     AREAS,
     PROJECTS,
@@ -96,7 +97,7 @@ generateSurveyKey = async function() {
     //this string has A-Z and 0-9 in a randomized order
     const builderString = "3UROGSWIVE01A9LMKQB7FZ6DJ4NC28Y5HTXP"
 
-    const counter = await firestore.collection(SURVEY_KEYS).get();
+    let counter = await firestore.collection(SURVEY_KEYS).get();
     if (!counter.exists) {
         counter = {
             _id: basicDBfoos.createId(),
@@ -147,7 +148,7 @@ module.exports.createSurvey = async function(req) {
                 //create new survey and add ref to its parent collection.
                 newSurvey.key = await generateSurveyKey();
                 const survey = await basicDBfoos.addObj(newSurvey, SURVEYS);
-                await arrayDBfoos.addArrayElement(collectionId, "surveys", SURVEY_COLS, newSurvey._id);
+                await arrayDBfoos.addArrayElement(collectionId, "maps", SURVEY_COLS, newSurvey._id);
             }
             console.log("TimeSlots: Before Response");
             return await basicDBfoos.getObj(collectionId, SURVEY_COLS);
@@ -165,9 +166,12 @@ module.exports.createSurvey = async function(req) {
             }
 
             console.log(collectionId);
-            newSurvey.key = generateSurveyKey();
+            newSurvey.key = await generateSurveyKey();
+            console.log(newSurvey.key);
             const survey = await basicDBfoos.addObj(newSurvey, SURVEYS);
-            await arrayDBfoos.addArrayElement(collectionId, "surveys", SURVEY_COLS, newSurvey._id);
+            console.log("Here1");
+            await arrayDBfoos.addArrayElement(collectionId, "maps", SURVEY_COLS, newSurvey._id);
+            console.log("Here2");
             return survey;
         }
     }
