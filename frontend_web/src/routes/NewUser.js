@@ -80,49 +80,31 @@ export default function NewUser(props) {
 
         // Check all inputs for valid input
         if (values.fname === '' || values.fname.length <= 3 ) {
-            lnameMess.current.style.display = 'none';
-            pwMess.current.style.display = 'none';
-            emMess.current.style.display = 'none';
             setMessage('Please provide your first name (minimum 3 letters)');
-            fnameMess.current.style.display = 'inline-block';
+            registerResponse.current.style.display = 'inline-block';
             fn.current.focus();
             return;
         } else if (values.lname === '' || values.lname.length <= 3) {
-            fnameMess.current.style.display = 'none';
-            pwMess.current.style.display = 'none';
-            emMess.current.style.display = 'none';
             setMessage('Please provide your last name (minimum 3 letters)');
-            lnameMess.current.style.display = 'inline-block';
+            registerResponse.current.style.display = 'inline-block';
             ln.current.focus();
             return;
         } else if (values.email === '' || values.email.length <= 7) {
-            fnameMess.current.style.display = 'none';
-            lnameMess.current.style.display = 'none';
-            pwMess.current.style.display = 'none';
             setMessage('Please provide an email (minimum length 7)');
-            emMess.current.style.display = 'inline-block';
+            registerResponse.current.style.display = 'inline-block';
             em.current.focus();
             return;
         } else if (values.password === '' || values.password.length < 8 || /\s/g.test(values.password) || !/\d/g.test(values.password) || !/[!@#$%^&*]/g.test(values.password) || !/[A-Z]/g.test(values.password)) {
-            fnameMess.current.style.display = 'none';
-            lnameMess.current.style.display = 'none';
-            emMess.current.style.display = 'none';
             setMessage('Please provide a password (minimum length 8 including a number, a symbol, and an uppercase letter)');
-            pwMess.current.style.display = 'inline-block';
+            registerResponse.current.style.display = 'inline-block';
             pw.current.focus();
             return;
         } else if (values.password !== values.confirmPassword){
-            fnameMess.current.style.display = 'none';
-            lnameMess.current.style.display = 'none';
-            emMess.current.style.display = 'none';
             setMessage('Provided passwords do not match');
-            pwMess.current.style.display = 'inline-block';
+            registerResponse.current.style.display = 'inline-block';
             return;
         } else {
-            fnameMess.current.style.display = 'none';
-            lnameMess.current.style.display = 'none';
-            emMess.current.style.display = 'none';
-            pwMess.current.style.display = 'none';
+            registerResponse.current.style.display = 'none';
             submitNewUser(e);
         }
     }
@@ -215,15 +197,15 @@ export default function NewUser(props) {
         return(
             <div className='pageTemplateSignUp' id='newuser' ref={backgroundImageRefSignUp}>
                 <Link className='backButton' to='/'><Back className='iconShadow' /></Link>
-                    <Card className='pageCard' style={{ backgroundColor: '#ddddddbb', padding: '30px 95px 0px 95px', backdropFilter: 'blur(4px)'}}>
+                    <Card className='pageCard' style={{ backgroundColor: '#ddddddbb', padding: '30px 95px 0px 95px', backdropFilter: 'blur(4px)', maxWidth: '30vw'}}>
                         <Card.Body>
                             <h3><b>Welcome</b></h3>
                             <p><i>Create your account by filling in the form.</i></p>
                             
                             <br/>
+                            <p><i>All fields ending with * are required</i></p>
                             <Box component='form' sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                                <span ref={ registerResponse } style={{ display: 'none', color: 'red' }}>{message}</span>
-                                <span ref={ fnameMess } style={{ display: 'none', color: 'red' }}>{message}</span>
+                                
                                 <TextField  
                                     className='nonFCInput' 
                                     id='outlined-input' 
@@ -236,7 +218,6 @@ export default function NewUser(props) {
                                     ref={ fn }
                                     style={{ width: '150%' }}
                                 />
-                                <span ref={ lnameMess } style={{ display: 'none', color: 'red' }}>{ message }</span>
                                 <TextField 
                                     className='nonFCInput' 
                                     id='outlined-input' 
@@ -249,7 +230,6 @@ export default function NewUser(props) {
                                     ref={ ln }
                                     style={{ width: '150%' }}
                                 />
-                                <span ref={ emMess } style={{ display: 'none', color: 'red' }}>{ message }</span>
                                 <TextField 
                                     className='nonFCInput' 
                                     id='outlined-input' 
@@ -262,7 +242,6 @@ export default function NewUser(props) {
                                     ref={ em }
                                     style={{ width: '150%' }}
                                 />
-                                <span ref={ pwMess } style={{ display: 'none', color: 'red' }}>{ message }</span>
                                 <FormControl sx={{ m: 1}} variant='outlined'>
                                     <InputLabel htmlFor='outlined-adornment-password'>Password *</InputLabel>
                                     <OutlinedInput
@@ -318,7 +297,7 @@ export default function NewUser(props) {
                                         style={{ width: '150%' }}
                                     />
                                 </FormControl>
-                                <span>All fields ending with * are required</span>
+                                <span id='errmsg' ref={ registerResponse } >{message}</span>
                                 <br/><br/>
                                 <Button 
                                     className='scheme' 

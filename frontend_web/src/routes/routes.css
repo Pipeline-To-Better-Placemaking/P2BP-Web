@@ -151,6 +151,12 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     justify-content: center;
 }
 
+#errmsg {
+    color: rgb(210, 0, 0);
+    display: 'none';
+    font-size: 12px;
+}
+
 .initpageTemplate { /* Default Page template */
     text-align: center;
     align-items: center;
@@ -173,6 +179,14 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     overflow: hidden;
 }
 
+#forgotpasslink {
+    text-decoration: none; /* Remove underline */
+    color: #000; /* Change text */
+}
+#forgotpasslink:hover {
+    color: #346bac;
+}
+
 .pageTemplateLogin {
     text-align: center;
     align-items: center;
@@ -184,6 +198,8 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     min-height: calc(100vh - 0vh);
     padding: 5vh 5vw;
     position: relative;
+
+    white-space: normal;
 }
 .pageTemplateLogin::before {
     content: "";
@@ -216,6 +232,8 @@ a.backButton>svg.css-i4bv87-MuiSvgIcon-root, a.backButton>svg.MuiSvgIcon-root {
     padding: 2.12vh 5vw;
     position: relative;
     height: auto; /* or specify a fixed height if needed */
+
+    white-space: normal;
 }
 .pageTemplateSignUp::before {
     content: "";

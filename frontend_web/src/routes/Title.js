@@ -61,20 +61,17 @@ export default function Title(props) {
         setButtonText('Loading...');
 
         if (values.email === '' || values.email.length <= 3){
-            pwMess.current.style.display = 'none';
             setMessage('Please provide an email');
-            emMess.current.style.display = 'inline-block';
+            loginResponse.current.style.display = 'inline-block';
             em.current.focus();
             return;
         } else if (values.password === '' || values.password.length <= 3){
-            emMess.current.style.display = 'none';
             setMessage('Please provide a password');
-            pwMess.current.style.display = 'inline-block';
+            loginResponse.current.style.display = 'inline-block';
             pw.current.focus();
             return;
         } else {
-            emMess.current.style.display = 'none';
-            pwMess.current.style.display = 'none';
+            loginResponse.current.style.display = 'none';
             loginUser(e);
         }
 
@@ -179,8 +176,7 @@ export default function Title(props) {
                             <p><i>Please Login.</i></p>
                             <Card.Body>
                                 <Box id='titleBox' component='form' sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                                    <span ref={loginResponse} style={{ display: 'none', color: 'red' }}>{message}</span>
-                                    <span ref={emMess} style={{ display: 'none', color: 'red' }}>{message}</span>
+                                    
                                     <TextField 
                                         className='nonFCInput' 
                                         id='outlined-search' 
@@ -191,7 +187,7 @@ export default function Title(props) {
                                         onChange={handleChange} 
                                         ref={em}
                                     />
-                                    <span ref={pwMess} style={{ display: 'none', color: 'red' }}>{message}</span>
+                                    
                                     {/* Form Control component to hold MUI visibility changing password field */}
                                     <FormControl sx={{ m: 1 }} variant='outlined'>
                                         <InputLabel htmlFor='outlined-adornment-password'>Password</InputLabel>
@@ -217,21 +213,23 @@ export default function Title(props) {
                                             label='Password'
                                         />
                                     </FormControl>
+                                    <span id='errmsg' ref={loginResponse} >{message}</span>
+                                    <br></br>
                                     <Button 
                                         className='scheme' 
                                         id='loginButton' 
                                         type='submit' 
                                         size='lg'
-                                        style={{backgroundColor: 'rgba(254, 216, 6, 0.7)'}} 
+                                        style={{backgroundColor: 'rgba(254, 216, 6, 0.7)', borderRadius: '10px'}} 
                                         onClick={ handleLogin }
                                     >
                                         {buttonText}
                                     </Button>
                                     {!loading ?(<div></div>) : (<div className='tailSpin'><TailSpin/></div>)}
-                                    <Link to='/forgot_password' style={{fontSize: 'small'}}> Forgot Password? </Link>
+                                    <Link to='/forgot_password' id='forgotpasslink'style={{fontSize: 'small'}}> <b>Forgot Password?</b> </Link>
                                 </Box>
                                 <div className='d-grid'>
-                                    <Button component={ Link } to='/new' className='scheme secondButton' size='lg' style={{backgroundColor: 'rgba(254, 216, 6, 0.7)'}}>
+                                    <Button component={ Link } to='/new' className='scheme secondButton' size='lg' style={{backgroundColor: 'rgba(254, 216, 6, 0.7)', borderRadius: '10px'}}>
                                         Create Account
                                     </Button>
                                 </div>
