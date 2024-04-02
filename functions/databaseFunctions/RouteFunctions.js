@@ -145,7 +145,7 @@ module.exports.createSurvey = async function(req) {
                 }
 
                 //create new survey and add ref to its parent collection.
-                newSurvey.key = generateSurveyKey();
+                newSurvey.key = await generateSurveyKey();
                 const survey = await basicDBfoos.addObj(newSurvey, SURVEYS);
                 await arrayDBfoos.addArrayElement(collectionId, "surveys", SURVEY_COLS, newSurvey._id);
             }
@@ -222,6 +222,12 @@ module.exports.assignTimeSlot = async function(req, MapName) {
     }
 };
 
+//route gets a map's specific data entry
+// id is the direct key for the document with data_id being the secondary key for the data entry
+module.exports.getDataEntry = async function(req, MapName) {
+    return arrayDBfoos.getArrayElement(req.params.id, req.params.data_id);
+};
+
 //route reverses sign up to a time slot.
 module.exports.clearTimeSlot = async function(req, MapName) {
     console.log("Clearing Time Slot");
@@ -255,7 +261,7 @@ module.exports.editTimeSlot = async function(req, MapName, CollectionName) {
         }
 
         //if standing points are changed, any new points get referenced, before any old points get dereferenced.
-        //done in this order so points never reach 0 and get deleted in removeRefrence()
+        //done in this order so points never reach 0 and get deleted in removeReference()
         if (req.body.standingPoints) {
             for (let i = 0; i < req.body.standingPoints.length; i++) {
                 await refDBfoos.addReference(req.body.standingPoints[i], STANDING_POINTS);
@@ -265,6 +271,7 @@ module.exports.editTimeSlot = async function(req, MapName, CollectionName) {
                 await refDBfoos.removeReference(map.standingPoints[i], STANDING_POINTS);
             }
         }
+
         await basicDBfoos.updateObj(req.params.id, newMap, MapName);
         return newMap;
     }
@@ -275,8 +282,8 @@ module.exports.editTimeSlot = async function(req, MapName, CollectionName) {
 
 //route deletes a map from a test collection
 module.exports.deleteMap = async function(req, MapName, CollectionName) {
-    let isSurvey = (MapName === SURVEYS);
-    isSurvey ? console.log("Deleting Survey") : console.log("Deleting Map") ;
+    const isSurvey = (MapName === SURVEYS);
+    isSurvey ? console.log("Deleting Survey") : console.log("Deleting Map");
     const user = await req.user
     const map = await basicDBfoos.getObj(req.params.id, MapName);
     const project = await basicDBfoos.getObj(map.project, PROJECTS);
@@ -349,6 +356,7 @@ module.exports.editTestedTimeSlot = async function(req, MapName, CollectionName)
         }
 
         await arrayDBfoos.updateArrayElement(map._id, req.params.data_id, req.body);
+        //access_maps wants the object from the access_maps, not access_collection
         return await basicDBfoos.getObj(req.params.id, CollectionName);
     }
     else {
