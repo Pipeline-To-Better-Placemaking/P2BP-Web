@@ -20,7 +20,9 @@ router.post("", passport.authenticate("jwt", { session: false }), async (req, re
 
 //route gets all map data, including any collection data.
 router.get("/:id", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
-    res.status(200).json(await routeDBfoos.getMapData(req, SURVEYS, SURVEY_COLS));
+    const ret = await routeDBfoos.getMapData(req, SURVEYS, SURVEY_COLS);
+    console.log(ret);
+    res.status(200).json(ret);
 });
 
 //route signs team member up to a time slot.
@@ -40,7 +42,7 @@ router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res
 
 //route deletes a survey from a test collection
 router.delete('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    res.status(200).json(routeDBfoos.deleteMap(req, SURVEYS, SURVEY_COLS));
+    res.status(200).json(await routeDBfoos.deleteMap(req, SURVEYS, SURVEY_COLS));
 });
 
 //route adds survey to its relevant time slot

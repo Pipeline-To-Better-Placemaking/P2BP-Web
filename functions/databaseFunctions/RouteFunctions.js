@@ -78,6 +78,7 @@ module.exports.createMaps = async function(req, MapName, CollectionName) {
                 data: []
             }
             console.log(collectionId);
+            console.log(newMap);
             await basicDBfoos.addObj(newMap, MapName);
             await arrayDBfoos.addArrayElement(collectionId, "maps", CollectionName, newMap._id);
             for (i = 0; i < newMap.standingPoints.length; i ++) {
@@ -137,40 +138,48 @@ module.exports.createSurvey = async function(req) {
                 const newSurvey = {
                     _id: basicDBfoos.createId(),
                     title: slot.title,
+                    standingPoints: standingPoints,
                     researchers: slot.researchers,
                     project: projectId,
                     sharedData: collectionId,
                     date: slot.date,
                     maxResearchers: slot.maxResearchers,
+                    maps: [],
                     data: []
                 }
 
                 //create new survey and add ref to its parent collection.
                 newSurvey.key = await generateSurveyKey();
                 const survey = await basicDBfoos.addObj(newSurvey, SURVEYS);
-                await arrayDBfoos.addArrayElement(collectionId, "maps", SURVEY_COLS, newSurvey._id);
+                await arrayDBfoos.addArrayElement(collectionId, "surveys", SURVEY_COLS, newSurvey._id);
             }
             console.log("TimeSlots: Before Response");
             return await basicDBfoos.getObj(collectionId, SURVEY_COLS);
         }
         else {
+            let standingPoints = new Array(req.body.standingPoints.length);
+            for (let i = 0; i < req.body.standingPoints.length; i++) {
+                standingPoints[i] = req.body.standingPoints[i]._id;
+            }
             const newSurvey = {
                 _id: basicDBfoos.createId(),
                 title: req.body.title,
+                standingPoints: standingPoints,
                 researchers: req.body.researchers,
                 project: projectId,
                 sharedData: collectionId,
                 date: req.body.date,
                 maxResearchers: req.body.maxResearchers,
+                maps: [],
                 data: []
             }
 
             console.log(collectionId);
             newSurvey.key = await generateSurveyKey();
-            console.log(newSurvey.key);
+            console.log(newSurvey);
             const survey = await basicDBfoos.addObj(newSurvey, SURVEYS);
             console.log("Here1");
-            await arrayDBfoos.addArrayElement(collectionId, "maps", SURVEY_COLS, newSurvey._id);
+            await arrayDBfoos.addArrayElement(collectionId, "surveys", SURVEY_COLS, newSurvey._id);
             console.log("Here2");
             return survey;
         }
@@ -185,6 +194,8 @@ module.exports.getMapData = async function(req, MapName, CollectionName) {
     console.log("Getting Map Data");
     console.log(req.params.id);
     let map = await basicDBfoos.getObj(req.params.id, MapName);
+    console.log("Look at me!");
+    console.log(map);
     for (let i = 0; i < map.researchers.length; i++) {
         const id = map.researchers[i];
         console.log(id);
@@ -202,6 +213,7 @@ module.exports.getMapData = async function(req, MapName, CollectionName) {
     const area = await basicDBfoos.getObj(obj.area, AREAS);
     map.sharedData.area = area;
     console.log(map);
+    console.log("Look at me!");
 
     return map;
 };

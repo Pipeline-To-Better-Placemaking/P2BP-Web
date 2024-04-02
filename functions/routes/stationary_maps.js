@@ -21,7 +21,9 @@ router.post("", passport.authenticate("jwt", { session: false }), async (req, re
 
 //route gets all map data, including any collection data.
 router.get("/:id", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
-    res.status(200).json(await routeDBfoos.getMapData(req, STATIONARY_MAPS, STATIONARY_COLS));
+    const ret = await routeDBfoos.getMapData(req, STATIONARY_MAPS, STATIONARY_COLS);
+    console.log(ret);
+    res.status(200).json(ret);
 });
 
 //route signs team member up to a time slot.
