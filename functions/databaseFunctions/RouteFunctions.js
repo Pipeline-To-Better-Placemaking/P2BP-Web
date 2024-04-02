@@ -227,7 +227,8 @@ module.exports.assignTimeSlot = async function(req, MapName) {
     const user = await req.user;
     if (map.researchers.length < map.maxResearchers) {
         if (userDBfoos.onTeam(project.team, user._id)) {
-            return await arrayDBfoos.addArrayElement(map._id, 'researchers', MapName, user._id);
+            await arrayDBfoos.addArrayElement(map._id, 'researchers', MapName, user._id);
+            return users;
         }
         else {
             throw new UnauthorizedError('You do not have permision to perform this operation');
