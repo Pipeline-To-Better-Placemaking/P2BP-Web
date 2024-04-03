@@ -6,10 +6,25 @@ export default function FAQ(){
   return(
     <div id='faqPage'>
       <div className='pageTemplate'>
+        <br />
+        <br />
+
         <h1 style={{marginBottom: '15px', textAlign: 'center'}}>Pipline to Better Placemaking Activity FAQ</h1>
 
+        <br />
+
         <div id='tOC'>
-          <h2>Table of Contents </h2>
+          <h2>Table of Contents</h2>
+          <br />
+          <h3>How to Create a Project</h3>
+            <ul style={{listStyle: 'none', textAlign: 'center', paddingLeft:'0px'}}>
+              <li><a href="#createProjectLink"> How to Create a Project </a></li>
+            </ul>
+          <h3>How to Create a Test</h3>
+            <ul style={{listStyle: 'none', textAlign: 'center', paddingLeft:'0px'}}>
+              <li><a href="#createTestLink"> How to Create a Test </a></li>
+            </ul>
+          <h3>Test Tutorials</h3>
             <ul style={{listStyle: 'none', textAlign: 'center', paddingLeft:'0px'}}>
               <li><a href="#aptlink"> Acoustical Profile Tutorial </a></li>
               <li><a href="#sbtlink"> Spatial Boundaries Tutorial </a></li>
@@ -25,803 +40,939 @@ export default function FAQ(){
             </ul>
         </div>
 
+        <br />
+        <br />
+
+        <h2 style={{textAlign: 'center'}}><a id="createProjectLink"> How to Create a Project </a></h2>
+
+        <h3><u> Web: </u></h3>
+          <p>
+            Step 1: From the Home page, select “NEW TEAM” and add a title and description to create 
+            a new team, or select “VIEW TEAM” for an existing team.
+            <br />
+            <br />
+            Step 2: From the projects page, select “NEW PROJECT” to create a new project.
+            <br />
+            <br />
+            Step 3: Select a location on the map.
+            <br />
+            <br />
+            Step 4: Set a project perimeter by selecting points on the map.
+            <br />
+            <br />
+            Step 5: Select points on the map to use for tests.
+            <br />
+            <br />
+            Step 6: After steps 1-5 have been completed, you will see a “Create Project” page 
+            that allows you to rename the project, add a description, and name the points you 
+            previously set. When you are done here, select the “CREATE” button at the bottom of the page.
+          </p>
+        <h3><u> Mobile: </u></h3>
+          <p>
+            Step 1: From the Collaborate page, select “Create New”, then enter a team name and select 
+            “Create New Team!”. If you already have a team, select it from the “Teams” list on this page instead.
+            <br />
+            <br />
+            Step 2: Select the team and then tap the “Create New” button next to “Projects”. Add a project name 
+            and enter a location. Tap at least 3 points on the map in the location you selected. These points 
+            will be the vertices between the edges of the perimeter you set as the area for the project. 
+            Tap the “Create” button.
+          </p>
+
+        <br />
+        <br />
+
+        <h2 style={{textAlign: 'center'}}><a id="createTestLink"> How to Create a Test </a></h2>
+
+        <h3><u> Web: </u></h3>
+          <p>
+            Step 1: If you have not already done so, create a team and add a project.
+            <br />
+            <br />
+            Step 2: From the Home page, select “VIEW TEAM” for any team.
+            <br />
+            <br />
+            Step 3: From the projects page select “VIEW” for any project.
+            <br />
+            <br />
+            Step 4: Select the “ACTIVITIES” tab. On this page, you can name the test, select an 
+            activity type, and set a date and time for the activity.
+          </p>
+        <h3><u> Mobile: </u></h3>
+          <p>
+            Step 1: If you have not already done so, create a team and add a project.
+            <br />
+            <br />
+            Step 2: From the Collaborate page, select a team.
+            <br />
+            <br />
+            Step 3: From the projects list for that team, select a project.
+            <br />
+            <br />
+            Step 4: Select “Create Research Activity”.
+            <br />
+            <br />
+            Step 5: Enter a name, select a test from the “Select a Research Activity:” 
+            dropdown menu, and set a date and time for the activity. Tap the “Next” button.
+          </p>
+
+        <br />
+        <br />
+
+        <h2 style={{textAlign: 'center'}}><a id="aptlink"> Test Tutorials </a></h2>
+
+        <br />
+        <br />
+        
         <h2 style={{textAlign: 'center'}}><a id="aptlink"> Acoustical Profile Tutorial </a></h2>
 
         <h3><u> Creating the Test </u></h3>
-          <p> 
-            Step 1: Go to the create/signup for a test page that can be accessed by going to the
-            collaboration page, then selecting Team -{">"} Project 
+        <h3> Web: </h3>
+          <p>
+            Step 1: From your project’s “ACTIVITIES” page, select “Acoustical Profile” 
+            from the “Activity Type” dropdown menu. Add a name for the test to make it 
+            easier to find later. Select a date and an amount of time to spend on the 
+            test per location. Then select the green button with the “+” symbol to add the test.
             <br />
             <br />
-            Step 2: Press ‘Create Research Activity’
+            Step 2: Select “NEW TIME SLOT”, then set the start time and the number of researchers 
+            for the test. Select the points you want to use for this test.
             <br />
             <br />
-            Step 3: Enter the information required for the test. You can select which test you want to create
-            using the dropdown menu. Depending on which test you have selected, the name of the test will
-            automatically default to that test’s name. We recommend inputting your own name as leaving the
-            default name can be confusing when you have multiple tests of the same name. Then you will
-            select the date in which you want the test to be completed.
+            Step 3: Select the “SCHEDULE ACTIVITY” button. The test should now be available 
+            on the “ACTIVITIES” page below “Activity Results”.
+          </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Select your project, then tap “Create Research Activity”.
             <br />
             <br />
-            Step 4: For the Acoustical Profile Test, you will have to set the time that you would like the
-            researcher to spend at each standing point. The default is 30 seconds but it may be better to
-            choose a shorter interval as the test can be quite lengthy. Once you have filled out all the above
-            information, press next.
+            Step 2: Add a name for the test to make it easier to find later. 
+            Select “Acoustical Profile” from the “Select a Research Activity” 
+            dropdown menu. Select a date and an amount of time to spend on the 
+            test per location. Tap the “Next” button.
             <br />
             <br />
-            Step 5: Once you press next, it will take you to the time slot page in which you will create a time
-            slot for the test to be completed. Press ‘Create Time Slot’.
+            Step 3: Select “Create Time Slot”, then set the start time 
+            and number of researchers for the test. Select the points you 
+            want to use for this test.
             <br />
             <br />
-            Step 6: Once you press create time slot, it will allow you to input a start time, input the number of
-            researchers (users that can signup for the test), and specify which standing points you would like
-            the test to be conducted at. Due to the way the data is collected for the Acoustical Profile Test,
-            only one researcher is allowed per test. Once finished, press ‘Complete’ and the test will be
-            created.
+            Step 4: Tap the “Complete” button. The test should now be available 
+            on the list of tests for the project.
           </p>
 
         <h3><u> Completing the Test </u></h3>
           <p> 
-            Step 1: Sign up for the test as you would any other test and press Begin
+            This test can only be completed from the mobile app.
             <br />
             <br />
-            Step 2: The test will open with a map of the project location and a point in which the researcher
-            will stand to conduct the test. Once you click start, the timer will begin to count down and
-            prompt the user for input in intervals of 5 seconds, and when the timer reaches zero.
+            Step 1: Select your team, and then your project.
             <br />
             <br />
-            Step 3: Once the timer reaches a 5 second interval or is up it will prompt the user to enter the
-            sound decibel level that it says on their reader. After inputting the sound decibel level, it will
-            prompt the user to input ALL the types of sounds they heard during that time interval. After
-            inputting that, it will prompt the user to identify the MAIN type of sound heard they heard during
-            that time interval.
+            Step 2: Select the test from the list. Tap the “Sign Up” button.
             <br />
             <br />
-            Step 4: Once those questions have been answered it will prompt the user to move to the next
-            standing point, in which the user will either move to the next standing point or remain in place if
-            there is only one standing point.
+            Step 3: When you are ready to start the test, tap the “Begin” button.
             <br />
             <br />
-            Step 5: Steps 3 and 4 will be repeated for however many times as set by the project admin. A
-            user’s progress for completing the tests is displayed in the top left as it will show which number
-            input they are on out of the total number of inputs. This test is quite lengthy and was designed
-            with the intention that once started it will be completed. Please make sure to account for this
-            when completing a test.
+            Step 4: Tap the “Start” button.
             <br />
             <br />
-            Step 6: Once the test is completed, the results will automatically be saved and can be viewed on
-            the home page along with all other projects and their results. It can also be viewed on the
-            website.
+            Step 5: Record the Decibel level at that location and enter the value. 
+            Tap the “Submit” button.
+            <br />
+            <br />
+            Step 6: Select the types of sound you heard. You can select more than one. 
+            You can also enter a sound not listed as a default category.
+            <br />
+            <br />
+            Step 7: Select the type of sound that you heard the most. You can also enter 
+            a sound not listed as a default category.
+            <br />
+            <br />
+            Step 8: A menu will pop up reminding you to move to the next location. 
+            Tap “Confirm” when you are there.
+            <br />
+            <br />
+            Step 9: Repeat steps 5-8. The test will end when all locations have been tested.
           </p>
 
         <h3><u> Viewing the Results </u></h3>
-          <p> 
-            Step 1: Go to the home page of the mobile app. On the home page you will see a list titled
-            ‘Results’ that will contain each project you are a part of.
+        <h3> Web: </h3>
+          <p>
+            Step 1: On your project’s “ACTIVITIES” page, select the “Acoustical Profile” category. 
+            The results of the test will be displayed here. You will also see the option to export your data.
             <br />
             <br />
-            Step 2: Select the project you would like to view the results for. It will then take you to the main
-            results page where you can see a map of the project site, administrative information about that
-            project, a button to receive the results in a CSV file via email, and pages of lists that contain tests
-            that were completed for the project.
+            Step 2: On your project’s “MAP” page, select the “RESULTS” button. You can also select the 
+            “Acoustical Profile” category here to view the results of this test.
+          </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Go to the Home Page and select your project from the “Results” list.
             <br />
             <br />
-            Step 3: To view a specific test, click on the test you would like to see. Once you select a specific
-            test, you will be taken to the results page for that specific test. At the top you will be able to see
-            all the administrative information for that test. Below that you will have the option to view the test
-            results on a map by clicking on the ‘View Map’ button. Below the view map button you will also
-            see data on the results that were collected for that test.
+            Step 2: Select the test you want to view from the “Research Results” list. 
+            The results of the test will be displayed here.
           </p>
 
         <h2 style={{textAlign: 'center'}}><a id="sbtlink"> Spatial Boundaries Tutorial </a></h2>
 
         <h3><u> Creating the Test </u></h3>
-          <p> 
-            Step 1: Go to the create/signup for a test page that can be accessed by going to the
-            collaboration page, then selecting Team -{">"} Project
+        <h3> Web: </h3>
+          <p>
+            Step 1: From your project’s “ACTIVITIES” page, select “Spatial Boundaries” from 
+            the “Activity Type” dropdown menu. Add a name for the test to make it easier to 
+            find later. Select a date and an amount of time to spend on the test per location. 
+            Then select the green button with the “+” symbol to add the test.
             <br />
             <br />
-            Step 2: Press ‘Create Research Activity’
+            Step 2: Select “NEW TIME SLOT”, then set the start time and the number of 
+            researchers for the test.
             <br />
             <br />
-            Step 3: Enter the information required for the test. You can select which test you want to create
-            using the dropdown menu. Depending on which test you have selected, the name of the test will
-            automatically default to that test’s name. We recommend inputting your own name as leaving the
-            default name can be confusing when you have multiple tests of the same name. Then you will
-            select the date in which you want the test to be completed.
+            Step 3: Select the “SCHEDULE ACTIVITY” button. The test should now be available 
+            on the “ACTIVITIES” page below “Activity Results”.
+          </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Select your project, then tap “Create Research Activity”.
             <br />
             <br />
-            Step 4: For the Spatial Boundaries Test, you will have to set the time that you would like the
-            researcher to spend at the test site. The default is 20 minutes. Once you have filled out all the
-            above information, press next.
+            Step 2: Add a name for the test to make it easier to find later. 
+            Select “Spatial Boundaries” from the “Select a Research Activity” 
+            dropdown menu. Select a date and an amount of time to spend on the 
+            test per location. Tap the “Next” button.
             <br />
             <br />
-            Step 5: Once you press next, it will take you to the time slot page in which you will create a time
-            slot for the test to be completed. Press ‘Create Time Slot’.
+            Step 3: Select “Create Time Slot”, then set the start time and number 
+            of researchers for the test.
             <br />
             <br />
-            Step 6: Once you press create time slot, it will allow you to input a start time and input the
-            number of researchers (users that can signup for the test). Once finished, press ‘Complete’ and
-            the test will be created.
+            Step 4: Tap the “Complete” button. The test should now be available 
+            on the list of tests for the project.
           </p>
 
         <h3><u> Completing the Test </u></h3>
           <p> 
-            Step 1: Sign Up for the test as you would any other test and press begin
+            This test can only be completed from the mobile app.
             <br />
             <br />
-            Step 2: Once you press begin, the test will open to the project site along with a glimpse of the
-            test. In order to start the test, press start in the top left corner and the timer will begin counting
-            down.
+            Step 1: Select your team, and then your project.
             <br />
             <br />
-            Step 3: You can now plot boundaries as needed. At the bottom there are three boundary types
-            to choose from. ‘Constructed’ which is for boundaries that take up space vertically such as
-            fences, buildings, monuments, etc. ‘Material’ boundaries are things that take up space
-            horizontally on the ground and consist of things like sidewalks, grass areas, boardwalks, etc.
-            ‘Shelter’ boundaries are things that take up space horizontally overhead such as canopy, tree
-            cover, awnings, etc. To plot a boundary, simply press on the type of boundary you would like
-            and begin plotting points, outlining that boundary. If you place a point but don’t like where it was
-            plotted you can press delete and it will only delete the last point you plotted and will allow you to
-            keep plotting. If you decide the boundary you are drawing isn’t necessary or correct you can
-            press cancel to return to boundary types.
+            Step 2: Select the test from the list. Tap the “Sign Up” button.
             <br />
             <br />
-            Step 4: Once you are sure the boundary you have drawn is correct, press confirm. It will then
-            prompt you to answer questions about the boundary you just drew.
+            Step 3: When you are ready to start the test, tap the “Begin” button.
             <br />
             <br />
-            Step 5: After completing the prompts, it will allow you to plot more points as necessary in which
-            you will simply repeat steps 3 and 4. You are also able to view and filter through the boundaries
-            you have already drawn using the dropdown menu at the top. Simply press end in the top left
-            whenever you have completed the test. If the timer runs out, don’t worry, your input will still be
-            saved.
+            Step 4: Tap the “Start” button.
             <br />
             <br />
-            Step 6: Once the test is completed, the results will automatically be saved and can be viewed on
-            the home page along with all other projects and their results. It can also be viewed on the
-            website.
+            Step 5: Plot the boundaries. There are 3 types of boundaries: Constructed, Material, 
+            and Shelter. Choose “Constructed” for boundaries that take up space vertically such as 
+            fences, buildings, monuments, etc. Choose “Material” for boundaries that take up space 
+            horizontally on the ground such as sidewalks, grass areas, boardwalks, etc. Choose “Shelter” 
+            for boundaries that take up space horizontally overhead such as canopy, tree cover, awnings, 
+            etc. To plot a boundary, select a type of boundary and then plot points to outline the boundary. 
+            You can tap the delete button to remove the last point placed.
+            <br />
+            <br />
+            Step 6: When you are done plotting the boundary, confirm and answer the questions.
+            <br />
+            <br />
+            Step 7: Repeat steps 5-6 for the rest of the boundaries you want to plot.
+            <br />
+            <br />
+            Step 8: Select the “End” button.
           </p>
 
         <h3><u> Viewing the Results </u></h3>
-          <p> 
-            Step 1: Go to the home page of the mobile app. On the home page you will see a list titled
-            ‘Results’ that will contain each project you are a part of.
+        <h3> Web: </h3>
+          <p>
+            Step 1: On your project’s “ACTIVITIES” page, select the “Spatial Boundaries” category. 
+            The results of the test will be displayed here. You will also see the option to export your data.
             <br />
             <br />
-            Step 2: Select the project you would like to view the results for. It will then take you to the main
-            results page where you can see a map of the project site, administrative information about that
-            project, a button to receive the results in a CSV file via email, and pages of lists that contain tests
-            that were completed for the project.
+            Step 2: On your project’s “MAP” page, select the “RESULTS” button. You can also select 
+            the “Spatial Boundaries” category here to view the results of this test.
+          </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Go to the Home Page and select your project from the “Results” list.
             <br />
             <br />
-            Step 3: To view a specific test, click on the test you would like to see. Once you select a specific
-            test, you will be taken to the results page for that specific test. At the top you will be able to see
-            all the administrative information for that test. Below that you will have the option to view the test
-            results on a map by clicking on the ‘View Map’ button. Below the view map button you will also
-            see data on the results that were collected for that test.
+            Step 2: Select the test you want to view from the “Research Results” list. 
+            The results of the test will be displayed here.
           </p>
 
         <h2 style={{textAlign: 'center'}}><a id="nptlink">  Nature Prevalance Tutorial </a></h2>
 
         <h3><u> Creating the Test </u></h3>
-          <p> 
-            Step 1: Go to the create/signup for a test page that can be accessed by going to the
-            collaboration page, then selecting Team -{">"} Project
+        <h3> Web: </h3>
+          <p>
+            Step 1: From your project’s “ACTIVITIES” page, select “Nature Prevalence” from the 
+            “Activity Type” dropdown menu. Add a name for the test to make it easier to find later. 
+            Select a date and an amount of time to spend on the test per location. Then select the 
+            green button with the “+” symbol to add the test.
             <br />
             <br />
-            Step 2: Press ‘Create Research Activity’
+            Step 2: Select “NEW TIME SLOT”, then set the start time and the number of researchers 
+            for the test.
             <br />
             <br />
-            Step 3: Enter the information required for the test. You can select which test you want to create
-            using the dropdown menu. Depending on which test you have selected, the name of the test will
-            automatically default to that test’s name. We recommend inputting your own name as leaving the
-            default name can be confusing when you have multiple tests of the same name. Then you will
-            select the date in which you want the test to be completed.
-            <br />
-            <br />
-            Step 4: For the Nature Prevalence Test, you will have to set the time that you would like the
-            researcher to spend at the test site. The default is 20 minutes. Once you have filled out all the
-            above information, press next.
-            <br />
-            <br />
-            Step 5: Once you press next, it will take you to the time slot page in which you will create a time
-            slot for the test to be completed. Press ‘Create Time Slot’.
-            <br />
-            <br />
-            Step 6: Once you press create time slot, it will allow you to input a start time and input the
-            number of researchers (users that can signup for the test). Once finished, press ‘Complete’ and
-            the test will be created.
+            Step 3: Select the “SCHEDULE ACTIVITY” button. The test should now be available on the 
+            “ACTIVITIES” page below “Activity Results”.
           </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Select your project, then tap “Create Research Activity”.
+            <br />
+            <br />
+            Step 2: Add a name for the test to make it easier to find later. 
+            Select “Nature Prevalence” from the “Select a Research Activity” 
+            dropdown menu. Select a date and an amount of time to spend on the 
+            test per location. Tap the “Next” button.
+            <br />
+            <br />
+            Step 3: Select “Create Time Slot”, then set the start time and number of 
+            researchers for the test.
+            <br />
+            <br />
+            Step 4: Tap the “Complete” button. The test should now be available on the 
+            list of tests for the project.
+          </p> 
 
         <h3><u> Completing the Test </u></h3>
           <p> 
-            Step 1: Sign up for the test as you would any other test and press begin.
+            This test can only be completed from the mobile app.
             <br />
             <br />
-            Step 2: Once you press begin it will open the test and show you the project site. You can press
-            start in the top left to start the test.
+            Step 1: Select your team, and then your project.
             <br />
             <br />
-            Step 3: As soon as you press start, it will prompt you to type in weather information about the
-            place. Complete the prompt.
+            Step 2: Select the test from the list. Tap the “Sign Up” button.
             <br />
             <br />
-            Step 4: You are now able to being recording information for this test. You have three options for
-            this test, ‘Animals’, ‘Body of Water’, and ‘Vegetation’. To plot an Animal, simply press anywhere
-            on the project site and fill out the necessary prompts. To plot a body of water, press on the body
-            of water button and it will allow you to draw the shape of a body of water by plotting points. If
-            you place a point but don’t like where it was plotted you can press delete and it will only delete
-            the last point you plotted and will allow you to keep plotting. If you decide the body of water you
-            are drawing isn’t necessary or correct you can press cancel. To plot the vegetation in a project
-            site, press on the vegetation button and it will allow you to draw the vegetation by plotting points,
-            it works similar to body of water.
+            Step 3: When you are ready to start the test, tap the “Begin” button.
             <br />
             <br />
-            Step 5: You can continue to input information and will repeat step 4 as needed. Simply press end
-            in the top left whenever you have completed the test. If the timer runs out, don’t worry, your input
-            will still be saved.
+            Step 4: Answer the question about the current weather conditions.
             <br />
             <br />
-            Step 6: Once the test is completed, the results will automatically be saved and can be viewed on
-            the home page along with all other projects and their results. It can also be viewed on the
-            website.
+            Step 5: Tap the “Start” button.
+            <br />
+            <br />
+            Step 6: Plot points on the map to mark the locations of animals, bodies of water, 
+            and vegetation. To plot an animal, tap a point on the screen and answer the question 
+            about the type of animal. To plot a body of water, select the “Body of Water” category 
+            at the bottom of the screen and tap points on the map around the body of water. At least 
+            3 points must be placed to confirm a body of water. Answer the question about the type 
+            of body of water. To plot vegetation, select the “Vegetation” category at the bottom of 
+            the screen and tap points on the map around the area of vegetation. At least 3 points must 
+            be placed to confirm an area of vegetation. Answer the question about the type of area of vegetation.
+            <br />
+            <br />
+            Step 7: Repeat step 6 until either the timer runs out or you are done and tap the “End” button.
           </p>
 
         <h3><u> Viewing the Results </u></h3>
-          <p> 
-            Step 1: Go to the home page of the mobile app. On the home page you will see a list titled
-            ‘Results’ that will contain each project you are a part of.
+        <h3> Web: </h3>
+          <p>
+            Step 1: On your project’s “ACTIVITIES” page, select the “Nature Prevalence” category. 
+            The results of the test will be displayed here. You will also see the option to export your data.
             <br />
             <br />
-            Step 2: Select the project you would like to view the results for. It will then take you to the main
-            results page where you can see a map of the project site, administrative information about that
-            project, a button to receive the results in a CSV file via email, and pages of lists that contain tests
-            that were completed for the project.
-            <br />
-            <br />
-            Step 3: To view a specific test, click on the test you would like to see. Once you select a specific
-            test, you will be taken to the results page for that specific test. At the top you will be able to see
-            all the administrative information for that test. Below that you will have the option to view the test
-            results on a map by clicking on the ‘View Map’ button. Below the view map button you will also
-            see data on the results that were collected for that test.
+            Step 2: On your project’s “MAP” page, select the “RESULTS” button. 
+            You can also select the “Nature Prevalence” category here to view the results of this test.
           </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Go to the Home Page and select your project from the “Results” list.
+            <br />
+            <br />
+            Step 2: Select the test you want to view from the “Research Results” list. 
+            The results of the test will be displayed here.
+          </p> 
 
         <h2 style={{textAlign: 'center'}}><a id="lptlink">  Lighting Profile Tutorial </a></h2>
 
         <h3><u> Creating the Test </u></h3>
-          <p> 
-            Step 1: Go to the create/signup for a test page that can be accessed by going to the
-            collaboration page, then selecting Team -{">"} Project
+        <h3> Web: </h3>
+          <p>
+            Step 1: From your project’s “ACTIVITIES” page, select “Lighting Profile” from the 
+            “Activity Type” dropdown menu. Add a name for the test to make it easier to find later. 
+            Select a date and an amount of time to spend on the test per location. Then select the 
+            green button with the “+” symbol to add the test.
             <br />
             <br />
-            Step 2: Press ‘Create Research Activity’
+            Step 2: Select “NEW TIME SLOT”, then set the start time and the number of researchers 
+            for the test.
             <br />
             <br />
-            Step 3: Enter the information required for the test. You can select which test you want to create
-            using the dropdown menu. Depending on which test you have selected, the name of the test will
-            automatically default to that test’s name. We recommend inputting your own name as leaving the
-            default name can be confusing when you have multiple tests of the same name. Then you will
-            select the date in which you want the test to be completed.
-            <br />
-            <br />
-            Step 4: For the Lighting Profile Test, you will have to set the time that you would like the
-            researcher to spend at the test site. The default is 20 minutes. Once you have filled out all the
-            above information, press next.
-            <br />
-            <br />
-            Step 5: Once you press next, it will take you to the time slot page in which you will create a time
-            slot for the test to be completed. Press ‘Create Time Slot’.
-            <br />
-            <br />
-            Step 6: Once you press create time slot, it will allow you to input a start time and input the
-            number of researchers (users that can signup for the test). Once finished, press ‘Complete’ and
-            the test will be created.
+            Step 3: Select the “SCHEDULE ACTIVITY” button. The test should now be available on the 
+            “ACTIVITIES” page below “Activity Results”.
           </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Select your project, then tap “Create Research Activity”.
+            <br />
+            <br />
+            Step 2: Add a name for the test to make it easier to find later. 
+            Select “Lighting Profile” from the “Select a Research Activity” 
+            dropdown menu. Select a date and an amount of time to spend on the 
+            test per location. Tap the “Next” button.
+            <br />
+            <br />
+            Step 3: Select “Create Time Slot”, then set the start time and number 
+            of researchers for the test.
+            <br />
+            <br />
+            Step 4: Tap the “Complete” button. The test should now be available 
+            on the list of tests for the project.
+          </p> 
 
         <h3><u> Completing the Test </u></h3>
           <p> 
-            Step 1: Sign up for the test as you would any other test and press begin.
+            This test can only be completed from the mobile app.
             <br />
             <br />
-            Step 2: Once you press begin it will open the test and show you the project site. You can press
-            start in the top left to start the test.
+            Step 1: Select your team, and then your project.
             <br />
             <br />
-            Step 3: Once you click start, you can then press anywhere on the map to plot a point where
-            there is light. Once you plot the point it will then ask you for information about the light. There are
-            three types of light, ‘Rhythmic’, ‘Building’, and ‘Task’. ‘Rhythmic’ are lights that are in series,
-            such as streetlights, pathway lighting, etc. ‘Building’ are lights for buildings, such as lights that
-            highlight a building’s architecture, advertisement lights, etc. ‘Task’ are lights that are focused for
-            specific areas, such as park/court lighting, courtyard lights, etc.
+            Step 2: Select the test from the list. Tap the “Sign Up” button.
             <br />
             <br />
-            Step 4: You can continue to input information and will repeat step 3 as needed. Simply press end
-            in the top left whenever you have completed the test. If the timer runs out, don’t worry, your input
-            will still be saved.
+            Step 3: When you are ready to start the test, tap the “Begin” button.
             <br />
             <br />
-            Step 5: Once the test is completed, the results will automatically be saved and can be viewed on
-            the home page along with all other projects and their results. It can also be viewed on the
-            website.
+            Step 4: Tap the “Start” button.
+            <br />
+            <br />
+            Step 5: Plot points on the map to mark the locations of lights. After plotting 
+            a point, select the type of light that it is. There are 3 types of lights: Rhythmic, 
+            Building, and Task. “Rhythmic” lights are lights in a series such as streetlights, 
+            pathway lighting, etc. “Building” lights are lights for a building such as lights that 
+            highlight the building’s architecture, advertisement lights, etc. “Task” lights are lights 
+            that are focused for a specific area such as park/court lighting, courtyard lights, etc.
+            <br />
+            <br />
+            Step 6: Repeat step 5 until you are done, or the timer runs out. Then tap the “End” button.
           </p>
 
         <h3><u> Viewing the Results </u></h3>
-          <p> 
-            Step 1: Go to the home page of the mobile app. On the home page you will see a list titled
-            ‘Results’ that will contain each project you are a part of.
+        <h3> Web: </h3>
+          <p>
+            Step 1: On your project’s “ACTIVITIES” page, select the “Lighting Profile” category. 
+            The results of the test will be displayed here. You will also see the option to export your data.
             <br />
             <br />
-            Step 2: Select the project you would like to view the results for. It will then take you to the main
-            results page where you can see a map of the project site, administrative information about that
-            project, a button to receive the results in a CSV file via email, and pages of lists that contain tests
-            that were completed for the project.
-            <br />
-            <br />
-            Step 3: To view a specific test, click on the test you would like to see. Once you select a specific
-            test, you will be taken to the results page for that specific test. At the top you will be able to see
-            all the administrative information for that test. Below that you will have the option to view the test
-            results on a map by clicking on the ‘View Map’ button. Below the view map button you will also
-            see data on the results that were collected for that test.
+            Step 2: On your project’s “MAP” page, select the “RESULTS” button. You can also select 
+            the “Lighting Profile” category here to view the results of this test.
           </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Go to the Home Page and select your project from the “Results” list.
+            <br />
+            <br />
+            Step 2: Select the test you want to view from the “Research Results” list. 
+            The results of the test will be displayed here.
+          </p> 
 
         <h2 style={{textAlign: 'center'}}><a id="aooltlink">  Absence of Order Locator Tutorial </a></h2>
 
         <h3><u> Creating the Test </u></h3>
-          <p> 
-            Step 1: Go to the create/signup for a test page that can be accessed by going to the
-            collaboration page, then selecting Team -{">"} Project
+        <h3> Web: </h3>
+          <p>
+            Step 1: From your project’s “ACTIVITIES” page, select “Absence of Order Locator” 
+            from the “Activity Type” dropdown menu. Add a name for the test to make it easier to 
+            find later. Select a date and an amount of time to spend on the test per location. 
+            Then select the green button with the “+” symbol to add the test.
             <br />
             <br />
-            Step 2: Press ‘Create Research Activity’ 
+            Step 2: Select “NEW TIME SLOT”, then set the start time and the number of researchers 
+            for the test.
             <br />
             <br />
-            Step 3: Enter the information required for the test. You can select which test you want to create
-            using the dropdown menu. Depending on which test you have selected, the name of the test will
-            automatically default to that test’s name. We recommend inputting your own name as leaving the
-            default name can be confusing when you have multiple tests of the same name. Then you will
-            select the date in which you want the test to be completed.
-            <br />
-            <br />
-            Step 4: For the Absence of Order Locator Test, you will have to set the time that you would like
-            the researcher to spend at the test site. The default is 20 minutes. Once you have filled out all the
-            above information, press next.
-            <br />
-            <br />
-            Step 5: Once you press next, it will take you to the time slot page in which you will create a time
-            slot for the test to be completed. Press ‘Create Time Slot’.
-            <br />
-            <br />
-            Step 6: Once you press create time slot, it will allow you to input a start time and input the
-            number of researchers (users that can signup for the test). Once finished, press ‘Complete’ and
-            the test will be created.
+            Step 3: Select the “SCHEDULE ACTIVITY” button. The test should now be available on the 
+            “ACTIVITIES” page below “Activity Results”.
           </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Select your project, then tap “Create Research Activity”.
+            <br />
+            <br />
+            Step 2: Add a name for the test to make it easier to find later. Select 
+            “Absence of Order Locator” from the “Select a Research Activity” dropdown 
+            menu. Select a date and an amount of time to spend on the test per location. 
+            Tap the “Next” button.
+            <br />
+            <br />
+            Step 3: Select “Create Time Slot”, then set the start time and number of 
+            researchers for the test.
+            <br />
+            <br />
+            Step 4: Tap the “Complete” button. The test should now be available on the 
+            list of tests for the project.
+          </p> 
 
         <h3><u> Completing the Test </u></h3>
           <p> 
-            Step 1: Sign up for the test as you would any other test and press begin.
+            This test can only be completed from the mobile app.
             <br />
             <br />
-            Step 2: Once you press begin it will open the test and show you the project site. You can press
-            start in the top left to start the test. 
+            Step 1: Select your team, and then your project.
             <br />
             <br />
-            Step 3: Once you click start, you can press anywhere on the map to plot a point where there is
-            any disorder. Once you plot the point it will then ask you to select which type of disorder, either
-            ‘Misconduct’ or ‘Maintenance’. Misconduct is when human behavior is out of order, such as
-            rowdiness, panhandling, homeless presence, etc. Maintenance is when the buildings or
-            environment is out of order, such as broken windows, potholes, missing bricks, etc. After
-            selecting the type, it will prompt you with a few questions. Complete the prompts to plot the
-            point.
+            Step 2: Select the test from the list. Tap the “Sign Up” button.
             <br />
             <br />
-            Step 4: You can continue to input information and will repeat step 3 as needed. Simply press end
-            in the top left whenever you have completed the test. If the timer runs out, don’t worry, your input
-            will still be saved.
+            Step 3: When you are ready to start the test, tap the “Begin” button.
             <br />
             <br />
-            Step 5: Once the test is completed, the results will automatically be saved and can be viewed on
-            the home page along with all other projects and their results. It can also be viewed on the
-            website.
+            Step 4: Tap the “Start” button.
+            <br />
+            <br />
+            Step 5: Plot points on the map to mark the locations of disorder. There are 2 types 
+            of disorder: Behavior and Maintenance. After plotting a point, choose a category. 
+            “Behavior” is for locations where human behavior is out of order, such as rowdiness. 
+            “Maintenance” is for locations where the buildings or environment are out of order, 
+            such as broken windows, potholes, missing bricks, etc.
+            <br />
+            <br />
+            Step 6: After plotting a point and selecting the category, answer the questions.
+            <br />
+            <br />
+            Step 7: Repeat steps 5-6 until you are done, or the timer runs out. Tap the “End” button.
           </p>
 
         <h3><u> Viewing the Results </u></h3>
-          <p> 
-            Step 1: Go to the home page of the mobile app. On the home page you will see a list titled
-            ‘Results’ that will contain each project you are a part of.
+        <h3> Web: </h3>
+          <p>
+            Step 1: On your project’s “ACTIVITIES” page, select the “Absence of Order Locator” 
+            category. The results of the test will be displayed here. You will also see the option 
+            to export your data.
             <br />
             <br />
-            Step 2: Select the project you would like to view the results for. It will then take you to the main
-            results page where you can see a map of the project site, administrative information about that
-            project, a button to receive the results in a CSV file via email, and pages of lists that contain tests
-            that were completed for the project.
-            <br />
-            <br />
-            Step 3: To view a specific test, click on the test you would like to see. Once you select a specific
-            test, you will be taken to the results page for that specific test. At the top you will be able to see
-            all the administrative information for that test. Below that you will have the option to view the test
-            results on a map by clicking on the ‘View Map’ button. Below the view map button you will also
-            see data on the results that were collected for that test.
+            Step 2: On your project’s “MAP” page, select the “RESULTS” button. You can also select 
+            the “Absence of Order Locator” category here to view the results of this test.
           </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Go to the Home Page and select your project from the “Results” list.
+            <br />
+            <br />
+            Step 2: Select the test you want to view from the “Research Results” list. 
+            The results of the test will be displayed here.
+          </p> 
 
         <h2 style={{textAlign: 'center'}}><a id="piptlink">  People in Place Tutorial </a></h2>
 
         <h3><u> Creating the Test </u></h3>
-          <p> 
-            Step 1: Go to the create/signup for a test page that can be accessed by going to the
-            collaboration page, then selecting Team -{">"} Project
+        <h3> Web: </h3>
+          <p>
+            Step 1: From your project’s “ACTIVITIES” page, select “People in Place” from 
+            the “Activity Type” dropdown menu. Add a name for the test to make it easier to 
+            find later. Select a date and an amount of time to spend on the test per location. 
+            Then select the green button with the “+” symbol to add the test.
             <br />
             <br />
-            Step 2: Press ‘Create Research Activity’
+            Step 2: Select “NEW TIME SLOT”, then set the start time and the number of researchers 
+            for the test. Select the points you want to use for this test.
             <br />
             <br />
-            Step 3: Enter the information required for the test. You can select which test you want to create
-            using the dropdown menu. Depending on which test you have selected, the name of the test will
-            automatically default to that test’s name. We recommend inputting your own name as leaving the
-            default name can be confusing when you have multiple tests of the same name. Then you will
-            select the date in which you want the test to be completed.
-            <br />
-            <br />
-            Step 4: For the People in Place Test, you will have to set the time that you would like the
-            researcher to spend at each standing point. The default is 15 minutes. Once you have filled out all the
-            above information, press next.
-            <br />
-            <br />
-            Step 5: Once you press next, it will take you to the time slot page in which you will create a time
-            slot for the test to be completed. Press ‘Create Time Slot’.
-            <br />
-            <br />
-            Step 6: Once you press create time slot, it will allow you to input a start time and input the
-            number of researchers (users that can signup for the test). Once finished, press ‘Complete’ and
-            the test will be created.
+            Step 3: Select the “SCHEDULE ACTIVITY” button. The test should now be available on the 
+            “ACTIVITIES” page below “Activity Results”.
           </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Select your project, then tap “Create Research Activity”.
+            <br />
+            <br />
+            Step 2: Add a name for the test to make it easier to find later. 
+            Select “People in Place” from the “Select a Research Activity” 
+            dropdown menu. Select a date and an amount of time to spend on 
+            the test per location. Tap the “Next” button.
+            <br />
+            <br />
+            Step 3: Select “Create Time Slot”, then set the start time and number 
+            of researchers for the test. Select the points you want to use for this test.
+            <br />
+            <br />
+            Step 4: Tap the “Complete” button. The test should now be available on 
+            the list of tests for the project.
+          </p> 
+
 
         <h3><u> Completing the Test </u></h3>
           <p> 
-            Step 1: Sign up for the test as you would any other test and press begin.
+            This test can only be completed from the mobile app.
             <br />
             <br />
-            Step 2: Once you press begin it will open the test and show you the project site. You can press
-            start in the top left to start the test.
+            Step 1: Select your team, and then your project.
             <br />
             <br />
-            Step 3: Now the test has started, you can place dots on the map to mark what users are doing following the prompts on screen.
+            Step 2: Select the test from the list. Tap the “Sign Up” button.
             <br />
             <br />
-            Step 4: Once the test is completed, the results will automatically be saved and can be viewed on
-            the home page along with all other projects and their results. It can also be viewed on the
-            website.
+            Step 3: When you are ready to start the test, tap the “Begin” button.
+            <br />
+            <br />
+            Step 4: Tap the “Start” button.
+            <br />
+            <br />
+            Step 5: Plot points on the map to mark the locations of people you see. 
+            Answer the questions about the person (age range, gender, what they are doing).
+            <br />
+            <br />
+            Step 6: Repeat step 5 until the timer runs out at that location.
+            <br />
+            <br />
+            Step 7: A menu will pop up reminding you to move to the next location. 
+            Tap “Confirm” when you are there.
+            <br />
+            <br />
+            Step 8: Repeat steps 5-7. The test will end when all locations have been tested.
           </p>
 
         <h3><u> Viewing the Results </u></h3>
-          <p> 
-            Step 1: Go to the home page of the mobile app. On the home page you will see a list titled
-            ‘Results’ that will contain each project you are a part of.
+        <h3> Web: </h3>
+          <p>
+            Step 1: On your project’s “ACTIVITIES” page, select the “People in Place” category. 
+            The results of the test will be displayed here. You will also see the option to export your data.
             <br />
             <br />
-            Step 2: Select the project you would like to view the results for. It will then take you to the main
-            results page where you can see a map of the project site, administrative information about that
-            project, a button to receive the results in a CSV file via email, and pages of lists that contain tests
-            that were completed for the project.
-            <br />
-            <br />
-            Step 3: To view a specific test, click on the test you would like to see. Once you select a specific
-            test, you will be taken to the results page for that specific test. At the top you will be able to see
-            all the administrative information for that test. Below that you will have the option to view the test
-            results on a map by clicking on the ‘View Map’ button. Below the view map button you will also
-            see data on the results that were collected for that test.
+            Step 2: On your project’s “MAP” page, select the “RESULTS” button. You can also select 
+            the “People in Place” category here to view the results of this test.
           </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Go to the Home Page and select your project from the “Results” list.
+            <br />
+            <br />
+            Step 2: Select the test you want to view from the “Research Results” list. 
+            The results of the test will be displayed here.
+          </p>   
 
         <h2 style={{textAlign: 'center'}}><a id="pimtlink">  People in Motion Tutorial </a></h2>
 
         <h3><u> Creating the Test </u></h3>
-          <p> 
-            Step 1: Go to the create/signup for a test page that can be accessed by going to the
-            collaboration page, then selecting Team -{">"} Project
+        <h3> Web: </h3>
+          <p>
+            Step 1: From your project’s “ACTIVITIES” page, select “People in Motion” from the 
+            “Activity Type” dropdown menu. Add a name for the test to make it easier to find 
+            later. Select a date and an amount of time to spend on the test per location. 
+            Then select the green button with the “+” symbol to add the test.
             <br />
             <br />
-            Step 2: Press ‘Create Research Activity’
+            Step 2: Select “NEW TIME SLOT”, then set the start time and the number of researchers 
+            for the test. Select the points you want to use for this test.
             <br />
             <br />
-            Step 3: Enter the information required for the test. You can select which test you want to create
-            using the dropdown menu. Depending on which test you have selected, the name of the test will
-            automatically default to that test’s name. We recommend inputting your own name as leaving the
-            default name can be confusing when you have multiple tests of the same name. Then you will
-            select the date in which you want the test to be completed.
-            <br />
-            <br />
-            Step 4: For the People in Motion Test, you will have to set the time that you would like the
-            researcher to spend at each standing point. The default is 15 minutes. Once you have filled out all the
-            above information, press next.
-            <br />
-            <br />
-            Step 5: Once you press next, it will take you to the time slot page in which you will create a time
-            slot for the test to be completed. Press ‘Create Time Slot’.
-            <br />
-            <br />
-            Step 6: Once you press create time slot, it will allow you to input a start time and input the
-            number of researchers (users that can signup for the test). Once finished, press ‘Complete’ and
-            the test will be created.
+            Step 3: Select the “SCHEDULE ACTIVITY” button. The test should now be available on 
+            the “ACTIVITIES” page below “Activity Results”.
           </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Select your project, then tap “Create Research Activity”.
+            <br />
+            <br />
+            Step 2: Add a name for the test to make it easier to find later. 
+            Select “People in Motion” from the “Select a Research Activity” 
+            dropdown menu. Select a date and an amount of time to spend on the 
+            test per location. Tap the “Next” button.
+            <br />
+            <br />
+            Step 3: Select “Create Time Slot”, then set the start time and number 
+            of researchers for the test. Select the points you want to use for this test.
+            <br />
+            <br />
+            Step 4: Tap the “Complete” button. The test should now be available on the 
+            list of tests for the project.
+          </p> 
 
         <h3><u> Completing the Test </u></h3>
           <p> 
-            Step 1: Sign up for the test as you would any other test and press begin.
+            This test can only be completed from the mobile app.
             <br />
             <br />
-            Step 2: Once you press begin it will open the test and show you the project site. You can press
-            start in the top left to start the test.
+            Step 1: Select your team, and then your project.
             <br />
             <br />
-            Step 3: Once the test has started you can click on the map to mark where people are.
+            Step 2: Select the test from the list. Tap the “Sign Up” button.
             <br />
             <br />
-            Step 4: Then you can denote what kind of movement people are participating in. Repeat step 3 and 4 to gather data.
+            Step 3: When you are ready to start the test, tap the “Begin” button.
             <br />
             <br />
-            Step 5: Once the test is completed, the results will automatically be saved and can be viewed on
-            the home page along with all other projects and their results. It can also be viewed on the
-            website.
+            Step 4: Tap the “Start” button.
+            <br />
+            <br />
+            Step 5: Plot points on the map to mark the locations of people you see. 
+            Answer the question about what they are doing.
+            <br />
+            <br />
+            Step 6: Repeat step 5 until the timer runs out at that location.
+            <br />
+            <br />
+            Step 7: A menu will pop up reminding you to move to the next location. 
+            Tap “Confirm” when you are there.
+            <br />
+            <br />
+            Step 8: Repeat steps 5-7. The test will end when all locations have been tested.
           </p>
 
         <h3><u> Viewing the Results </u></h3>
-          <p> 
-            Step 1: Go to the home page of the mobile app. On the home page you will see a list titled
-            ‘Results’ that will contain each project you are a part of.
+        <h3> Web: </h3>
+          <p>
+            Step 1: On your project’s “ACTIVITIES” page, select the “People in Motion” category. 
+            The results of the test will be displayed here. You will also see the option to 
+            export your data.
             <br />
             <br />
-            Step 2: Select the project you would like to view the results for. It will then take you to the main
-            results page where you can see a map of the project site, administrative information about that
-            project, a button to receive the results in a CSV file via email, and pages of lists that contain tests
-            that were completed for the project.
-            <br />
-            <br />
-            Step 3: To view a specific test, click on the test you would like to see. Once you select a specific
-            test, you will be taken to the results page for that specific test. At the top you will be able to see
-            all the administrative information for that test. Below that you will have the option to view the test
-            results on a map by clicking on the ‘View Map’ button. Below the view map button you will also
-            see data on the results that were collected for that test.
+            Step 2: On your project’s “MAP” page, select the “RESULTS” button. You can also select 
+            the “People in Motion” category here to view the results of this test.
           </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Go to the Home Page and select your project from the “Results” list.
+            <br />
+            <br />
+            Step 2: Select the test you want to view from the “Research Results” list. The 
+            results of the test will be displayed here.
+          </p>  
 
         <h2 style={{textAlign: 'center'}}><a id="cstlink">  Community Survey Tutorial </a></h2>
 
         <h3><u> Creating the Test </u></h3>
-          <p> 
-            Step 1: Go to the create/signup for a test page that can be accessed by going to the
-            collaboration page, then selecting Team -{">"} Project
+          <p>
+            This test can only be created from the mobile app.
             <br />
             <br />
-            Step 2: Press ‘Create Research Activity’
+            Step 1: Select your project, then tap “Create Research Activity”.
             <br />
             <br />
-            Step 3: Enter the information required for the test. You can select which test you want to create
-            using the dropdown menu. Depending on which test you have selected, the name of the test will
-            automatically default to that test’s name. We recommend inputting your own name as leaving the
-            default name can be confusing when you have multiple tests of the same name. Then you will
-            select the date in which you want the test to be completed.
+            Step 2: Add a name for the test to make it easier to find later. Select 
+            “Community Survey” from the “Select a Research Activity” dropdown menu. 
+            Select a date and an amount of time to spend on the test per location. 
+            Tap the “Next” button.
             <br />
             <br />
-            Step 4: Coming soon.
+            Step 3: Select “Create Time Slot”, then set the start time and number of 
+            researchers for the test.
             <br />
             <br />
-            Step 5: Once you press next, it will take you to the time slot page in which you will create a time
-            slot for the test to be completed. Press ‘Create Time Slot’.
-            <br />
-            <br />
-            Step 6: Once you press create time slot, it will allow you to input a start time and input the
-            number of researchers (users that can signup for the test). Once finished, press ‘Complete’ and
-            the test will be created.
-          </p>
+            Step 4: Tap the “Complete” button. The test should now be available on the 
+            list of tests for the project.
+          </p> 
 
         <h3><u> Completing the Test </u></h3>
           <p> 
-            Step 1: Sign up for the test as you would any other test and press begin.
+            This test can only be completed from the mobile app.
             <br />
             <br />
-            Step 2: A QR code will generate that will take users to a qualtrics survey.
+            Step 1: Select your team, and then your project.
             <br />
             <br />
-            Step 3:  Instruct participants to complete survey.
+            Step 2: Select the test from the list. Tap the “Sign Up” button.
             <br />
             <br />
-            Step 4: End test when time slot is up.
+            Step 3: When you are ready to start the test, tap the “Begin” button.
+            <br />
+            <br />
+            Step 4: Tap the “Start” button.
+            <br />
+            <br />
+            Step 5: Open the survey link and answer the questions.
+            <br />
+            <br />
+            Step 6: Tap the “End” button.
           </p>
+
+        <h3><u> Viewing the Results </u></h3>
+          <p>
+            This test can only be viewed from the mobile app.
+            <br />
+            <br />
+            Step 1: Go to the Home Page and select your project from the “Results” list.
+            <br />
+            <br />
+            Step 2: Select the test you want to view from the “Research Results” list. The 
+            results of the test will be displayed here. For this test, a survey code will 
+            be displayed.
+          </p> 
 
         <h2 style={{textAlign: 'center'}}><a id="iatlink">  Identifying Access Tutorial </a></h2>
 
         <h3><u> Creating the Test </u></h3>
-          <p> 
-            Step 1: Go to the create/signup for a test page that can be accessed by going to the
-            collaboration page, then selecting Team -{">"} Project
+        <h3> Web: </h3>
+          <p>
+            Step 1: From your project’s “ACTIVITIES” page, select “Identifying Access” from the “Activity Type” 
+            dropdown menu. Add a name for the test to make it easier to find later. Select a date and an amount 
+            of time to spend on the test per location. Then select the green button with the “+” symbol to add 
+            the test.
             <br />
             <br />
-            Step 2: Press ‘Create Research Activity’
+            Step 2: Select “NEW TIME SLOT”, then set the start time and the number of researchers for the 
+            test. Select the points you want to use for this test.
             <br />
             <br />
-            Step 3: Enter the information required for the test. You can select which test you want to create
-            using the dropdown menu. Depending on which test you have selected, the name of the test will
-            automatically default to that test’s name. We recommend inputting your own name as leaving the
-            default name can be confusing when you have multiple tests of the same name. Then you will
-            select the date in which you want the test to be completed.
-            <br />
-            <br />
-            Step 4: Coming soon.
-            <br />
-            <br />
-            Step 5: Once you press next, it will take you to the time slot page in which you will create a time
-            slot for the test to be completed. Press ‘Create Time Slot’.
-            <br />
-            <br />
-            Step 6: Once you press create time slot, it will allow you to input a start time and input the
-            number of researchers (users that can signup for the test). Once finished, press ‘Complete’ and
-            the test will be created.
+            Step 3: Select the “SCHEDULE ACTIVITY” button. The test should now be available on the “ACTIVITIES” 
+            page below “Activity Results”.
           </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Select your project, then tap “Create Research Activity”.
+            <br />
+            <br />
+            Step 2: Add a name for the test to make it easier to find later. Select “Identifying Access” from 
+            the “Select a Research Activity” dropdown menu. Select a date and an amount of time to spend on 
+            the test per location. Tap the “Next” button.
+            <br />
+            <br />
+            Step 3: Select “Create Time Slot”, then set the start time and number of researchers for the test.
+            <br />
+            <br />
+            Step 4: Tap the “Complete” button. The test should now be available on the list of tests 
+            for the project.
+          </p> 
 
         <h3><u> Completing the Test </u></h3>
           <p> 
-            Step 1: Sign up for the test as you would any other test and press begin.
+            This test can only be completed from the mobile app.
             <br />
             <br />
-            Step 2: Once you being the test you will be given 3 options to plot - a point, path, and area. Follow the prompts for each option. 
-            A point requires one point, a path can be any number of lines, and a area must be at least 3 points.
+            Step 1: Select your team, and then your project.
             <br />
             <br />
-            Step 3: After plotting, you will be asked to describe the access point from a list, then asked the access difficulty. 
-            If an access area was selected you will also be asked the cost and number of spots.
+            Step 2: Select the test from the list. Tap the “Sign Up” button.
             <br />
             <br />
-            Step 4: After identifying all the access modes, you can end or pause the test. 
+            Step 3: When you are ready to start the test, tap the “Begin” button.
+            <br />
+            <br />
+            Step 4: Tap the “Start” button.
+            <br />
+            <br />
+            Step 5: Plot points on the map to mark the locations of points, paths, and areas. Select 
+            the category at the bottom of the screen. For a point, select the category, tap a point on 
+            the map, tap the “Confirm” button, and answer the questions about what is at the point and 
+            how accessible it is. “Point” should be selected for endpoints of transportation, such as ride 
+            share drop-offs, bus stops, bike racks, etc. For a path, select the category, tap points along 
+            the path on the map, tap the “Confirm” button, and answer the questions about the type of path 
+            and how accessible it is. “Path” should be selected for sidewalks, streets, roads, etc. For an 
+            area, select the category, tap points around the area on the map, tap the “Confirm” button, and 
+            answer the questions about the type of area and how accessible it is. “Area” should be selected 
+            for parking lots and parking garages.
+            <br />
+            <br />
+            Step 6: Repeat step 5 until you are done, or the timer runs out. Tap the “End” button.
           </p>
 
         <h3><u> Viewing the Results </u></h3>
-          <p> 
-            Step 1: Go to the home page of the mobile app. On the home page you will see a list titled
-            ‘Results’ that will contain each project you are a part of.
+        <h3> Web: </h3>
+          <p>
+            Step 1: On your project’s “ACTIVITIES” page, select the “Identifying Access” category. The 
+            results of the test will be displayed here. You will also see the option to export your data.
             <br />
             <br />
-            Step 2:  Select the project you would like to view the results for. It will then take you to the main
-            results page where you can see a map of the project site, administrative information about that
-            project, a button to receive the results in a CSV file via email, and pages of lists that contain tests
-            that were completed for the project.
-            <br />
-            <br />
-            Step 3: To view a specific test, click on the test you would like to see. Once you select a specific
-            test, you will be taken to the results page for that specific test. At the top you will be able to see
-            all the administrative information for that test. Below that you will have the option to view the test
-            results on a map by clicking on the ‘View Map’ button. Below the view map button you will also
-            see data on the results that were collected for that test.
+            Step 2: On your project’s “MAP” page, select the “RESULTS” button. You can also select the 
+            “Identifying Access” category here to view the results of this test.
           </p>
+        <h3> Mobile: </h3>
+          <p>
+            Step 1: Go to the Home Page and select your project from the “Results” list.
+            <br />
+            <br />
+            Step 2: Select the test you want to view from the “Research Results” list. The 
+            results of the test will be displayed here.
+          </p> 
 
         <h2 style={{textAlign: 'center'}}><a id="iptlink">  Identifying Program Tutorial </a></h2>
 
         <h3><u> Creating the Test </u></h3>
           <p> 
-            Step 1: Go to the create/signup for a test page that can be accessed by going to the
-            collaboration page, then selecting Team -{">"} Project
+            This test can only be created from the website.
             <br />
             <br />
-            Step 2: Press ‘Create Research Activity’
-            <br />
-            <br />
-            Step 3: Enter the information required for the test. You can select which test you want to create
-            using the dropdown menu. Depending on which test you have selected, the name of the test will
-            automatically default to that test’s name. We recommend inputting your own name as leaving the
-            default name can be confusing when you have multiple tests of the same name. Then you will
-            select the date in which you want the test to be completed.
-            <br />
-            <br />
-            Step 4: Coming soon.
-            <br />
-            <br />
-            Step 5: Once you press next, it will take you to the time slot page in which you will create a time
-            slot for the test to be completed. Press ‘Create Time Slot’.
-            <br />
-            <br />
-            Step 6: Once you press create time slot, it will allow you to input a start time and input the
-            number of researchers (users that can signup for the test). Once finished, press ‘Complete’ and
-            the test will be created.
+            Step 1: From your project’s “ACTIVITIES” page, select “Identifying Program” from the 
+            “Activity Type” dropdown menu. Add a name for the test to make it easier to find later. 
+            Select a date and an amount of time to spend on the test per location. Then select the 
+            green button with the “+” symbol to add the test.
           </p>
 
         <h3><u> Completing the Test </u></h3>
           <p> 
-            Step 1: Sign up for the test by navigating to the results tab, and turning on the timeslot.
+            This test can only be completed from the website.
             <br />
             <br />
-            Step 2: The outline of the model to carry out the test will pop up, clicking on this will allow users to sign up, view the model, and complete the test.
+            Step 1: Select your team, and then your project.
             <br />
             <br />
-            Step 3: A new page will load where users add points to the select floor to create the outline for building. 
+            Step 2: Create the test. It will start immediately.
             <br />
             <br />
-            Step 4: After creating the outline and denoting the program type, a shape will be extrude.
+            Step 3: Select points on the map to outline a building. There must be at least 3 points.
             <br />
             <br />
-            Step 5: Coming soon. 
+            Step 4: Enter an amount of floors for the building.
+            <br />
+            <br />
+            Step 5: Select “CONTINUE”.
+            <br />
+            <br />
+            Step 6: Coming soon.
           </p>
 
         <h3><u> Viewing the Results </u></h3>
           <p> 
-            Step 1: Go to the home page of the mobile app. On the home page you will see a list titled
-            ‘Results’ that will contain each project you are a part of.
-            <br />
-            <br />
-            Step 2:  Select the project you would like to view the results for. It will then take you to the main
-            results page where you can see a map of the project site, administrative information about that
-            project, a button to receive the results in a CSV file via email, and pages of lists that contain tests
-            that were completed for the project.
-            <br />
-            <br />
-            Step 3: To view a specific test, click on the test you would like to see. Once you select a specific
-            test, you will be taken to the results page for that specific test. At the top you will be able to see
-            all the administrative information for that test. Below that you will have the option to view the test
-            results on a map by clicking on the ‘View Map’ button. Below the view map button you will also
-            see data on the results that were collected for that test.
-            <br />
-            <br />
-            Step 4: For viewing the model created in Identifying Program you can navigate to the results tab, select on for the results you want to see.
-            Now clicking on the model displayed on the Map will direct you to a pop up where you can view the programs.
+            Step 1: Coming soon.
           </p>
         
         <h2 style={{textAlign: 'center'}}><a id="sctlink">  Section Cutter Tutorial </a></h2>
         
         <h3><u> Creating the Test </u></h3>
           <p> 
-            Step 1: Go to the create/signup for a test page that can be accessed by going to the
-            collaboration page, then selecting Team -{">"} Project
+            This test can only be created from the website.
             <br />
             <br />
-            Step 2: Press ‘Create Research Activity’
-            <br />
-            <br />
-            Step 3: Enter the information required for the test. You can select which test you want to create
-            using the dropdown menu. Depending on which test you have selected, the name of the test will
-            automatically default to that test’s name. We recommend inputting your own name as leaving the
-            default name can be confusing when you have multiple tests of the same name. Then you will
-            select the date in which you want the test to be completed.
-            <br />
-            <br />
-            Step 4: Coming soon.
-            <br />
-            <br />
-            Step 5: Once you press next, it will take you to the time slot page in which you will create a time
-            slot for the test to be completed. Press ‘Create Time Slot’.
-            <br />
-            <br />
-            Step 6: Once you press create time slot, it will allow you to input a start time and input the
-            number of researchers (users that can signup for the test). Once finished, press ‘Complete’ and
-            the test will be created.
+            Step 1: From your project’s “ACTIVITIES” page, select “Section Cutter” 
+            from the “Activity Type” dropdown menu. Add a name for the test to make 
+            it easier to find later. Select a date and an amount of time to spend on 
+            the test per location. Then select the green button with the “+” symbol 
+            to add the test.
           </p>
 
         <h3><u> Completing the Test </u></h3>
           <p> 
-            Step 1: Sign up for the test as you would any other test and press begin.
+            This test can only be completed from the website.
             <br />
             <br />
-            Step 2: Coming. soon.
+            Step 1: Select your team, and then your project.
             <br />
             <br />
-            Step 3: Coming soon.
+            Step 2: Create the test. It will start immediately.
             <br />
             <br />
-            Step 4: Coming soon.
+            Step 3: Plot 2 points to make a line that separates sections.
             <br />
             <br />
-            Step 5: Coming soon. 
+            Step 4: Select “CONTINUE SELECTION”.
+            <br />
+            <br />
+            Step 5: Select “NEW TIME SLOT”. Add a start time and number of researchers, then 
+            select “SCHEDULE ACTIVITY”.
           </p>
 
         <h3><u> Viewing the Results </u></h3>
           <p> 
-            Step 1: Coming soon.
+            This test can only be viewed from the website.
             <br />
             <br />
-            Step 2: Coming soon. 
-            <br />
-            <br />
-            Step 3: Coming soon.
-            <br />
-            <br />
-            Step 4: For viewing the model created in Section Cutter you can navigate to the results tab, select on for the results you want to see.
-            Now clicking on the model displayed on the Map will direct you to a pop up where you can view the data for the section cut.
+            Step 1: On your project’s “MAP” page, select the “RESULTS” button. You can 
+            select the “Section Cutter” category here to view the results of this test.
           </p>
       </div>
     </div>
