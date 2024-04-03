@@ -107,11 +107,11 @@ module.exports.editCol = async function(userId, projectId, obj, collectionName, 
     const project = await basicDBfoos.getObj(projectId, PROJECTS);
     const authorized = await userDBfoos.isAdmin(project.team, userId);
 
-    if(authorized) {
-        throw new UnauthorizedError('You do not have permision to perform this operation')
+    if(!authorized) {
+        throw new UnauthorizedError('You do not have permision to perform this operation');
     }
 
-    const collection = await basicDBfoos.getObj(collectionName, collectionId);
+    const collection = await basicDBfoos.getObj(collectionId, collectionName);
     const newCollection = {
         title: (obj.title ? obj.title : collection.title),
         date: (obj.date ? obj.date : collection.date),
@@ -120,25 +120,24 @@ module.exports.editCol = async function(userId, projectId, obj, collectionName, 
     }
 
     if(obj.area) {
-        await refDBfoos.addRefrence(obj.area, AREAS);
-        await refDBfoos.removeRefrence(collection.area, AREAS);
+        await refDBfoos.addReference(obj.area, AREAS);
+        await refDBfoos.removeReference(collection.area, AREAS);
     }
-    await Sound_Collection.updateCollection(req.params.collectionId, newCollection);
     await basicDBfoos.updateObj(collectionId, obj, collectionName);
 
     return {};
 }
 
-module.exports.deleteCol = async function(userId, projectId, collectionName, collectionId) {
-    const project = await Project.findById(req.params.id);
+module.exports.deleteCol = async function(userId, projectId, collectionName, collectionId, arrayName) {
+    const project = await basicDBfoos.getObj(projectId, PROJECTS);
     const authorized = await userDBfoos.isAdmin(project.team, userId);
 
-    if(authorized) {
+    if(!authorized) {
         throw new UnauthorizedError('You do not have permision to perform this operation')
     }
-    const collection = await basicDBfoos.getObj(collectionName, collectionId);
+    const collection = await basicDBfoos.getObj(collectionId, collectionName);
 
-    await refDBfoos.removeRefrence(collection.area, AREAS);
     await colDBfoos.deleteCollection(collectionId, collectionName);
+    await arrayDBfoos.removeArrayElement(projectId, collectionId, arrayName, PROJECTS);
     return {};
 }
