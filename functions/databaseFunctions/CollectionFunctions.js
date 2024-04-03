@@ -95,13 +95,15 @@ module.exports.getCollection = async function(id, route) {
     }
     const obj = await basicDBfoos.getObj(id, col);
     const objArea = await basicDBfoos.getObj(obj.area, AREAS);
+    const isSurvey = (map === SURVEYS);
+    const arrayName = isSurvey ? "surveys" : "maps"
     console.log(obj);
-    let maps = new Array(obj.maps.length);
-    for (let i = 0; i < obj.maps.length; i++) {
-        maps[i] = await basicDBfoos.getObj(obj.maps[i], map);
+    let maps = new Array(obj[arrayName].length);
+    for (let i = 0; i < obj[arrayName].length; i++) {
+        maps[i] = await basicDBfoos.getObj(obj[arrayName][i], map);
     }
     obj.area = objArea;
-    obj.maps = maps;
+    obj[arrayName] = maps;
     return obj;
 };
 

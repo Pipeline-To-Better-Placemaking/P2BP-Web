@@ -7,6 +7,7 @@ const arrayDBfoos = require('../databaseFunctions/ArrayFunctions.js');
 const projectDBfoos = require('../databaseFunctions/ProjectFunctions.js');
 const routeDBfoos = require('../databaseFunctions/RouteFunctions.js')
 const userDBfoos = require('../databaseFunctions/UserFunctions.js');
+const firestore = require('../firestore');
 const {
     AREAS,
     PROJECTS,
@@ -77,6 +78,7 @@ module.exports.createMaps = async function(req, MapName, CollectionName) {
                 data: []
             }
             console.log(collectionId);
+            console.log(newMap);
             await basicDBfoos.addObj(newMap, MapName);
             await arrayDBfoos.addArrayElement(collectionId, "maps", CollectionName, newMap._id);
             for (i = 0; i < newMap.standingPoints.length; i ++) {
@@ -96,7 +98,7 @@ generateSurveyKey = async function() {
     //this string has A-Z and 0-9 in a randomized order
     const builderString = "3UROGSWIVE01A9LMKQB7FZ6DJ4NC28Y5HTXP"
 
-    const counter = await firestore.collection(SURVEY_KEYS).get();
+    let counter = await firestore.collection(SURVEY_KEYS).get();
     if (!counter.exists) {
         counter = {
             _id: basicDBfoos.createId(),
@@ -136,16 +138,18 @@ module.exports.createSurvey = async function(req) {
                 const newSurvey = {
                     _id: basicDBfoos.createId(),
                     title: slot.title,
+                    standingPoints: standingPoints,
                     researchers: slot.researchers,
                     project: projectId,
                     sharedData: collectionId,
                     date: slot.date,
                     maxResearchers: slot.maxResearchers,
+                    maps: [],
                     data: []
                 }
 
                 //create new survey and add ref to its parent collection.
-                newSurvey.key = generateSurveyKey();
+                newSurvey.key = await generateSurveyKey();
                 const survey = await basicDBfoos.addObj(newSurvey, SURVEYS);
                 await arrayDBfoos.addArrayElement(collectionId, "surveys", SURVEY_COLS, newSurvey._id);
             }
@@ -153,21 +157,30 @@ module.exports.createSurvey = async function(req) {
             return await basicDBfoos.getObj(collectionId, SURVEY_COLS);
         }
         else {
+            let standingPoints = new Array(req.body.standingPoints.length);
+            for (let i = 0; i < req.body.standingPoints.length; i++) {
+                standingPoints[i] = req.body.standingPoints[i]._id;
+            }
             const newSurvey = {
                 _id: basicDBfoos.createId(),
                 title: req.body.title,
+                standingPoints: standingPoints,
                 researchers: req.body.researchers,
                 project: projectId,
                 sharedData: collectionId,
                 date: req.body.date,
                 maxResearchers: req.body.maxResearchers,
+                maps: [],
                 data: []
             }
 
             console.log(collectionId);
-            newSurvey.key = generateSurveyKey();
+            newSurvey.key = await generateSurveyKey();
+            console.log(newSurvey);
             const survey = await basicDBfoos.addObj(newSurvey, SURVEYS);
+            console.log("Here1");
             await arrayDBfoos.addArrayElement(collectionId, "surveys", SURVEY_COLS, newSurvey._id);
+            console.log("Here2");
             return survey;
         }
     }
@@ -181,6 +194,8 @@ module.exports.getMapData = async function(req, MapName, CollectionName) {
     console.log("Getting Map Data");
     console.log(req.params.id);
     let map = await basicDBfoos.getObj(req.params.id, MapName);
+    console.log("Look at me!");
+    console.log(map);
     for (let i = 0; i < map.researchers.length; i++) {
         const id = map.researchers[i];
         console.log(id);
@@ -198,6 +213,7 @@ module.exports.getMapData = async function(req, MapName, CollectionName) {
     const area = await basicDBfoos.getObj(obj.area, AREAS);
     map.sharedData.area = area;
     console.log(map);
+    console.log("Look at me!");
 
     return map;
 };
@@ -211,7 +227,8 @@ module.exports.assignTimeSlot = async function(req, MapName) {
     const user = await req.user;
     if (map.researchers.length < map.maxResearchers) {
         if (userDBfoos.onTeam(project.team, user._id)) {
-            return await arrayDBfoos.addArrayElement(map._id, 'researchers', MapName, user._id);
+            await arrayDBfoos.addArrayElement(map._id, 'researchers', MapName, user._id);
+            return users;
         }
         else {
             throw new UnauthorizedError('You do not have permision to perform this operation');
@@ -220,6 +237,12 @@ module.exports.assignTimeSlot = async function(req, MapName) {
     else {
         throw new BadRequestError('Research team is already full');
     }
+};
+
+//route gets a map's specific data entry
+// id is the direct key for the document with data_id being the secondary key for the data entry
+module.exports.getDataEntry = async function(req, MapName) {
+    return arrayDBfoos.getArrayElement(req.params.id, req.params.data_id);
 };
 
 //route reverses sign up to a time slot.
@@ -255,7 +278,7 @@ module.exports.editTimeSlot = async function(req, MapName, CollectionName) {
         }
 
         //if standing points are changed, any new points get referenced, before any old points get dereferenced.
-        //done in this order so points never reach 0 and get deleted in removeRefrence()
+        //done in this order so points never reach 0 and get deleted in removeReference()
         if (req.body.standingPoints) {
             for (let i = 0; i < req.body.standingPoints.length; i++) {
                 await refDBfoos.addReference(req.body.standingPoints[i], STANDING_POINTS);
@@ -265,6 +288,7 @@ module.exports.editTimeSlot = async function(req, MapName, CollectionName) {
                 await refDBfoos.removeReference(map.standingPoints[i], STANDING_POINTS);
             }
         }
+
         await basicDBfoos.updateObj(req.params.id, newMap, MapName);
         return newMap;
     }
@@ -275,8 +299,8 @@ module.exports.editTimeSlot = async function(req, MapName, CollectionName) {
 
 //route deletes a map from a test collection
 module.exports.deleteMap = async function(req, MapName, CollectionName) {
-    let isSurvey = (MapName === SURVEYS);
-    isSurvey ? console.log("Deleting Survey") : console.log("Deleting Map") ;
+    const isSurvey = (MapName === SURVEYS);
+    isSurvey ? console.log("Deleting Survey") : console.log("Deleting Map");
     const user = await req.user
     const map = await basicDBfoos.getObj(req.params.id, MapName);
     const project = await basicDBfoos.getObj(map.project, PROJECTS);
@@ -349,6 +373,7 @@ module.exports.editTestedTimeSlot = async function(req, MapName, CollectionName)
         }
 
         await arrayDBfoos.updateArrayElement(map._id, req.params.data_id, req.body);
+        //access_maps wants the object from the access_maps, not access_collection
         return await basicDBfoos.getObj(req.params.id, CollectionName);
     }
     else {
