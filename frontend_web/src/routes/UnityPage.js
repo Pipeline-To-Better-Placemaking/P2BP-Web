@@ -145,12 +145,12 @@ export default function UnityPage() {
         {!isLoaded && (
           <p>Loading Application... {Math.round(loadingProgression * 100)}%</p>
         )}
-        {console.log("148 ", isLoaded)}
+        {/* {console.log("148 ", isLoaded)} */}
         <Unity
           unityProvider={unityProvider}
           style={{ width: "100vw", height: "77.5vh", visibility: isLoaded ? "visible" : "hidden" }}
         />
-        {console.log("153 ", isLoaded)}
+        {/* {console.log("153 ", isLoaded)} */}
       </div>
     </div>
   );
