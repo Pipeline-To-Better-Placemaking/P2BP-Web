@@ -45,7 +45,7 @@ module.exports.createMaps = async function(req, MapName, CollectionName) {
                     date: slot.date,
                     maxResearchers: slot.maxResearchers,
                     maps: [],
-                    data: []
+                    data: slot.data ? [slot.data] : [],
                 }
 
                 //create new map and add ref to its parent collection.
@@ -75,7 +75,7 @@ module.exports.createMaps = async function(req, MapName, CollectionName) {
                 date: req.body.date,
                 maxResearchers: req.body.maxResearchers,
                 maps: [],
-                data: []
+                data: req.body.data ? [req.body.data] : []
             }
             console.log(collectionId);
             console.log(newMap);
@@ -194,14 +194,13 @@ module.exports.getMapData = async function(req, MapName, CollectionName) {
     console.log("Getting Map Data");
     console.log(req.params.id);
     let map = await basicDBfoos.getObj(req.params.id, MapName);
-    console.log("Look at me!");
-    console.log(map);
     for (let i = 0; i < map.researchers.length; i++) {
         const id = map.researchers[i];
         console.log(id);
         const researcher = await basicDBfoos.getObj(map.researchers[i], USERS);
         map.researchers[i] = {firstname: researcher.firstname, lastname: researcher.lastname, _id: map.researchers[i]};
     }
+    console.log("Test");
     for (let i = 0; i < map.standingPoints.length; i++) {
         const id = map.standingPoints[i];
         console.log(id);
@@ -212,8 +211,6 @@ module.exports.getMapData = async function(req, MapName, CollectionName) {
     map.sharedData = {title: obj.title, duration: obj.duration, _id: map.sharedData}
     const area = await basicDBfoos.getObj(obj.area, AREAS);
     map.sharedData.area = area;
-    console.log(map);
-    console.log("Look at me!");
 
     return map;
 };
@@ -228,7 +225,7 @@ module.exports.assignTimeSlot = async function(req, MapName) {
     if (map.researchers.length < map.maxResearchers) {
         if (userDBfoos.onTeam(project.team, user._id)) {
             await arrayDBfoos.addArrayElement(map._id, 'researchers', MapName, user._id);
-            return users;
+            return user;
         }
         else {
             throw new UnauthorizedError('You do not have permision to perform this operation');
@@ -361,7 +358,7 @@ module.exports.addTestData = async function(req, MapName) {
 module.exports.editTestedTimeSlot = async function(req, MapName, CollectionName) {
     console.log("Editing Tested Time Slot");
     const user = await req.user
-    const map = await basicDBfoos.getObj(req.params.id, MapName);
+    const map = await basicDBfoos.getObj(req.params.id, MapName);z
 
     //true if the user is within the researchers[] of the X_map document
     if (map.researchers.includes(user._id)) {

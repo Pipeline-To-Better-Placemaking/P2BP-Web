@@ -14,7 +14,7 @@ module.exports = Object.freeze
     ORDER_COLS:      "order_collections",
     ORDER_MAPS:      "order_maps",
     PROGRAM_COLS:    "program_collections",
-    PROGRAM_FLOORS:  "Program_Floors",
+    PROGRAM_FLOORS:  "program_floors",
     PROGRAM_MAPS:    "program_maps",
     PROJECTS:        "projects",
     SECTION_MAPS:    "section_maps",

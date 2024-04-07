@@ -9,18 +9,38 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
 const { models } = require('mongoose')
+const basicDBfoos = require("../databaseFunctions/BasicFunctions.js");
 const routeDBfoos = require("../databaseFunctions/RouteFunctions.js");
 const { UnauthorizedError, BadRequestError } = require('../utils/errors')
-const {PROGRAM_MAPS, PROGRAM_COLS} = require('../databaseFunctions/CollectionNames.js');
+const { PROGRAM_COLS, PROGRAM_FLOORS, PROGRAM_MAPS,} = require('../databaseFunctions/CollectionNames.js');
+const { USERS } = require('../databaseFunctions/CollectionNames.js');
 
 //route creates new map(s).  If there are multiple time slots in test, multiple timseslots are created.
 router.post("", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
-    res.status(200).json(await routeDBfoos.createMaps(req, PROGRAM_MAPS, PROGRAM_COLS));
+    console.log(req.body.data);
+    req.body.data._id = basicDBfoos.createId();
+    let ret = await routeDBfoos.createMaps(req, PROGRAM_MAPS, PROGRAM_COLS);
+    console.log(req.body.data);
+    res.status(200).json(ret);
 });
 
 //route gets all map data, including any collection data.
 router.get("/:id", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
-    res.status(200).json(await routeDBfoos.getMapData(req, PROGRAM_MAPS, PROGRAM_COLS));
+    let map = await basicDBfoos.getObj(req.params.id, PROGRAM_MAPS);
+    for (let i = 0; i < map.researchers.length; i++) {
+        const id = map.researchers[i];
+        console.log(id);
+        const researcher = await basicDBfoos.getObj(map.researchers[i], USERS);
+        map.researchers[i] = {firstname: researcher.firstname, lastname: researcher.lastname, _id: map.researchers[i]};
+    }
+    console.log(map);
+    map.data[0].floorData = new Array(map.data[0].floors.length);
+    for (let i = 0; i < map.data[0].floorData.length; i++) {
+        const data = await basicDBfoos.getObj(map.data[0].floors[i], PROGRAM_FLOORS);
+        map.data[0].floorData[i] = data;
+
+    }
+    res.status(200).json(map);
 });
 
 //route signs team member up to a time slot.
@@ -50,7 +70,22 @@ router.post("/:id/data", passport.authenticate("jwt", { session: false }), async
 
 //route edits the data object for any already created tested time slots.  Essentially redoing a test run for a time slot 
 router.put('/:id/data/:data_id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
-    res.status(201).json(await routeDBfoos.editTestedTimeSlot(req, PROGRAM_MAPS, PROGRAM_COLS));
+    const ret = await routeDBfoos.getMapData(req, PROGRAM_MAPS, PROGRAM_COLS);
+    console.log(ret);
+    const mapId = req.params.id;
+    const newData = {
+            _id: req.params.data_id,
+            numFloors: (req.body.numFloors ? req.body.numFloors : ret.data[0].numFloors),
+            perimeterPoints: (req.body.perimeterPoints ? req.body.perimeterPoints : ret.data[0].perimeterPoints),
+            time: (req.body.time ? req.body.time : ret.data[0].time),
+            floors: (req.body.floors ? req.body.floors : ret.data[0].floors),
+            sqFootage: (req.body.sqFootage ? req.body.sqFootage : ret.data[0].sqFootage)
+    };
+    ret.data = [newData];
+    ret.standingPoints = [];
+    basicDBfoos.updateObj(mapId, ret, PROGRAM_MAPS);
+    console.log(ret);
+    res.status(201).json(ret);
 });
 
 //route deletes an individual time slot from a map (data object) 
