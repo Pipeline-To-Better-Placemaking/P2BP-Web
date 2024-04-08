@@ -11,6 +11,7 @@ const {
         SECTION_COLS,
         SOUND_COLS,
         STANDING_POINTS,
+        STATIONARY_COLS,
         STATIONARY_MAPS,
         SURVEY_COLS,
 } = require('../databaseFunctions/CollectionNames.js');
