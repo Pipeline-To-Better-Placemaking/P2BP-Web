@@ -115,7 +115,6 @@ router.put('/', passport.authenticate('jwt',{session:false}), async (req, res, n
         _id: userId,
         firstname: req.body.firstname ? req.body.firstname : user.firstname,
         lastname: req.body.lastname ? req.body.lastname : user.lastname,
-        instituion: req.body.instituion ? req.body.instituion : user.instituion,
         email: req.body.email ? req.body.email : user.email,
     }
 
