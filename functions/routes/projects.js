@@ -248,6 +248,7 @@ router.post('/:id/standing_points', passport.authenticate('jwt',{session:false})
         title: req.body.title,
         refCount: 1
     }
+    await basicDBfoos.addObj(newPoint, STANDING_POINTS);
     await arrayDBfoos.addArrayElement(project._id, "standingPoints", PROJECTS, newPoint._id);
     res.json(newPoint);
 })

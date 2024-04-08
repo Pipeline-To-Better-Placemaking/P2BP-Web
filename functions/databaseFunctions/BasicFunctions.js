@@ -20,7 +20,7 @@ const updateObj = async function (docId, updates, collection) {
     const oldObj = await firestore.collection(collection).where('_id', '==', docId).get();
     if (oldObj.empty)
     {
-        return;
+        return {};
     }
     let newObj;
     oldObj.forEach(async doc => {
