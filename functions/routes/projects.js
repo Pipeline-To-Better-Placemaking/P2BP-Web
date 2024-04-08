@@ -88,8 +88,8 @@ router.post('', passport.authenticate('jwt',{session:false}), async (req, res, n
     }
     await basicDBfoos.addObj(newArea, "areas");
 
-    var pointIds = []
-    for(var i = 0; i < req.body.standingPoints.length; i++) {
+    let pointIds = []
+    for(let i = 0; i < req.body.standingPoints.length; i++) {
         let newPoint = {
             _id: basicDBfoos.createId(),
             longitude: req.body.standingPoints[i].longitude,

@@ -91,10 +91,11 @@ module.exports.addMap = async function(userId, projectId, obj, collection, array
 
     let newCollection = {
         _id: basicDBfoos.createId(),
-        title: obj.title,
-        date: obj.date,
         area: obj.area,
+        date: obj.date,
         duration: obj.duration,
+        maps: [],
+        title: obj.title,
     }
 
     await basicDBfoos.addObj(newCollection, collection);

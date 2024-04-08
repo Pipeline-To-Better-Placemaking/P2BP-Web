@@ -62,7 +62,7 @@ module.exports.createMaps = async function(req, MapName, CollectionName) {
         }
         else {
             console.log("Here");
-            let standingPoints = []
+            let standingPoints = [];
             if (req.body.standingPoints) {
                 standingPoints = new Array(req.body.standingPoints.length);
             }
