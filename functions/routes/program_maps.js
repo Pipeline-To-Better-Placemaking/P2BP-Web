@@ -50,7 +50,7 @@ router.put("/:id/claim", passport.authenticate("jwt", { session: false }), async
 
 //route reverses sign up to a time slot.
 router.delete('/:id/claim', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
-    res.status(200).json(await routeDBfoos.clearTimeSlot(req, ACCESS_MAPS));
+    res.status(200).json(await routeDBfoos.clearTimeSlot(req, PROGRAM_MAPS));
 });
 
 //route edits time slot information when updating a map

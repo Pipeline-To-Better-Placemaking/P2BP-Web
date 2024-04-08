@@ -61,8 +61,12 @@ module.exports.createMaps = async function(req, MapName, CollectionName) {
             return await basicDBfoos.getObj(collectionId, CollectionName);
         }
         else {
-            let standingPoints = new Array(req.body.standingPoints.length);
-            for (let i = 0; i < req.body.standingPoints.length; i++) {
+            console.log("Here");
+            let standingPoints = []
+            if (req.body.standingPoints) {
+                standingPoints = new Array(req.body.standingPoints.length);
+            }
+            for (let i = 0; i < standingPoints.length; i++) {
                 standingPoints[i] = req.body.standingPoints[i]._id;
             }
             const newMap = {
@@ -343,10 +347,12 @@ module.exports.addTestData = async function(req, MapName) {
             return map;
         }
         else {
+            console.log("Here");
             if (req.body.standingPoint) {
                 refDBfoos.addReference(req.body.standingPoint, STANDING_POINTS);
             }
-            return await arrayDBfoos.addArrayElement(map._id, 'data', MapName, req.body);
+            await arrayDBfoos.addArrayElement(map._id, 'data', MapName, req.body);
+            return map;
        }
     }
     else {
