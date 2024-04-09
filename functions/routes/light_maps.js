@@ -32,7 +32,7 @@ router.delete('/:id/claim', passport.authenticate('jwt',{session:false}), async 
 
 //route edits time slot information when updating a map
 router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    res.status(201).json(await routeDBfoos.editTimeSlot(req, LIGHT_MAPS, LIGHT_COLS));
+    res.status(201).json(await routeDBfoos.editTimeSlot(req, LIGHT_MAPS));
 });
 
 //route deletes a map from a test collection
