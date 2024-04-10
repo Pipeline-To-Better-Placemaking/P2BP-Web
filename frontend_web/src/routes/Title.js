@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useRef } from 'react';
 import axios from '../api/axios.js';
 import Box from '@mui/material/Box';
 import Card from 'react-bootstrap/Card';
@@ -14,171 +14,209 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { Link, useNavigate } from 'react-router-dom';
 import './routes.css';
+import Back from '@mui/icons-material/ArrowBackRounded';
 import logo1 from '../images/PtBPLogo.png';
+import { TailSpin } from 'react-loading-icons';
 
 export default function Title(props) {
-    // Props from App.js, login function to pass user/token info to AppNavBar
-    let nav = useNavigate();
-    // Access email, password like values.email, do not mutate or modify
-    const [values, setValues] = React.useState({
-        email: '',
-        password: '',
-        showPassword: false
-    });
+    const nav = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [buttonText, setButtonText] = useState('Login');
+    const [message, setMessage] = useState('');
+    const em = useRef(null);
+    const pw = useRef(null);
+    const loginResponse = useRef(null);
+    const emMess = useRef(null);
+    const pwMess = useRef(null);
 
-    const [message, setMessage] = React.useState('');
-    const em = React.useRef(null);
-    const pw = React.useRef(null);
-    const loginResponse = React.useRef(null);
-    const emMess = React.useRef(null);
-    const pwMess = React.useRef(null);
-
-    const handleChange = (e) => {
-        setValues({
-            ...values,
-            [e.target.name]: e.target.value
-        });
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        if (name === 'email') setEmail(value);
+        if (name === 'password') setPassword(value);
     };
 
     const handleClickShowPassword = () => {
-        setValues({
-            ...values,
-            showPassword: !values.showPassword
-        });
+        setShowPassword(!showPassword);
     };
 
     const handleMouseDownPassword = (event) => {
         event.preventDefault();
-    };;
+    };
 
-    //Needs a handle login function for login field feedback i.e. incorrect email or password
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
+        setButtonText('Loading...');
 
-        if (values.email === '' || values.email.length <= 3){
-            pwMess.current.style.display = 'none';
+        if (email === '' || email.length <= 3) {
             setMessage('Please provide an email');
-            emMess.current.style.display = 'inline-block';
+            loginResponse.current.style.display = 'inline-block';
             em.current.focus();
             return;
-        } else if (values.password === '' || values.password.length <= 3){
-            emMess.current.style.display = 'none';
+        } else if (password === '' || password.length <= 3) {
             setMessage('Please provide a password');
-            pwMess.current.style.display = 'inline-block';
+            loginResponse.current.style.display = 'inline-block';
             pw.current.focus();
             return;
         } else {
-            emMess.current.style.display = 'none';
-            pwMess.current.style.display = 'none';
-            loginUser(e);
+            try {
+                setLoading(true);
+                const response = await axios.post('/login', JSON.stringify({ email, password }), {
+                    headers: { 'Content-Type': 'application/json' },
+                    withCredentials: true
+                });
+                const user = response.data;
+                props.onLogin(true, user);
+                nav('/home', { state: { userToken: user } });
+                setLoading(false);
+            } catch (error) {
+                console.log('ERROR: ', error);
+                setMessage(error.response.data?.message);
+                loginResponse.current.style.display = 'inline-block';
+            }
         }
+
+        setTimeout(() => {
+            setButtonText('Login');
+        }, 10000);
     }
 
-    const loginUser = async (e) => {
+    const BackgroundImageComponentLogin = () => {
+        const backgroundImageRefLogin = React.useRef(null);
+        const [imageLoadedLogin, setImageLoadedLogin] = React.useState(false);
 
-        try {
-            console.log('login try');
-            const response = await axios.post('/login', JSON.stringify({ email: values.email, password: values.password }), {
-               headers: { 'Content-Type': 'application/json' },
-               withCredentials: true
-            });
-            let user = response.data;
-            // user login confirmation and navigation handling in App.js
-            // retrieve user's name or name and token to verify status
-            props.onLogin(true, user);
+        /*
+        runs only once
+        allows background color to change depending on whether background image loaded
+        */
+        React.useEffect(() => { 
+            /* get the page element by using its class name */
+            var pageElementsLogin = document.getElementsByClassName("pageTemplateLogin");
 
-            //redirect user to url/home
-            nav('/home', { state: { userToken: user } });
-        } catch(error){
-            //user login error
-            console.log('ERROR: ', error);
+            if (pageElementsLogin.length > 0) {
 
-            setMessage(error.response.data?.message);
-            loginResponse.current.style.display = 'inline-block';
-            return;
-        }
-    };
+                /* check that image loaded */
+                const imageLoadedLoginCheck = () => {
+                    // if the image successfully loads, stores image url
+                    const isImageLoadedLogin = window.getComputedStyle(backgroundImageRefLogin.current, '::before').getPropertyValue('background-image');
+
+                    // check that isImageLoadedLogin isn't null/undefined, then check that it isn't none
+                    if ((isImageLoadedLogin) && (isImageLoadedLogin !== 'none' )) {
+                        setImageLoadedLogin(true);
+                    } else {
+                        console.log("image did not load, ", isImageLoadedLogin);
+                    }
+                };
+                imageLoadedLoginCheck();
+
+                // check that the image is still loading if the window is resized
+                window.addEventListener('resize', imageLoadedLoginCheck);
+                return() => {
+                    window.removeEventListener('resize', imageLoadedLoginCheck);
+                }
+            } else {
+                console.log("page element was not found");
+            }
+
+        }, []);
+
+        React.useEffect(() => {
+            /* get the page element by using its class name */
+            var pageElementsLogin = document.getElementsByClassName("pageTemplateLogin");
+
+            if (pageElementsLogin.length > 0) {
+                var pageElementLogin = pageElementsLogin[0];
+
+                /* add classes with different background colors depending on whether the image loaded */
+                if (imageLoadedLogin == true) {
+                    pageElementLogin.classList.add("backgroundImageLoginLoaded");
+                    pageElementLogin.classList.remove("backgroundImageLoginNotLoaded");
+                } else {
+                    pageElementLogin.classList.add("backgroundImageLoginNotLoaded");
+                    pageElementLogin.classList.remove("backgroundImageLoginLoaded");
+                }
+            } else {
+                console.log("page element was not found");
+            }
+        }, [imageLoadedLogin]);}
 
     return (
         <div id='titlePage'>
-            {/* pageTemplate -> Blue base background */}
-            <div className='pageTemplate'>
-                {/* tag - sizing for logo/tag (title text) */}
-                <div style={{paddingRight: '7vw'}}>
-
-                    <div className='logo'>
-                        <Image src={ logo1 } className='App-logo' alt='logo' id='logo1'/>
-                    </div>
-                    <div id='tagText'>Pipeline to Better Placemaking</div>
-                </div>
-                <div className='tagBox'>
-                    <Card className='formCard'>
-                        <div className='tag tag1' >
-                            <div className='logo logo1'>
-                                <Image src={logo1} className='App-logo' alt='logo' id='logo2' />
-                            </div>
-                            <div id='tagText'>Pipeline to Better Placemaking</div>
-                        </div>
-                        <Card.Body>
-                            <Box id='titleBox' component='form' sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                                <span ref={loginResponse} style={{ display: 'none', color: 'red' }}>{message}</span>
-                                <span ref={emMess} style={{ display: 'none', color: 'red' }}>{message}</span>
-                                <TextField 
-                                    className='nonFCInput' 
-                                    id='outlined-search' 
-                                    label='Email' 
-                                    type='email' 
-                                    name='email' 
-                                    value={ values.email } 
-                                    onChange={handleChange} 
-                                    ref={em}
+            <div className='pageTemplateLogin' id='login'>
+                <Card className='formCard' style={{ backgroundColor: '#ddddddbb', padding: '30px 102px 0px 102px', backdropFilter: 'blur(4px)'}}>
+                    <h3><b>Welcome!</b></h3>
+                    <p><i>Please Login.</i></p>
+                    <Card.Body>
+                        <Box id='titleBox' component='form' sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                            
+                            <TextField 
+                                className='nonFCInput' 
+                                id='outlined-search' 
+                                label='Email' 
+                                type='email' 
+                                name='email' 
+                                value={email} 
+                                onChange={handleChange} 
+                                ref={em}
+                                autoFocus 
+                            />
+                            
+                            <FormControl sx={{ m: 1 }} variant='outlined'>
+                                <InputLabel htmlFor='outlined-adornment-password'>Password</InputLabel>
+                                <OutlinedInput
+                                    id='outlined-adornment-password'
+                                    type={showPassword ? 'text' : 'password'}
+                                    name='password'
+                                    value={password}
+                                    onChange={handleChange}
+                                    ref={pw}
+                                    endAdornment={
+                                        <InputAdornment position='end'>
+                                            <IconButton
+                                                aria-label='visibility toggle'
+                                                onClick={handleClickShowPassword}
+                                                onMouseDown={handleMouseDownPassword}
+                                                edge='end'
+                                            >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    }
+                                    label='Password'
                                 />
-                                <span ref={pwMess} style={{ display: 'none', color: 'red' }}>{message}</span>
-                                {/* Form Control component to hold MUI visibility changing password field */}
-                                <FormControl sx={{ m: 1 }} variant='outlined'>
-                                    <InputLabel htmlFor='outlined-adornment-password'>Password</InputLabel>
-                                    <OutlinedInput
-                                        id='outlined-adornment-password'
-                                        type={ values.showPassword ? 'text' : 'password' }
-                                        name='password'
-                                        value={ values.password }
-                                        onChange={ handleChange }
-                                        ref={pw}
-                                        endAdornment={
-                                            <InputAdornment position='end'>
-                                                <IconButton
-                                                    aria-label='visibility toggle'
-                                                    onClick={ handleClickShowPassword }
-                                                    onMouseDown={ handleMouseDownPassword }
-                                                    edge='end'
-                                                >
-                                                    { values.showPassword ? <VisibilityOff /> : <Visibility /> }
-                                                </IconButton>
-                                            </InputAdornment>
-                                        }
-                                        label='Password'
-                                    />
-                                </FormControl>
-                                <Button 
-                                    className='scheme' 
-                                    id='loginButton' 
-                                    type='submit' 
-                                    size='lg' 
-                                    onClick={ handleLogin }
-                                >
-                                    Log in
-                                </Button>
-                                <Link to='/forgot_password' style={{fontSize: 'small'}}> Forgot Password? </Link>
-                            </Box>
-                            <div className='d-grid'>
-                                <Button component={ Link } to='/new' className='scheme secondButton' size='lg'>
-                                    Create Account
-                                </Button>
-                            </div>
-                        </Card.Body>
-                    </Card>
-                </div>
+                            </FormControl>
+                            <span id='errmsg' ref={loginResponse} >{message}</span>
+                            <br></br>
+                            <Button 
+                                className='scheme' 
+                                id='loginButton' 
+                                type='submit' 
+                                size='lg'
+                                style={{backgroundColor: 'rgba(254, 216, 6, 0.7)', borderRadius: '10px'}} 
+                                onClick={handleLogin}
+                            >
+                                {buttonText}
+                            </Button>
+                            {!loading ?(<div></div>) : (<div className='tailSpin'><TailSpin/></div>)}
+                            <Link to='/forgot_password' id='forgotpasslink'style={{fontSize: 'small'}}> <b>Forgot Password?</b> </Link>
+                        </Box>
+                        <div className='d-grid'>
+                            <Button component={ Link } to='/new' className='scheme secondButton' size='lg' style={{backgroundColor: 'rgba(254, 216, 6, 0.7)', borderRadius: '10px'}}>
+                                Create Account
+                            </Button>
+                        </div>
+
+                        <br/><br/>
+                        <div className='logo'>
+                            <Image src={ logo1 }  alt='logo' id='logo1' style={{width: '40px', height: 'auto'}}/>
+                        </div>
+                    </Card.Body>
+                </Card>
             </div>
         </div>
     );
+
+    return <BackgroundImageComponentLogin />
 }

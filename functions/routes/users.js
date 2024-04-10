@@ -85,7 +85,6 @@ router.get('/:id', async (req, res, next) => {
 // Get my own user info, requires token authentication
 // TODO: this should probably use a different path than just /
 router.get('/', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    console.log(req.user._id);
     let user = await basicDBfoos.getObj(req.user._id, USERS);
     for (let i = 0; i < user.teams.length; i++) {
         const teamId = user.teams[i];
@@ -96,10 +95,9 @@ router.get('/', passport.authenticate('jwt',{session:false}), async (req, res, n
     for (let i = 0; i < user.invites.length; i++) {
         const inviteId = user.invites[i];
         const invite = await basicDBfoos.getObj(inviteId, TEAMS);
-        console.log(invite);
         const ownerId = userDBfoos.getOwner(invite);
-        console.log(ownerId);
-        const owner = await basicDBfoos.getObj(ownerId, USERS);
+        const owner = await basicDBfoos.getObj(ownerId, USERS)
+
         user.invites[i] =   {
                                 _id: inviteId,
                                 title: invite.title,
@@ -107,7 +105,7 @@ router.get('/', passport.authenticate('jwt',{session:false}), async (req, res, n
                                 lastname: owner.lastname,
                             };
     }
-    res.status(200).json(user)
+    res.status(200).json(user);
 })
 
 // Update user info
@@ -143,6 +141,7 @@ router.post('/invites', passport.authenticate('jwt',{session:false}), async (req
     const user = await req.user
     for(i = 0; i < req.body.responses.length; i++) {
         const response = req.body.responses[i]
+
         if (response.accept && user.invites.includes(response.team)) {
             await arrayDBfoos.addArrayElement(user._id, TEAMS, USERS, response.team);
             await arrayDBfoos.addArrayElement(response.team, USERS, TEAMS, {role: "user", user: user._id});

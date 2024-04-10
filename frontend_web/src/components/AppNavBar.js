@@ -24,6 +24,10 @@ const settings = [
         route: 'account'
     },
     {
+        page: 'FAQ',
+        route: '../faq'
+    },
+    {
         page: 'Logout',
         route: '/'
     }

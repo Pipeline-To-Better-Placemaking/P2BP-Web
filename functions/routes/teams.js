@@ -145,6 +145,7 @@ router.post('/:id/invites', passport.authenticate('jwt',{session:false}), async 
         res.status(400).json(team);
     }
     const authorized = await userDBfoos.isAdmin(team._id,user._id);
+
     if (!authorized) {
         throw new UnauthorizedError('You do not have permision to perform this operation');
     }

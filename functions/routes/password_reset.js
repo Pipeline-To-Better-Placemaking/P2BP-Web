@@ -38,7 +38,7 @@ router.post('/', async (req, res, next) => {
             expiresIn: 86400 //1 day
         })
 
-        site = 'http://localhost:3000'
+        site = 'https://better-placemaking.web.app'
         const link = `${site}/password_reset/${user._id}/${token}`
         console.log(link);
 

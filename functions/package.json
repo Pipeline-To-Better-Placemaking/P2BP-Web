@@ -28,6 +28,7 @@
     "nodemailer": "^6.9.9",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "react-loading-icons": "^1.1.0",
     "uuid": "^9.0.1",
     "xlsx": "^0.18.5"
   },
