@@ -6,6 +6,7 @@ const User = require('../models/users.js')
 const emailer = require('../utils/emailer')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
+const arrayDBfoos = require('../databaseFunctions/ArrayFunctions.js');
 const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
 const userDBfoos = require('../databaseFunctions/UserFunctions.js');
 const { USERS, TEAMS } = require('../databaseFunctions/CollectionNames.js');
@@ -18,15 +19,19 @@ const { BadRequestError, NotFoundError } = require('../utils/errors.js')
 // Create a new user
 router.post('/', async (req, res, next) => {
     // Check password
-    if (!await userDBfoos.testPassword(req.body.password)) {
+    if (!userDBfoos.testPassword(req.body.password)) {
         throw new BadRequestError('Missing or invalid field: password')
+    }
+    const email = req.body.email.toLowerCase();
+    if (await userDBfoos.findUserByEmail(email)) {
+        throw new BadRequestError('Email already registered')
     }
 
     const newUser = {
         _id: basicDBfoos.createId(),
         firstname: req.body.firstname,
         lastname: req.body.lastname,
-        email: req.body.email,
+        email: email,
         password: req.body.password,
         invites: [],
         teams: [],
@@ -40,7 +45,7 @@ router.post('/', async (req, res, next) => {
     //}
 
     // Automatically log the user in
-    const token = jwt.sign({ _id: newUser._id, email: newUser.email }, config.PRIVATE_KEY, {
+    const token = jwt.sign({ _id: newUser._id, email: email }, config.PRIVATE_KEY, {
         expiresIn: 86400 //1 day
     })
 
@@ -92,6 +97,7 @@ router.get('/', passport.authenticate('jwt',{session:false}), async (req, res, n
         const invite = await basicDBfoos.getObj(inviteId, TEAMS);
         const ownerId = userDBfoos.getOwner(invite);
         const owner = await basicDBfoos.getObj(ownerId, USERS)
+
         user.invites[i] =   {
                                 _id: inviteId,
                                 title: invite.title,
@@ -111,7 +117,6 @@ router.put('/', passport.authenticate('jwt',{session:false}), async (req, res, n
         _id: userId,
         firstname: req.body.firstname ? req.body.firstname : user.firstname,
         lastname: req.body.lastname ? req.body.lastname : user.lastname,
-        instituion: req.body.instituion ? req.body.instituion : user.instituion,
         email: req.body.email ? req.body.email : user.email,
     }
 
@@ -125,7 +130,6 @@ router.put('/', passport.authenticate('jwt',{session:false}), async (req, res, n
     }
 
     await basicDBfoos.updateObj(userId, newUser, USERS);
-    const user2 = await basicDBfoos.getObj(userId, USERS);
     console.log(user);
 
     res.status(200).json(newUser);
@@ -138,9 +142,9 @@ router.post('/invites', passport.authenticate('jwt',{session:false}), async (req
     for(i = 0; i < req.body.responses.length; i++) {
         const response = req.body.responses[i]
 
-        if (response.accept && user.invites.includes(response.team)){
-            await arrayDBfoos.addArrayElement(user._id, "teams", USERS, response.team);
-            await arrayDBfoos.addArrayElement(response.team, "users", TEAMS, {role: "user", user: user._id});
+        if (response.accept && user.invites.includes(response.team)) {
+            await arrayDBfoos.addArrayElement(user._id, TEAMS, USERS, response.team);
+            await arrayDBfoos.addArrayElement(response.team, USERS, TEAMS, {role: "user", user: user._id});
         }
         await arrayDBfoos.removeArrayElement(user._id, response.team, "invites", USERS);
     }

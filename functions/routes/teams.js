@@ -145,19 +145,20 @@ router.post('/:id/invites', passport.authenticate('jwt',{session:false}), async 
         res.status(400).json(team);
     }
     const authorized = await userDBfoos.isAdmin(team._id,user._id);
-    if(!authorized) {
+
+    if (!authorized) {
         throw new UnauthorizedError('You do not have permision to perform this operation');
     }
-    const newMember = await userDBfoos.findUserByEmail(req.body.userEmail);
-    if(newMember == null) {
+    const newMember = await userDBfoos.findUserByEmail(req.body.userEmail.toLowerCase());
+    if (newMember == null) {
         throw new NotFoundError('No user with provided email exists');
     }
 
-    if(newMember.teams.some(element => element._id === team._id)) {
+    if (newMember.teams.some(element => element._id === team._id)) {
         throw new BadRequestError('User is already a member of team');
     }
 
-    if(newMember.invites.some(element => element === team._id)) {
+    if (newMember.invites.some(element => element === team._id)) {
         throw new BadRequestError('User already has invite to team');
     }
     await arrayDBfoos.addArrayElement(newMember._id, "invites", USERS, team._id);

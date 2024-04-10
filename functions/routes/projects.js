@@ -88,8 +88,8 @@ router.post('', passport.authenticate('jwt',{session:false}), async (req, res, n
     }
     await basicDBfoos.addObj(newArea, "areas");
 
-    var pointIds = []
-    for(var i = 0; i < req.body.standingPoints.length; i++) {
+    let pointIds = []
+    for(let i = 0; i < req.body.standingPoints.length; i++) {
         let newPoint = {
             _id: basicDBfoos.createId(),
             longitude: req.body.standingPoints[i].longitude,
@@ -248,6 +248,7 @@ router.post('/:id/standing_points', passport.authenticate('jwt',{session:false})
         title: req.body.title,
         refCount: 1
     }
+    await basicDBfoos.addObj(newPoint, STANDING_POINTS);
     await arrayDBfoos.addArrayElement(project._id, "standingPoints", PROJECTS, newPoint._id);
     res.json(newPoint);
 })
@@ -313,54 +314,20 @@ router.delete('/:id/stationary_collections/:collectionId', passport.authenticate
 })
 
 router.post('/:id/moving_collections', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    const user = await req.user;
-    const project = await basicDBfoos.getObj(req.params.id, PROJECTS);
-    const authorized = await userDBfoos.isAdmin(project.team, user._id);
-
-    if(!authorized) {
-        throw new UnauthorizedError('You do not have permision to perform this operation');
-    }
-
-    let newCollection = {
-        _id: basicDBfoos.createId(),
-        title: req.body.title,
-        date: req.body.date,
-        area: req.body.area,
-        duration: req.body.duration
-    }
-
-    await basicDBfoos.addObj(newCollection, "moving_collections");
-    await refDBfoos.addReference(newCollection.area, "areas");
-
-    await arrayDBfoos.addArrayElement(project._id, "movingCollections", PROJECTS, newCollection._id);
-    res.json(newCollection);
+    const userId = await req.user._id;
+    const projectId = req.params.id;
+    const obj = req.body;
+    const newCollecton = await projectDBfoos.addMap(userId, projectId, obj, MOVING_COLS, "movingCollections");
+    res.json(newCollecton);
 })
 
 router.put('/:id/moving_collections/:collectionId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    user = await req.user
-    project = await Project.findById(req.params.id)
-    collection = await Moving_Collection.findById(req.params.collectionId)
-
-    if(await Team.isAdmin(project.team,user._id)){
-
-
-        let newCollection = new Moving_Collection({
-                title: (req.body.title ? req.body.title : collection.title),
-                date: (req.body.date ? req.body.date : collection.date),
-                area: (req.body.area ? req.body.area : collection.area),
-                duration: (req.body.duration ? req.body.duration : collection.duration)
-        })
-
-        if(req.body.area){
-            await Area.addRefrence(req.body.area)
-            await Area.removeRefrence(collection.area)
-        }
-
-        res.status(201).json(await Moving_Collection.updateCollection(req.params.collectionId, newCollection))
-    }
-    else{
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    const userId = await req.user._id;
+    const projectId = req.params.id;
+    const obj = req.body;
+    const collectionId = req.params.collectionId;
+    const newCollecton = await projectDBfoos.editCol(userId, projectId, obj, MOVING_COLS, collectionId);
+    res.json(newCollecton);
 })
 
 router.delete('/:id/moving_collections/:collectionId', passport.authenticate('jwt',{session:false}), async (req, res, next) => {

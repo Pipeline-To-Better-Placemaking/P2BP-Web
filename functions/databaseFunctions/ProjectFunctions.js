@@ -11,6 +11,7 @@ const {
         SECTION_COLS,
         SOUND_COLS,
         STANDING_POINTS,
+        STATIONARY_COLS,
         STATIONARY_MAPS,
         SURVEY_COLS,
 } = require('../databaseFunctions/CollectionNames.js');
@@ -90,10 +91,11 @@ module.exports.addMap = async function(userId, projectId, obj, collection, array
 
     let newCollection = {
         _id: basicDBfoos.createId(),
-        title: obj.title,
-        date: obj.date,
         area: obj.area,
+        date: obj.date,
         duration: obj.duration,
+        maps: [],
+        title: obj.title,
     }
 
     await basicDBfoos.addObj(newCollection, collection);
@@ -111,20 +113,20 @@ module.exports.editCol = async function(userId, projectId, obj, collectionName, 
         throw new UnauthorizedError('You do not have permision to perform this operation');
     }
 
-    const collection = await basicDBfoos.getObj(collectionId, collectionName);
-    const newCollection = {
-        title: (obj.title ? obj.title : collection.title),
-        date: (obj.date ? obj.date : collection.date),
-        area: (obj.area ? obj.area : collection.area),
-        duration: (obj.duration ? obj.duration : collection.duration)
-    }
+    let collection = await basicDBfoos.getObj(collectionId, collectionName);
+    console.log(collection);
+    collection.title = obj.title ? obj.title : collection.title;
+    collection.date = obj.date ? obj.date : collection.date;
+    collection.area = obj.area ? obj.area : collection.area;
+    collection.duration = obj.duration ? obj.duration : collection.duration;
+    console.log(collection);
 
     if(obj.area) {
         await refDBfoos.addReference(obj.area, AREAS);
-        await refDBfoos.removeReference(collection.area, AREAS);
     }
     await basicDBfoos.updateObj(collectionId, obj, collectionName);
 
+    console.log(collection);
     return {};
 }
 
