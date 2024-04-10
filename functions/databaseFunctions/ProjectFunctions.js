@@ -113,20 +113,20 @@ module.exports.editCol = async function(userId, projectId, obj, collectionName, 
         throw new UnauthorizedError('You do not have permision to perform this operation');
     }
 
-    const collection = await basicDBfoos.getObj(collectionId, collectionName);
-    const newCollection = {
-        title: (obj.title ? obj.title : collection.title),
-        date: (obj.date ? obj.date : collection.date),
-        area: (obj.area ? obj.area : collection.area),
-        duration: (obj.duration ? obj.duration : collection.duration)
-    }
+    let collection = await basicDBfoos.getObj(collectionId, collectionName);
+    console.log(collection);
+    collection.title = obj.title ? obj.title : collection.title;
+    collection.date = obj.date ? obj.date : collection.date;
+    collection.area = obj.area ? obj.area : collection.area;
+    collection.duration = obj.duration ? obj.duration : collection.duration;
+    console.log(collection);
 
     if(obj.area) {
         await refDBfoos.addReference(obj.area, AREAS);
-        await refDBfoos.removeReference(collection.area, AREAS);
     }
     await basicDBfoos.updateObj(collectionId, obj, collectionName);
 
+    console.log(collection);
     return {};
 }
 

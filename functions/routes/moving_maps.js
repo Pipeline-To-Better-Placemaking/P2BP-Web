@@ -32,7 +32,7 @@ router.get('/:id', passport.authenticate('jwt',{session:false}), async (req, res
 
 //route signs team member up to a time slot.
 router.put('/:id/claim', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    res.status(200).json(await routeDBfoos.assignTimeSlot(req, MOVING_MAPS, MOVING_COLS));
+    res.status(200).json(await routeDBfoos.assignTimeSlot(req, MOVING_MAPS));
 });
 
 //route reverses sign up to a time slot.
@@ -43,7 +43,7 @@ router.delete('/:id/claim', passport.authenticate('jwt',{session:false}), async 
 // Untested
 //route edits time slot information when updating a map
 router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    res.status(201).json(await routeDBfoos.editTimeSlot(req, MOVING_MAPS));
+    res.status(201).json(await routeDBfoos.editTimeSlot(req, MOVING_MAPS, MOVING_COLS));
 });
 
 // Untested

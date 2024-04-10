@@ -37,7 +37,7 @@ router.delete('/:id/claim', passport.authenticate('jwt',{session:false}), async 
 
 //route edits time slot information when updating a survey
 router.put('/:id', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    res.status(200).json(await routeDBfoos.editTimeSlot(req, SURVEYS));
+    res.status(200).json(await routeDBfoos.editTimeSlot(req, SURVEYS, SURVEY_COLS));
 });
 
 //route deletes a survey from a test collection

@@ -1,4 +1,3 @@
-/*global require, module, console, generateSurveyKey*/
 const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
 const refDBfoos = require('../databaseFunctions/ReferenceFunctions.js');
 const arrayDBfoos = require('../databaseFunctions/ArrayFunctions.js');
@@ -86,6 +85,7 @@ module.exports.createMaps = async function(req, MapName, CollectionName) {
             }
             return newMap;
         }
+        return {};
     }
     else {
         throw new Error('You do not have permision to perform this operation');
@@ -93,7 +93,7 @@ module.exports.createMaps = async function(req, MapName, CollectionName) {
 };
 
 //helper function to generate survey keys
-module.exports.generateSurveyKey = async function() {
+generateSurveyKey = async function() {
     //this string has A-Z and 0-9 in a randomized order
     const builderString = "3UROGSWIVE01A9LMKQB7FZ6DJ4NC28Y5HTXP"
 
@@ -149,8 +149,8 @@ module.exports.createSurvey = async function(req) {
 
                 //create new survey and add ref to its parent collection.
                 newSurvey.key = await generateSurveyKey();
-                const survey = await basicDBfoos.addObj(newSurvey, SURVEYS);
-                await arrayDBfoos.addArrayElement(collectionId, "surveys", SURVEY_COLS, survey._id);
+                await basicDBfoos.addObj(newSurvey, SURVEYS);
+                await arrayDBfoos.addArrayElement(collectionId, "surveys", SURVEY_COLS, newSurvey._id);
             }
             console.log("TimeSlots: Before Response");
             return await basicDBfoos.getObj(collectionId, SURVEY_COLS);
@@ -237,12 +237,12 @@ module.exports.assignTimeSlot = async function(req, MapName) {
 
 //route gets a map's specific data entry
 // id is the direct key for the document with data_id being the secondary key for the data entry
-module.exports.getDataEntry = async function(req) {
+module.exports.getDataEntry = async function(req, MapName) {
     return await arrayDBfoos.getArrayElement(req.params.id, req.params.data_id);
 };
 
 //route reverses sign up to a time slot.
-module.exports.clearTimeSlot = async function(req, MapName) {
+module.exports.clearTimeSlot = async function(req) {
     console.log("Clearing Time Slot");
     console.log(req.params.id);
     const user = await req.user;
@@ -261,32 +261,24 @@ module.exports.clearTimeSlot = async function(req, MapName) {
 module.exports.editTimeSlot = async function(req, MapName) {
     console.log("Editing Time Slot");
     const user = await req.user
-    const map = await basicDBfoos.getObj(req.params.id, MapName);
+    let map = await basicDBfoos.getObj(req.params.id, MapName);
     const project = await basicDBfoos.getObj(map.project, PROJECTS);
 
     if (await userDBfoos.isAdmin(project.team, user._id)) {
-        const newMap = {
-            title: (req.body.title ? req.body.title : map.title),
-            date: (req.body.date ? req.body.date : map.date),
-            maxResearchers: (req.body.maxResearchers ? req.body.maxResearchers : map.maxResearchers),
-            //if there is no map.standingPoints then it returns 'undefined'
-            standingPoints: (req.body.standingPoints ? req.body.standingPoints : map.standingPoints)
-        }
-
-        //if standing points are changed, any new points get referenced, before any old points get dereferenced.
-        //done in this order so points never reach 0 and get deleted in removeReference()
+        map.title = req.body.title ? req.body.title : map.title;
+        map.date = req.body.date ? req.body.date : map.date;
+        map.maxResearchers = req.body.maxResearchers ? req.body.maxResearchers : map.maxResearchers;
         if (req.body.standingPoints) {
-            for (let i = 0; i < req.body.standingPoints.length; i++) {
-                await refDBfoos.addReference(req.body.standingPoints[i], STANDING_POINTS);
-            }
-
+            map.standingPoints = new Array(req.body.standingPoints.length);
             for (let i = 0; i < map.standingPoints.length; i++) {
-                await refDBfoos.removeReference(map.standingPoints[i], STANDING_POINTS);
+                console.log(req.body.standingPoints);
+                map.standingPoints[i] = req.body.standingPoints[i]._id;
+                await refDBfoos.addReference(req.body.standingPoints[i]._id, STANDING_POINTS);
             }
         }
-
-        await basicDBfoos.updateObj(req.params.id, newMap, MapName);
-        return newMap;
+        await basicDBfoos.updateObj(req.params.id, map, MapName);
+        console.log(map);
+        return map;
     }
     else {
         throw new UnauthorizedError('You do not have permision to perform this operation')
@@ -359,11 +351,10 @@ module.exports.addTestData = async function(req, MapName) {
 module.exports.editTestedTimeSlot = async function(req, MapName, CollectionName) {
     console.log("Editing Tested Time Slot");
     const user = await req.user
-    const map = await basicDBfoos.getObj(req.params.id, MapName);
+    const map = await basicDBfoos.getObj(req.params.id, MapName);z
 
     //true if the user is within the researchers[] of the X_map document
     if (map.researchers.includes(user._id)) {
-        const oldData = await arrayDBfoos.getArrayElement(map._id, req.params.data_id, 'data', MapName);
         //it is important to note that standingPoint != standingPoints.  standingPoint is an individual point which an instance
         //of a time slot uses.  standingPoints is an array which includes all of these points.
         if (req.body.standingPoint) {
