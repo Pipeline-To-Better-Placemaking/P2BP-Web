@@ -292,21 +292,11 @@ module.exports.deleteMap = async function(req, MapName, CollectionName) {
     const user = await req.user
     const map = await basicDBfoos.getObj(req.params.id, MapName);
     const project = await basicDBfoos.getObj(map.project, PROJECTS);
-    if (await userDBfoos.isAdmin(project.team, user._id)) {
-        if (map.standingPoints) {
-            for (let i = 0; i < map.standingPoints.length; i++) {
-                await refDBfoos.removeReference(map._id, MapName);
-            }
-        }
-        await basicDBfoos.deleteObj(map._id, MapName); //delete map
-        //TODO doublecheck the return value, old return value was a return value of updateOne()
-        isSurvey ? await arrayDBfoos.removeArrayElement(map.sharedData, map._id, 'surveys', CollectionName) :
-            await arrayDBfoos.removeArrayElement(map.sharedData, map._id, 'maps', CollectionName);
-        return {};
-    }
-    else {
-        throw new UnauthorizedError('You do not have permision to perform this operation')
-    }
+    await basicDBfoos.deleteObj(map._id, MapName); //delete map
+    //TODO doublecheck the return value, old return value was a return value of updateOne()
+    isSurvey ? await arrayDBfoos.removeArrayElement(map.sharedData, map._id, 'surveys', CollectionName) :
+               await arrayDBfoos.removeArrayElement(map.sharedData, map._id, 'maps', CollectionName);
+    return {};
 };
 
 //route adds test data to its relevant time slot
