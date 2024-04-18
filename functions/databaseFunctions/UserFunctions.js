@@ -231,7 +231,7 @@ module.exports.onTeam = async function(teamId, uId) {
         throw new NotFoundError('Invalid team');
     }
     team.users.forEach((user) => {
-        if (user.user.$oid === uId.$oid )
+        if (user.user === uId )
         {
             foundUser = true;
             return false; // Break
@@ -249,7 +249,7 @@ module.exports.isAdmin = async function(teamId, uId) {
         throw new NotFoundError('Invalid team');
     }
     team.users.forEach((user) => {
-        if (user.user.$oid === uId.$oid)
+        if (user.user === uId)
         {
             foundUser = ((user.role === "admin") || (user.role === "owner"));
             return false; // Break
