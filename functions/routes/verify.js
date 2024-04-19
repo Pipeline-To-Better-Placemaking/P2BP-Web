@@ -1,8 +1,7 @@
 const config = require('../utils/config')
 const passport = require('passport')
-const User = require('../models/users.js')
+const userDBfoos = require('../databaseFunctions/UserFunctions.js');
 const emailer = require('../utils/emailer')
-
 const express = require('express')
 const router = express.Router()
 
@@ -14,15 +13,13 @@ router.post('/', async (req, res, next) => {
     if (!req.query.email || !req.query.code) {
         throw new BadRequestError('Missing required parameters: email or code')
     }
-    //TODO update from models folder
-    const user = await User.findUserByEmail(req.query.email)
+    const user = await userDBfoos.findUserByEmail(req.query.email);
     // Email is not associated with an existing user
     if (!user) {
         throw new BadRequestError('Specified email is unused or invalid')
     }
 
-    //TODO update from models folder
-    if (await User.verifyEmail(user._id, req.query.code)){
+    if (await userDBfoos.verifyEmail(user._id, req.query.code)) {
         return res.status(200).json({
             msg:"Success"
         })
@@ -34,8 +31,7 @@ router.post('/', async (req, res, next) => {
 
 // Generate a new email verification code and send an email to the user containing the new code
 router.post('/newcode',passport.authenticate('jwt',{session:false}), async (req, res, next) => {
-    //TODO update from models folder
-    const code = await User.createVerification(req.user._id)
+    const code = await userDBfoos.createVerification(req.user._id);
     // Code generation failed
     if (!code) {
         throw new InternalServerError('The server encountered a problem')

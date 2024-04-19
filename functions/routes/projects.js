@@ -541,6 +541,7 @@ router.delete('/:id/access_collections/:collectionId', passport.authenticate('jw
 })
 
 router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+    //TODO update from models folder *Should just be basicDBfoos.getObj(PROJECTS, req.params.id), but unsure interaction with '.populate()'
     stationaryData = await Project.findById(req.params.id)
                           .populate('area')
                           .populate([
@@ -564,6 +565,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     path: 'area',
                                    }]
                              }])
+                             //TODO update from models folder
     movingData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -587,6 +589,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     path: 'area',
                                     }]
                                 }])
+                                //TODO update from models folder
     soundData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -610,6 +613,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     path: 'area',
                                     }]
                                 }])
+                                //TODO update from models folder
     boundariesData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -633,7 +637,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     path: 'area',
                                     }]
                                 }])
-    
+                                //TODO update from models folder
     sectionData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -657,8 +661,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     path: 'area',
                                     }]
                                 }])
-    
-
+                                //TODO update from models folder
     natureData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -681,7 +684,8 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     },{
                                     path: 'area',
                                     }]
-                                }])                                                               
+                                }])
+                                //TODO update from models folder
     lightData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -705,8 +709,8 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     },{
                                     path: 'area',
                                     }]
-                                }])                            
-                         
+                                }])
+                                //TODO update from models folder
     orderData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -729,8 +733,8 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     },{
                                     path: 'area',
                                     }]
-                                }])                            
-                                                            
+                                }])
+                                //TODO update from models folder
     surveyData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -748,6 +752,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     path: 'area',
                                     }]
                                 }])
+                                //TODO update from models folder
     accessData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -767,7 +772,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     path: 'area',
                                 }]
                             }])
-    
+                            //TODO update from models folder
     programData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -792,8 +797,8 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     },{
                                     path: 'area',
                                     }]
-                                }])
-
+                            }])
+                                //TODO update from models folder
     sectionData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -816,8 +821,8 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     },{
                                     path: 'area',
                                     }]    
-                                        }])
-    
+                            }])
+                                        //TODO update from models folder
     accessData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -842,7 +847,8 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     },{
                                     path: 'area',
                                     }]
-                                        }])                                
+                            }])
+                            //TODO update from models folder
     programData = await Project.findById(req.params.id)
                                 .populate('area')
                                 .populate([
@@ -876,7 +882,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
     `
     //data gets sent to xlsx exports in utils, which returns an xlsx spreadsheet with all the tests
     //in a type: buffer
-
+    //TODO update from models folder
     project = await Project.findById(req.params.id)
     const mailOptions = {
         from: `"Pipeline to Better Placemaking" <${config.PROJECT_EMAIL}>`,

@@ -255,7 +255,8 @@ module.exports.isAdmin = async function(teamId, uId) {
     });
     return foundUser;
 }
-module.exports.getOwner = function(team, uId) {
+//TODO check if the return statement should instead be something like basicDBfoos.getObj(USERS, team.users[i].user); to match getOwner from old models folder
+module.exports.getOwner = function(team) {
     let foundUser = null;
     for (let i = 0; i < team.users.length; i++) {
         if (team.users[i].role === "owner") {

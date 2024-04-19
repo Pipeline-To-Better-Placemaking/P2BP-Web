@@ -1,6 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const Floor = require('../models/program_floors.js')
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config.js')
@@ -123,9 +122,9 @@ router.put('/:id/programs/:program_id', passport.authenticate('jwt', { session: 
 //route deletes a program from the floor  
 router.delete('/:id/programs/:program_id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
     const user = await req.body.user;
-    //TODO update away from Models folder
-    const floor = await Floor.findById(req.params.id);
+    const floor = await basicDBfoos.getObj(req.params.id, PROGRAM_FLOORS);
     const authorized = floor.researchers.includes(user._id);
+    
     if (!authorized) {
         throw new UnauthorizedError('You do not have permision to perform this operation')
     }

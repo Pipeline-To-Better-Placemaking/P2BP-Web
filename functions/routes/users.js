@@ -1,8 +1,6 @@
 const express = require('express')
 const passport = require('passport')
-const Team = require('../models/teams.js')
 const router = express.Router()
-const User = require('../models/users.js')
 const emailer = require('../utils/emailer')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
@@ -59,9 +57,8 @@ router.post('/', async (req, res, next) => {
 // Get another user's info
 router.get('/:id', async (req, res, next) => {
     // Make a query for the user, excluding fields that contain private info
-    try{
-        //TODO update from Models folder
-        var user = await User.findById(req.params.id)
+    try {
+        var user = await basicDBfoos.getObj(req.params.id, USERS);
             // .select('-password -is_verified -verification_code -verification_timeout -invites')
             // .populate('invites','title')
             // .populate('teams', 'title')
@@ -71,8 +68,7 @@ router.get('/:id', async (req, res, next) => {
         if (!user) throw new NotFoundError('The requested user was not found')
         
         for(var i = 0; i < user.invites.length; i++){
-            //TODO update from models folder
-            const owner = await Team.getOwner(user.invites[i]._id)
+            const owner = await userDBfoos.getOwner(user.invites[i]._id);
             user.invites[i].firstname = owner.firstname
             user.invites[i].lastname = owner.lastname
         }
