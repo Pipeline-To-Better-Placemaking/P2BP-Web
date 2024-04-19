@@ -1,13 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const Map = require('../models/access_maps.js')
-const Project = require('../models/projects.js')
-const Access_Collection = require('../models/access_collections.js')
-const Team = require('../models/teams.js')
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const routeDBfoos = require("../databaseFunctions/RouteFunctions.js");
-const { models } = require('mongoose')
 const { UnauthorizedError, BadRequestError } = require('../utils/errors')
 const {ACCESS_MAPS, ACCESS_COLS} = require('../databaseFunctions/CollectionNames.js');
 

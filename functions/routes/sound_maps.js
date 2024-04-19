@@ -1,14 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const Map = require("../models/sound_maps.js");
-const Project = require("../models/projects.js");
-const Sound_Collection = require("../models/sound_collections.js");
-const Team = require("../models/teams.js");
-const Points = require("../models/standing_points.js");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const config = require("../utils/config");
-const { models } = require("mongoose");
 const routeDBfoos = require("../databaseFunctions/RouteFunctions.js");
 
 const { UnauthorizedError, BadRequestError } = require("../utils/errors");

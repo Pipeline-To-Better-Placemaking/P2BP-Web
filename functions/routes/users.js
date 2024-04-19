@@ -60,6 +60,7 @@ router.post('/', async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
     // Make a query for the user, excluding fields that contain private info
     try{
+        //TODO update from Models folder
         var user = await User.findById(req.params.id)
             // .select('-password -is_verified -verification_code -verification_timeout -invites')
             // .populate('invites','title')
@@ -70,6 +71,7 @@ router.get('/:id', async (req, res, next) => {
         if (!user) throw new NotFoundError('The requested user was not found')
         
         for(var i = 0; i < user.invites.length; i++){
+            //TODO update from models folder
             const owner = await Team.getOwner(user.invites[i]._id)
             user.invites[i].firstname = owner.firstname
             user.invites[i].lastname = owner.lastname

@@ -1,15 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const Map = require('../models/boundaries_maps.js')
-const Project = require('../models/projects.js')
-const Boundaries_Collection = require('../models/boundaries_collections.js')
-const Team = require('../models/teams.js')
-// const Points = require('../models/standing_points.js')
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
 const routeDBfoos = require("../databaseFunctions/RouteFunctions.js");
-const { models } = require('mongoose')
 const { UnauthorizedError, BadRequestError } = require('../utils/errors')
 const {BOUNDARIES_MAPS, BOUNDARIES_COLS} = require('../databaseFunctions/CollectionNames.js');
 

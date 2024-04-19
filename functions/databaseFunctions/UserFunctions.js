@@ -1,5 +1,4 @@
 const bcrypt = require('bcryptjs');
-const mongoose = require('mongoose');
 const firestore = require('../firestore');
 const uniqueValidator = require('mongoose-unique-validator');
 const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
@@ -7,7 +6,6 @@ const {TEAMS} = require('../databaseFunctions/CollectionNames.js');
 const { UnauthorizedError, NotFoundError, BadRequestError } = require('../utils/errors');
 
 
-const ObjectId = mongoose.Schema.Types.ObjectId
 
 const rand = (min = 0, max = 50) => {
     let num = Math.random() * (max - min) + min;

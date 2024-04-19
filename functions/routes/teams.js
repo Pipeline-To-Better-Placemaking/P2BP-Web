@@ -10,17 +10,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../utils/config');
 const { json } = require('express');
 const {
-        ACCSESS_MAPS,
-        BOUNDARIES_MAPS,
-        LIGHT_MAPS,
-        MOVING_MAPS,
-        NATURE_MAPS,
-        ORDER_MAPS,
-        PROGRAM_MAPS,
         PROJECTS,
-        SOUND_MAPS,
-        SECTION_MAPS,
-        STATIONARY_MAPS,
         TEAMS,
         USERS,
     } = require('../databaseFunctions/CollectionNames.js');

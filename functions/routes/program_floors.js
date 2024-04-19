@@ -1,13 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const Map = require('../models/program_maps.js')
-const Project = require('../models/projects.js')
 const Floor = require('../models/program_floors.js')
-const Team = require('../models/teams.js')
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config.js')
-const { models } = require('mongoose')
 const basicDBfoos = require('../databaseFunctions/BasicFunctions.js')
 const arrayDBfoos = require('../databaseFunctions/ArrayFunctions.js')
 const { PROGRAM_FLOORS, PROGRAM_MAPS } = require('../databaseFunctions/CollectionNames.js')
@@ -127,6 +123,7 @@ router.put('/:id/programs/:program_id', passport.authenticate('jwt', { session: 
 //route deletes a program from the floor  
 router.delete('/:id/programs/:program_id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
     const user = await req.body.user;
+    //TODO update away from Models folder
     const floor = await Floor.findById(req.params.id);
     const authorized = floor.researchers.includes(user._id);
     if (!authorized) {
