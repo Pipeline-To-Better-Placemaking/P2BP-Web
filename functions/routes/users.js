@@ -32,7 +32,7 @@ router.post('/', async (req, res, next) => {
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         email: email,
-        password: req.body.password,
+        password: await userDBfoos.createPasswordHash(req.body.password),
         invites: [],
         teams: [],
         is_verified: false,
@@ -124,9 +124,10 @@ router.put('/', passport.authenticate('jwt',{session:false}), async (req, res, n
     if (req.body.password) {
         // Check password
         if (!userDBfoos.testPassword(req.body.password)) {
-            throw new BadRequestError('Missing or invalid field: password')
+            throw new BadRequestError('Invalid field: password');
         }
-        // newUser.password = await userDBfoos.createPasswordHash(req.body.password);
+
+        newUser.password = await userDBfoos.createPasswordHash(req.body.password);
     }
 
     await basicDBfoos.updateObj(userId, newUser, USERS);

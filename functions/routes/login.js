@@ -1,13 +1,12 @@
 const config = require('../utils/config')
 const jwt = require('jsonwebtoken')
-const User = require('../models/users')
-const Team = require('../models/teams')
 const cors = require('cors');
 const firestore = require('../firestore');
 const express = require('express')
 const bcrypt = require('bcryptjs')
 const router = express.Router();
 const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
+const userDBfoos = require('../databaseFunctions/UserFunctions.js');
 
 const { UnauthorizedError } = require('../utils/errors')
 
@@ -49,9 +48,8 @@ router.post('/', async (req,res,next) => {
     })
 
     // Email or password is invalid
-    // if (bcrypt.compare(password, fbUser.password)) {
-    if (password !== fbUser.password) {
-        throw new UnauthorizedError('Invalid email or password')
+    if (userDBfoos.comparePassword(password, fbUser.password)) {
+        throw new UnauthorizedError('Invalid email or password');
     }
 
     const shortUser = {
@@ -65,11 +63,6 @@ router.post('/', async (req,res,next) => {
         const team = await basicDBfoos.getObj(fbUser.teams[i], "teams");
         fbUser.teams[i] = {_id: team._id, title: team.title};
     }
-//     for(var i = 0; i < fbUser.invites.length; i++) {
-//         const owner = await Team.getOwner(fullUser.invites[i]._id)
-//         fullUser.invites[i].firstname = owner.firstname
-//         fullUser.invites[i].lastname = owner.lastname
-//     }
 
     res.status(200).json({
         success: true,
