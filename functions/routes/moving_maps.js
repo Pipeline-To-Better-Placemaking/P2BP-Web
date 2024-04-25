@@ -1,21 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const Map = require('../models/moving_maps.js')
-const Project = require('../models/projects.js')
-const Moving_Collection = require('../models/moving_collections.js')
-const Team = require('../models/teams.js')
-const Points = require('../models/standing_points.js')
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
-const { models } = require('mongoose')
 const routeDBfoos = require("../databaseFunctions/RouteFunctions.js");
-const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
-const colDBfoos = require('../databaseFunctions/CollectionFunctions.js');
-const refDBfoos = require('../databaseFunctions/ReferenceFunctions.js');
-const arrayDBfoos = require('../databaseFunctions/ArrayFunctions.js');
-const projectDBfoos = require('../databaseFunctions/ProjectFunctions.js');
-const userDBfoos = require('../databaseFunctions/UserFunctions.js');
 
 const { UnauthorizedError, BadRequestError } = require('../utils/errors')
 const { MOVING_MAPS, MOVING_COLS } = require('../databaseFunctions/CollectionNames.js')

@@ -1,8 +1,6 @@
 const express = require('express')
 const passport = require('passport')
-const Team = require('../models/teams.js')
 const router = express.Router()
-const User = require('../models/users.js')
 const emailer = require('../utils/emailer')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
@@ -32,7 +30,7 @@ router.post('/', async (req, res, next) => {
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         email: email,
-        password: req.body.password,
+        password: await userDBfoos.createPasswordHash(req.body.password),
         invites: [],
         teams: [],
         is_verified: false,
@@ -59,8 +57,8 @@ router.post('/', async (req, res, next) => {
 // Get another user's info
 router.get('/:id', async (req, res, next) => {
     // Make a query for the user, excluding fields that contain private info
-    try{
-        var user = await User.findById(req.params.id)
+    try {
+        var user = await basicDBfoos.getObj(req.params.id, USERS);
             // .select('-password -is_verified -verification_code -verification_timeout -invites')
             // .populate('invites','title')
             // .populate('teams', 'title')
@@ -70,7 +68,7 @@ router.get('/:id', async (req, res, next) => {
         if (!user) throw new NotFoundError('The requested user was not found')
         
         for(var i = 0; i < user.invites.length; i++){
-            const owner = await Team.getOwner(user.invites[i]._id)
+            const owner = await userDBfoos.getOwner(user.invites[i]._id);
             user.invites[i].firstname = owner.firstname
             user.invites[i].lastname = owner.lastname
         }
@@ -124,9 +122,10 @@ router.put('/', passport.authenticate('jwt',{session:false}), async (req, res, n
     if (req.body.password) {
         // Check password
         if (!userDBfoos.testPassword(req.body.password)) {
-            throw new BadRequestError('Missing or invalid field: password')
+            throw new BadRequestError('Invalid field: password');
         }
-        // newUser.password = await userDBfoos.createPasswordHash(req.body.password);
+
+        newUser.password = await userDBfoos.createPasswordHash(req.body.password);
     }
 
     await basicDBfoos.updateObj(userId, newUser, USERS);

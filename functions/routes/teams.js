@@ -3,30 +3,18 @@ const router = express.Router()
 const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
 const arrayDBfoos = require('../databaseFunctions/ArrayFunctions.js');
 const userDBfoos = require('../databaseFunctions/UserFunctions.js');
-const refDBfoos = require('../databaseFunctions/ReferenceFunctions.js');
 const projectDBfoos = require('../databaseFunctions/ProjectFunctions.js');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const config = require('../utils/config');
 const { json } = require('express');
 const {
-        ACCSESS_MAPS,
-        BOUNDARIES_MAPS,
-        LIGHT_MAPS,
-        MOVING_MAPS,
-        NATURE_MAPS,
-        ORDER_MAPS,
-        PROGRAM_MAPS,
         PROJECTS,
-        SOUND_MAPS,
-        SECTION_MAPS,
-        STATIONARY_MAPS,
         TEAMS,
         USERS,
     } = require('../databaseFunctions/CollectionNames.js');
 
 const { UnauthorizedError, NotFoundError, BadRequestError } = require('../utils/errors');
-const teams = require('../models/teams.js');
 
 //route creates a new team
 router.post('', passport.authenticate('jwt',{session:false}), async (req, res, next) => {

@@ -1,5 +1,4 @@
 const bcrypt = require('bcryptjs');
-const mongoose = require('mongoose');
 const firestore = require('../firestore');
 const uniqueValidator = require('mongoose-unique-validator');
 const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
@@ -7,7 +6,6 @@ const {TEAMS} = require('../databaseFunctions/CollectionNames.js');
 const { UnauthorizedError, NotFoundError, BadRequestError } = require('../utils/errors');
 
 
-const ObjectId = mongoose.Schema.Types.ObjectId
 
 const rand = (min = 0, max = 50) => {
     let num = Math.random() * (max - min) + min;
@@ -257,7 +255,8 @@ module.exports.isAdmin = async function(teamId, uId) {
     });
     return foundUser;
 }
-module.exports.getOwner = function(team, uId) {
+//TODO check if the return statement should instead be something like basicDBfoos.getObj(USERS, team.users[i].user); to match getOwner from old models folder
+module.exports.getOwner = function(team) {
     let foundUser = null;
     for (let i = 0; i < team.users.length; i++) {
         if (team.users[i].role === "owner") {

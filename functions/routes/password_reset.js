@@ -1,6 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const User = require('../models/users.js')
 const emailer = require('../utils/emailer')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')

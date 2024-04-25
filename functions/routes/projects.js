@@ -2,22 +2,7 @@ const express = require('express')
 const config = require('../utils/config')
 const router = express.Router()
 const Project = require('../models/projects.js')
-const Team = require('../models/teams.js')
-const Area = require('../models/areas.js')
-const Standing_Point = require('../models/standing_points.js')
-const Stationary_Collection = require('../models/stationary_collections.js')
-const Moving_Collection = require('../models/moving_collections.js')
-const Survey_Collection = require('../models/survey_collections.js')
-const Sound_Collection = require('../models/sound_collections.js')
-const Nature_Collection = require('../models/nature_collections.js')
-const Light_Collection = require('../models/light_collections.js')
-const Boundaries_Collection = require('../models/boundaries_collections.js')
-const Order_Collection = require('../models/order_collections.js')
-const Access_Collection = require('../models/access_collections.js')
-const Section_Collection = require('../models/section_collections.js')
-const Program_Collection = require('../models/program_collections.js')
 const basicDBfoos = require('../databaseFunctions/BasicFunctions.js');
-const colDBfoos = require('../databaseFunctions/CollectionFunctions.js');
 const refDBfoos = require('../databaseFunctions/ReferenceFunctions.js');
 const arrayDBfoos = require('../databaseFunctions/ArrayFunctions.js');
 const projectDBfoos = require('../databaseFunctions/ProjectFunctions.js');
@@ -25,28 +10,17 @@ const userDBfoos = require('../databaseFunctions/UserFunctions.js');
 const {
         AREAS,
         ACCESS_COLS,
-        ACCESS_MAPS,
         BOUNDARIES_COLS,
-        BOUNDARIES_MAPS,
         LIGHT_COLS,
-        LIGHT_MAPS,
         MOVING_COLS,
-        MOVING_MAPS,
         NATURE_COLS,
-        NATURE_MAPS,
         ORDER_COLS,
-        ORDER_MAPS,
         PROGRAM_COLS,
-        PROGRAM_MAPS,
         PROJECTS,
         SECTION_COLS,
-        SECTION_MAPS,
         SOUND_COLS,
-        SOUND_MAPS,
         STANDING_POINTS,
         STATIONARY_COLS,
-        STATIONARY_MAPS,
-        SURVEYS,
         SURVEY_COLS,
         TEAMS,
 } = require('../databaseFunctions/CollectionNames.js');
@@ -55,7 +29,6 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const emailer = require('../utils/emailer')
 
-const { models } = require('mongoose')
 const { projectExport } = require('../utils/xlsx_exports')
 
 
@@ -568,6 +541,7 @@ router.delete('/:id/access_collections/:collectionId', passport.authenticate('jw
 })
 
 router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (req, res, next) => {
+    //TODO update from models folder *Should just be basicDBfoos.getObj(PROJECTS, req.params.id), but unsure interaction with '.populate()'
     stationaryData = await Project.findById(req.params.id)
                           .populate('area')
                           .populate([
@@ -591,6 +565,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     path: 'area',
                                    }]
                              }])
+                             //TODO update from models folder
     movingData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -614,6 +589,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     path: 'area',
                                     }]
                                 }])
+                                //TODO update from models folder
     soundData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -637,6 +613,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     path: 'area',
                                     }]
                                 }])
+                                //TODO update from models folder
     boundariesData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -660,7 +637,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     path: 'area',
                                     }]
                                 }])
-    
+                                //TODO update from models folder
     sectionData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -684,8 +661,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     path: 'area',
                                     }]
                                 }])
-    
-
+                                //TODO update from models folder
     natureData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -708,7 +684,8 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     },{
                                     path: 'area',
                                     }]
-                                }])                                                               
+                                }])
+                                //TODO update from models folder
     lightData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -732,8 +709,8 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     },{
                                     path: 'area',
                                     }]
-                                }])                            
-                         
+                                }])
+                                //TODO update from models folder
     orderData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -756,8 +733,8 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     },{
                                     path: 'area',
                                     }]
-                                }])                            
-                                                            
+                                }])
+                                //TODO update from models folder
     surveyData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -775,6 +752,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     path: 'area',
                                     }]
                                 }])
+                                //TODO update from models folder
     accessData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -794,7 +772,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     path: 'area',
                                 }]
                             }])
-    
+                            //TODO update from models folder
     programData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -819,8 +797,8 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     },{
                                     path: 'area',
                                     }]
-                                }])
-
+                            }])
+                                //TODO update from models folder
     sectionData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -843,8 +821,8 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     },{
                                     path: 'area',
                                     }]    
-                                        }])
-    
+                            }])
+                                        //TODO update from models folder
     accessData = await Project.findById(req.params.id)
                             .populate('area')
                             .populate([
@@ -869,7 +847,8 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
                                     },{
                                     path: 'area',
                                     }]
-                                        }])                                
+                            }])
+                            //TODO update from models folder
     programData = await Project.findById(req.params.id)
                                 .populate('area')
                                 .populate([
@@ -903,7 +882,7 @@ router.get('/:id/export', passport.authenticate('jwt',{session:false}), async (r
     `
     //data gets sent to xlsx exports in utils, which returns an xlsx spreadsheet with all the tests
     //in a type: buffer
-
+    //TODO update from models folder
     project = await Project.findById(req.params.id)
     const mailOptions = {
         from: `"Pipeline to Better Placemaking" <${config.PROJECT_EMAIL}>`,
